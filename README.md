@@ -1,10 +1,9 @@
+<p align="center">
+  <img src="banner-github.png.png" width="100%" alt="Banner Wellington Liviz">
+</p>
+
 <div align="center">
 
-# 👨‍💻 Wellington Liviz
-
-### Desenvolvimento de Software | Python | Flask | Kotlin | Inteligência Artificial
-
-Profissional de tecnologia com experiência em operações de TI no setor bancário, atualmente focado em desenvolvimento de software e Inteligência Artificial.
 
 </div>
 
