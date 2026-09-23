@@ -1,123 +1,93 @@
+<p align="center">
+  <img src="banner-github.png.png" width="100%" alt="Banner Wellington Liviz">
+</p>
 
 <div align="center">
 
-# WELLINGTON LIVIZ
-### Developer | Tecnologia | Resultados
-
-**Transformando ideias em soluções reais.**
-
-![Python](https://img.shields.io/badge/Python-101820?style=for-the-badge&logo=python&logoColor=3776AB)
-![Flask](https://img.shields.io/badge/Flask-101820?style=for-the-badge&logo=flask&logoColor=white)
-![AI](https://img.shields.io/badge/Inteligência_Artificial-FF7900?style=for-the-badge)
-![GitHub](https://img.shields.io/badge/GitHub-101820?style=for-the-badge&logo=github)
 
 </div>
 
 ---
 
-## 👨‍💻 Sobre mim
+## 🚀 Sobre mim
 
-Sou **Wellington Liviz**, profissional com experiência em operações de TI, atualmente cursando Tecnólogo em Inteligência Artificial.
-
-Tenho três semestres de Análise e Desenvolvimento de Sistemas e desenvolvo projetos próprios utilizando Python, Flask e tecnologias web.
-
-Meu objetivo é contribuir com equipes de tecnologia, criando soluções para problemas reais.
-
-- 💻 Desenvolvimento Python e Flask
-- 🧠 Estudante de Inteligência Artificial
-- 🛠️ Empreendedor — DR Reparos
-- 🚀 Desenvolvimento de sistemas e automações
-- 📍 Pindamonhangaba, São Paulo
-
-> Disciplina hoje, resultados amanhã.
+- 💻 Experiência como **Analista de Operações na Edge UOL**
+- 🏦 Atuação em ambiente dedicado ao segmento bancário
+- 📊 Experiência com **Zabbix**, sistemas, incidentes e máquinas virtuais
+- 🎓 **3 semestres de Análise e Desenvolvimento de Sistemas**
+- 🤖 Atualmente cursando **Tecnologia em Inteligência Artificial**
+- 🧠 Desenvolvendo projetos próprios para aplicar programação em problemas reais
+- 🎯 Interesse profissional em **Desenvolvimento de Software**
 
 ---
 
 ## 🛠️ Tecnologias
 
-<div align="center">
-
-![Python](https://skillicons.dev/icons?i=python,flask,html,css,js,git,github,postgres,vscode,linux)
-
-![Outras tecnologias](https://skillicons.dev/icons?i=androidstudio)
-
-</div>
-
-**Outras ferramentas:** Oracle Cloud, Render, APIs REST e Telegram.
-
----
-
-## ⭐ Projetos em destaque
-
-### 🔧 DR Reparos IA
-
-Assistente digital de manutenção residencial com orientações passo a passo e aplicativo Android.
-
-**Tecnologias:** Python, Flask, HTML, CSS e Android.
-
-[🌐 Acessar aplicação](https://drreparosia.onrender.com)
-
-[📱 Repositório Android](https://github.com/wellingtonliviz-a11y/DrReparosIA-Android)
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
+  <img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white">
+</p>
 
 ---
 
-### 🏢 DR Reparos ERP
+## 🔧 Projeto em destaque
 
-Sistema de gestão empresarial desenvolvido para atender às necessidades reais da DR Reparos.
+### Dr Reparos IA
 
-**Funcionalidades:**
-- Cadastro e gerenciamento de clientes
-- Controle de serviços
-- Orçamentos
-- Gestão operacional
+Aplicativo de assistência residencial inteligente desenvolvido para orientar pessoas diante de problemas de manutenção residencial.
 
-**Tecnologias:** Python, Flask, HTML, CSS e banco de dados.
+O projeto nasceu da união entre minha experiência prática com manutenção e meu desenvolvimento na área de tecnologia.
 
----
+### Funcionalidades atuais
 
-### 🔎 Liviz Job Hunter
+- Diagnóstico guiado de problemas residenciais
+- Orientações de segurança
+- Lista de ferramentas e materiais
+- Passo a passo para execução de reparos
+- Integração com links de materiais
+- Opção de videochamada com técnico
+- Solicitação de atendimento presencial
+- Aplicativo Android funcional
 
-Sistema de automação para buscar, analisar e filtrar vagas de tecnologia.
+### Tecnologias utilizadas
 
-**Funcionalidades:**
-- Integração com fontes de vagas
-- Filtros por modalidade e experiência
-- Classificação de oportunidades
-- Alertas pelo Telegram
-- Controle de vagas duplicadas
+**Python • Flask • HTML/CSS • Kotlin • Android Studio • WebView • Android Intents • Git • GitHub • Render**
 
-**Tecnologias:** Python, APIs, PostgreSQL e Telegram.
-
----
-
-## 📊 Estatísticas do GitHub
-
-<div align="center">
-
-![Estatísticas](https://github-readme-stats.vercel.app/api?username=wellingtonliviz-a11y&show_icons=true&theme=github_dark&hide_border=true)
-
-![Linguagens](https://github-readme-stats.vercel.app/api/top-langs/?username=wellingtonliviz-a11y&layout=compact&theme=github_dark&hide_border=true)
-
-</div>
+🔗 **Projeto:**
+https://github.com/wellingtonliviz-a11y/DrReparosIA-Android
 
 ---
 
-## 🟩 Contribuições
+## 📊 Outros projetos
 
-<div align="center">
+### Liviz Quant
 
-![Contribuições](https://ghchart.rshah.org/FF7900/wellingtonliviz-a11y)
-
-</div>
+Desenvolvimento de indicadores quantitativos para plataformas de mercado financeiro, utilizando lógica de programação, cálculos matemáticos, percentuais, variáveis e parametrização para projeção automática de regiões de preço.
 
 ---
 
-## 🤝 Vamos nos conectar?
+## 📚 Atualmente estudando
 
-<div align="center">
+- Inteligência Artificial
+- Python
+- Desenvolvimento Backend
+- Desenvolvimento Android
+- Estruturação e evolução de aplicações
+- Integração de IA em sistemas
 
-[![GitHub](https://img.shields.io/badge/GitHub-101820?style=for-the-badge&logo=github)](https://github.com/wellingtonliviz-a11y)
+---
 
-</div>
+## 📫 Contato
 
-**Pequenos códigos também constroem grandes oportunidades.**
+📧 **Email:** wellingtonliviz@gmail.com
+
+💼 **LinkedIn:** [Wellington Liviz](https://www.linkedin.com/in/wellington-liviz-567001249/)
+
+📍 Pindamonhangaba - SP
