@@ -21,32 +21,80 @@
 
 ---
 
+
 ## 🛠️ Tecnologias
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
   <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white">
-  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
-  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white">
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white">
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white">
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white">
   <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white">
   <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
-  <img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white">
 </p>
+
+### ☁️ Cloud, ferramentas e integrações
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white">
+  <img src="https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=black">
+  <img src="https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=postgresql&logoColor=black">
+  <img src="https://img.shields.io/badge/Oracle_Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white">
+  <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white">
+  <img src="https://img.shields.io/badge/Telegram_API-26A5E4?style=for-the-badge&logo=telegram&logoColor=white">
+  <img src="https://img.shields.io/badge/Zabbix-D40000?style=for-the-badge&logo=zabbix&logoColor=white">
+</p>
+
+
 
 ---
 
-## 🔧 Projeto em destaque
+## 🚀 Projetos em destaque
 
-### Dr Reparos IA
+### 🏢 1. DR Reparos ERP
 
-Aplicativo de assistência residencial inteligente desenvolvido para orientar pessoas diante de problemas de manutenção residencial.
+Sistema de gestão empresarial desenvolvido para atender às necessidades reais da DR Reparos, integrando o controle de clientes, serviços, orçamentos e informações financeiras em uma única plataforma.
+
+**Principais funcionalidades:**
+- Cadastro e gerenciamento de clientes
+- Controle de serviços e acompanhamento de atendimentos
+- Criação e gerenciamento de orçamentos
+- Controle de custos e despesas
+- Dashboard com indicadores financeiros
+- Acesso pela web e pelo celular
+
+**Tecnologias:** Python • Flask • HTML • CSS • PostgreSQL • Neon • Git • GitHub • Railway
+
+---
+
+### 🔎 2. Liviz Job Hunter
+
+Sistema de automação desenvolvido para identificar oportunidades de trabalho em tecnologia, permitindo encontrar e analisar vagas recentes de forma mais rápida.
+
+**Principais funcionalidades:**
+- Busca automatizada em diferentes fontes de vagas
+- Integração com Jooble, Adzuna e alertas de emprego
+- Filtros por modalidade, localização e nível de experiência
+- Classificação das oportunidades conforme critérios definidos
+- Identificação e bloqueio de vagas duplicadas
+- Alertas pelo Telegram
+- Dashboard para acompanhamento das buscas
+
+**Tecnologias:** Python • APIs • PostgreSQL • Git • GitHub • Telegram
+
+---
+
+### 🔧 3. DR Reparos IA
+
+Aplicativo de assistência residencial desenvolvido para orientar pessoas diante de problemas de manutenção residencial.
 
 O projeto nasceu da união entre minha experiência prática com manutenção e meu desenvolvimento na área de tecnologia.
 
-### Funcionalidades atuais
-
+**Principais funcionalidades:**
 - Diagnóstico guiado de problemas residenciais
 - Orientações de segurança
 - Lista de ferramentas e materiais
@@ -56,22 +104,22 @@ O projeto nasceu da união entre minha experiência prática com manutenção e 
 - Solicitação de atendimento presencial
 - Aplicativo Android funcional
 
-### Tecnologias utilizadas
+**Tecnologias:** Python • Flask • HTML • CSS • Kotlin • Android Studio • WebView • Android Intents • Git • GitHub • Render
 
-**Python • Flask • HTML/CSS • Kotlin • Android Studio • WebView • Android Intents • Git • GitHub • Render**
+🌐 **Aplicação web:** https://drreparosia.onrender.com
 
-🔗 **Projeto:**
-https://github.com/wellingtonliviz-a11y/DrReparosIA-Android
+📱 **Repositório Android:** https://github.com/wellingtonliviz-a11y/DrReparosIA-Android
 
 ---
 
 ## 📊 Outros projetos
 
-### Liviz Quant
+### 📈 Liviz Quant
 
 Desenvolvimento de indicadores quantitativos para plataformas de mercado financeiro, utilizando lógica de programação, cálculos matemáticos, percentuais, variáveis e parametrização para projeção automática de regiões de preço.
 
 ---
+
 
 ## 📚 Atualmente estudando
 
