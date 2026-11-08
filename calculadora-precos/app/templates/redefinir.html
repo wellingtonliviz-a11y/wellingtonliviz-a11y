@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Nova senha · {{ product_name }}{% endblock %}
+{% block body %}
+<main class="wrap auth"><div class="auth-card">
+  {% include "_brand.html" %}
+  <h2>Escolha sua nova senha</h2>
+  {% include "_flashes.html" %}
+  <form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label class="field"><span>NOVA SENHA (MÍNIMO 6 CARACTERES)</span>
+      <input id="password" type="password" name="password" autocomplete="new-password" minlength="6" required autofocus></label>
+    <label class="field"><span>REPITA A NOVA SENHA</span>
+      <input id="password2" type="password" name="password2" autocomplete="new-password" minlength="6" required></label>
+    <button class="btn primary" type="submit">Salvar e entrar</button>
+  </form>
+</div></main>
+{% endblock %}

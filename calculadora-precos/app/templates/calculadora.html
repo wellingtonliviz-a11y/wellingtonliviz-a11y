@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+{% if mode == 'demo' %}
+<div class="demo-bar"><div class="wrap">
+  <span><b>Demonstração.</b> Teste à vontade: aqui os dados ficam só neste aparelho.</span>
+  {% if checkout_url %}<a class="btn small" href="{{ checkout_url }}">Quero minha conta</a>{% endif %}
+</div></div>
+{% endif %}
+{% with wide=False %}{% include "_topbar_tabs.html" %}{% endwith %}
+<main class="wrap" id="app"></main>
+<footer class="wrap foot">
+  {% if mode == 'conta' %}Seus dados ficam salvos na sua conta e aparecem em qualquer aparelho.
+  {% else %}Na demonstração os dados ficam só neste navegador.{% endif %}
+</footer>
+<script>window.PRECIFICA = {{ {"mode": mode} | tojson }};</script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}
