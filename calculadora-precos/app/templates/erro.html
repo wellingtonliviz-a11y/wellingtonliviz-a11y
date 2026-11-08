@@ -6,4 +6,5 @@
   <p class="hint">{{ error.description if error.code == 400 else 'O endereço pode estar errado ou a página foi removida.' }}</p>
   <div class="auth-links"><a href="{{ url_for('main.app_page') }}">Ir para a calculadora</a></div>
 </div></main>
+{% include "_liviz.html" %}
 {% endblock %}
