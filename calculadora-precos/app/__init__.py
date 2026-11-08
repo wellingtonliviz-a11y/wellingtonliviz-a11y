@@ -20,13 +20,14 @@ def create_app(overrides: dict | None = None) -> Flask:
 
     app.db = Database(app.config["DATABASE_URL"])
 
-    from . import admin, auth, main, webhooks
+    from . import admin, auth, main, menu, webhooks
     from .security import check_csrf, csrf_token, is_admin, load_current_user
 
     app.register_blueprint(main.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(admin.bp)
     app.register_blueprint(webhooks.bp)
+    app.register_blueprint(menu.bp)
 
     app.before_request(load_current_user)
     app.before_request(check_csrf)

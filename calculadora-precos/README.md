@@ -21,8 +21,24 @@ acompanhar as vendas e resolver casos raros.
 | `/esqueci` | O cliente cria uma nova senha sozinho, por link no e-mail |
 | `/conta` | Trocar nome e senha |
 | `/demo` | Demonstração grátis, sem login (para a página de vendas) |
+| `/c/nome-do-negocio` | Cardápio digital público de cada cliente, com pedido pelo WhatsApp |
 | `/admin` | Seu painel: clientes, reembolsos, reenviar senha, bloquear, criar cortesia |
 | `/webhooks/hotmart` e `/webhooks/kiwify` | Endereços que você cadastra nas plataformas |
+
+## Cardápio digital
+
+Na aba **Cardápio**, cada cliente:
+- escolhe o endereço do cardápio (ex: `/c/doces-da-ana`), copia o link, envia no WhatsApp ou baixa o **QR Code** para imprimir;
+- informa o WhatsApp que recebe os pedidos, uma mensagem de boas-vindas e as regras de entrega;
+- escolhe quais produtos aparecem e coloca foto e descrição curta em cada um.
+
+O cardápio mostra o preço que a pessoa cobra hoje ou, se ela não informou, o preço sugerido.
+O comprador escolhe as quantidades e o botão **Pedir no WhatsApp** abre a conversa com o
+pedido pronto e o total calculado. No rodapé aparece "Cardápio feito com Precifica Fácil",
+com link para o seu checkout (`CHECKOUT_URL`), o que divulga o produto de graça.
+Se o acesso do cliente for bloqueado (reembolso ou cancelamento), o cardápio sai do ar.
+
+As fotos são reduzidas no navegador (até 800 px) e guardadas no banco de dados.
 
 ## Passo a passo para colocar no ar
 
@@ -121,7 +137,8 @@ pytest
 Os testes cobrem: compra pela Hotmart e Kiwify, aviso repetido, token errado,
 reembolso e recompra, outro produto, login, dados separados por cliente,
 esqueci a senha, troca de senha, proteção de formulários, limite de tentativas
-de login e o painel admin.
+de login, o painel admin e o cardápio (preço igual ao da calculadora, link único,
+fotos, página pública e cardápio fora do ar para cliente bloqueado).
 
 ## Estrutura
 
@@ -137,9 +154,10 @@ calculadora-precos/
 │   ├── auth.py          # login, esqueci a senha, minha conta
 │   ├── main.py          # calculadora, demonstração e API de dados
 │   ├── admin.py         # painel do dono
+│   ├── menu.py          # cardápio digital e fotos
 │   ├── mailer.py        # e-mails
 │   ├── security.py      # sessão, CSRF, limite de tentativas
 │   ├── templates/       # páginas
-│   └── static/          # app.js (calculadora) e style.css
+│   └── static/          # app.js (calculadora), style.css e vendor/ (QR Code)
 └── tests/
 ```
