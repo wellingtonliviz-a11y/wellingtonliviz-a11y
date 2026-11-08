@@ -1,0 +1,25 @@
+<header class="top">
+  <div class="wrap top-inner {{ 'wide' if wide else '' }}">
+    <div class="top-row">
+      <div class="brand">
+        <h1><a href="{{ url_for('main.app_page') }}" style="color:inherit;text-decoration:none">{{ product_name.rsplit(' ', 1)[0] }} <span>{{ product_name.rsplit(' ', 1)[-1] if ' ' in product_name else '' }}</span></a></h1>
+        <span class="biz" id="bizName"></span>
+      </div>
+      <div class="top-actions">
+        {% if mode == 'conta' %}<span class="save-status" id="saveStatus" aria-live="polite"></span>{% endif %}
+        {% if g.user %}
+          {% if is_admin %}<a href="{{ url_for('admin.index') }}">Painel</a>{% endif %}
+          <a href="{{ url_for('auth.account') }}">Minha conta</a>
+          <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="linklike" type="submit">Sair</button></form>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Entrar</a>
+        {% endif %}
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="produtos" aria-selected="true">Produtos</button>
+      <button role="tab" data-tab="ingredientes" aria-selected="false">Ingredientes</button>
+      <button role="tab" data-tab="ajustes" aria-selected="false">Ajustes</button>
+    </nav>
+  </div>
+</header>

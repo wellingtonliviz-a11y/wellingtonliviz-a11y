@@ -1,219 +1,3 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Precifica Fácil</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Calculadora de preço e margem de lucro para quem vende doces, salgados e açaí.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: uma coluna estreita como um caderno de receitas; abas fixas no topo, resultado do preço em destaque. */
-:root {
-  --bg: #fbf8fb;
-  --surface: #ffffff;
-  --ink: #2a1830;
-  --muted: #6f5d72;
-  --line: #e8dfe9;
-  --accent: #6b2a5f;
-  --accent-ink: #ffffff;
-  --accent-soft: #f4e9f2;
-  --good: #1d7548;
-  --good-soft: #e1f2e8;
-  --warn: #8f5b00;
-  --warn-soft: #fbefd6;
-  --crit: #b3261e;
-  --crit-soft: #fbe3e1;
-  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
-  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --radius: 14px;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #161018; --surface: #211824; --ink: #f4ebf3; --muted: #b5a3b7; --line: #3a2d3e;
-    --accent: #e09ad0; --accent-ink: #250f20; --accent-soft: #3a2337;
-    --good: #72d6a3; --good-soft: #17322a; --warn: #f2c15d; --warn-soft: #3a2c10;
-    --crit: #ff8f86; --crit-soft: #3f1b19;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #161018; --surface: #211824; --ink: #f4ebf3; --muted: #b5a3b7; --line: #3a2d3e;
-  --accent: #e09ad0; --accent-ink: #250f20; --accent-soft: #3a2337;
-  --good: #72d6a3; --good-soft: #17322a; --warn: #f2c15d; --warn-soft: #3a2c10;
-  --crit: #ff8f86; --crit-soft: #3f1b19;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; background: var(--bg); color: var(--ink);
-  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-body::before {
-  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
-  z-index: 10; background: var(--bg);
-}
-[hidden] { display: none !important; }
-.wrap {
-  max-width: 760px; margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
-.num { font-variant-numeric: tabular-nums; }
-
-/* Cabeçalho */
-header.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-}
-.top-inner { display: flex; flex-direction: column; gap: 10px; padding-block: 14px 0; }
-.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.brand h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
-.brand h1 span { color: var(--accent); }
-.brand .biz { color: var(--muted); font-size: 13px; }
-nav.tabs { display: flex; gap: 4px; overflow-x: auto; }
-nav.tabs button {
-  appearance: none; border: 0; background: none; color: var(--muted);
-  font: 600 14px var(--font-body); padding: 10px 12px; cursor: pointer;
-  border-bottom: 3px solid transparent; white-space: nowrap;
-}
-nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-
-main { padding-block: 20px 64px; display: flex; flex-direction: column; gap: 18px; }
-
-/* Botões e campos */
-.btn {
-  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-  font: 600 14px var(--font-body); padding: 10px 14px; border-radius: 10px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-}
-.btn:hover { border-color: var(--accent); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.btn.danger { color: var(--crit); }
-.btn.danger.armed { background: var(--crit); color: var(--surface); border-color: var(--crit); }
-.btn.small { padding: 6px 10px; font-size: 13px; }
-.btn.ghost { border-color: transparent; background: none; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 2px;
-}
-label.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-label.field > span { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
-input, select, textarea {
-  font: 500 15px var(--font-body); color: var(--ink); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; width: 100%; min-width: 0;
-}
-input:focus, select:focus, textarea:focus { border-color: var(--accent); }
-.suffix { position: relative; }
-.suffix input { padding-right: 38px; }
-.suffix em {
-  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-  font-style: normal; color: var(--muted); font-size: 13px; pointer-events: none;
-}
-.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.spread { justify-content: space-between; }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
-.section-title { font-size: 18px; font-weight: 600; }
-
-/* Aviso de exemplo */
-.notice {
-  display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
-  background: var(--accent-soft); border-radius: var(--radius); padding: 12px 14px; font-size: 14px;
-}
-
-/* Lista de produtos */
-.products { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
-.product {
-  display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center;
-  padding: 14px 4px; border-bottom: 1px solid var(--line); cursor: pointer; background: none;
-  border-left: 0; border-right: 0; border-top: 0; text-align: left; color: inherit; font: inherit; width: 100%;
-}
-.product:hover .p-name { color: var(--accent); }
-.p-name { font-weight: 700; font-size: 16px; min-width: 0; }
-.p-meta { color: var(--muted); font-size: 13px; grid-column: 1; }
-.p-price { text-align: right; grid-row: 1 / span 2; grid-column: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.p-price strong { font-family: var(--font-display); font-size: 20px; font-weight: 800; }
-.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
-.chip.good { background: var(--good-soft); color: var(--good); }
-.chip.warn { background: var(--warn-soft); color: var(--warn); }
-.chip.crit { background: var(--crit-soft); color: var(--crit); }
-.chip.neutral { background: var(--accent-soft); color: var(--muted); }
-.empty { text-align: center; padding: 36px 16px; color: var(--muted); display: flex; flex-direction: column; gap: 12px; align-items: center; }
-
-/* Editor de produto */
-.items { display: flex; flex-direction: column; gap: 8px; }
-.item { display: grid; grid-template-columns: minmax(0, 1fr) 120px 84px 36px; gap: 8px; align-items: center; }
-.item .cost { text-align: right; font-size: 14px; color: var(--muted); }
-.iconbtn {
-  appearance: none; border: 1px solid transparent; background: none; color: var(--muted);
-  width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 18px; line-height: 1;
-}
-.iconbtn:hover { color: var(--crit); border-color: var(--line); }
-@media (max-width: 520px) {
-  .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-  .item select { grid-column: 1 / -1; }
-}
-
-/* Resultado */
-.result { background: var(--accent); color: var(--accent-ink); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-.result .label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8; }
-.result .big { font-family: var(--font-display); font-weight: 800; font-size: clamp(40px, 11vw, 60px); line-height: 1; letter-spacing: -0.03em; }
-.result .sub { font-size: 14px; opacity: 0.88; }
-.result-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; border-top: 1px solid color-mix(in srgb, var(--accent-ink) 25%, transparent); padding-top: 14px; }
-.result-stats div { display: flex; flex-direction: column; gap: 2px; }
-.result-stats b { font-size: 18px; font-family: var(--font-display); }
-.breakdown { width: 100%; border-collapse: collapse; font-size: 14px; }
-.breakdown td { padding: 7px 0; border-bottom: 1px dashed var(--line); }
-.breakdown td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
-.breakdown tr.total td { font-weight: 700; border-bottom: 0; border-top: 1px solid var(--ink); }
-.verdict { border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
-.verdict.good { background: var(--good-soft); color: var(--good); }
-.verdict.warn { background: var(--warn-soft); color: var(--warn); }
-.verdict.crit { background: var(--crit-soft); color: var(--crit); }
-.verdict strong { font-size: 15px; }
-
-/* Ingredientes */
-.ings { display: flex; flex-direction: column; gap: 10px; }
-.ing { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 76px 36px; gap: 8px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-.ing .unitcost { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: -4px; }
-.ing-head { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 76px 36px; gap: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
-@media (max-width: 520px) {
-  .ing { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 72px 36px; }
-  .ing .name { grid-column: 1 / -1; }
-  .ing-head { display: none; }
-}
-textarea.backup { min-height: 120px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
-footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-block: 0 24px; }
-@media (prefers-reduced-motion: no-preference) {
-  .result .big { transition: opacity .15s; }
-}
-</style>
-</head>
-<body>
-<header class="top">
-  <div class="wrap top-inner">
-    <div class="brand">
-      <h1>Precifica <span>Fácil</span></h1>
-      <span class="biz" id="bizName"></span>
-    </div>
-    <nav class="tabs" role="tablist">
-      <button role="tab" data-tab="produtos" aria-selected="true">Produtos</button>
-      <button role="tab" data-tab="ingredientes" aria-selected="false">Ingredientes</button>
-      <button role="tab" data-tab="ajustes" aria-selected="false">Ajustes</button>
-    </nav>
-  </div>
-</header>
-
-<main class="wrap" id="app"></main>
-<footer class="wrap foot">Seus dados ficam salvos neste aparelho. Faça um backup em Ajustes de vez em quando.</footer>
-
-<script>
 (function () {
   "use strict";
   var KEY = "precifica-facil:v1";
@@ -287,21 +71,60 @@ footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-
       settings: { business: "", margin: 40, fee: 0, extras: 10, hourly: 0, round: 0.5 },
       ingredients: [], products: [] };
   }
-  function load() {
+  var CFG = window.PRECIFICA || {};
+  var MODE = CFG.mode === "conta" ? "conta" : "demo";
+  var state = null;
+  var saveTimer = null, saving = false, dirty = false;
+
+  function loadLocal() {
     try {
       var raw = localStorage.getItem(KEY);
       if (raw) { var d = JSON.parse(raw); if (d && d.v === 1) return d; }
     } catch (e) { /* armazenamento indisponível */ }
     return sample();
   }
-  var state = load();
-  var saveTimer = null;
+  function setStatus(text, kind) {
+    var el = document.getElementById("saveStatus");
+    if (el) { el.textContent = text; el.setAttribute("data-state", kind || ""); }
+  }
+  function api(method, body) {
+    return fetch("/api/dados", {
+      method: method, credentials: "same-origin", keepalive: method === "PUT",
+      headers: { "Content-Type": "application/json", "X-Requested-With": "fetch" },
+      body: body
+    }).then(function (r) {
+      if (r.status === 401) { location.href = "/entrar"; throw new Error("auth"); }
+      if (!r.ok) throw new Error("http " + r.status);
+      return r.json();
+    });
+  }
+  function flush() {
+    if (MODE !== "conta" || saving || !dirty) return;
+    clearTimeout(saveTimer);
+    saving = true; dirty = false; setStatus("Salvando…", "pendente");
+    api("PUT", JSON.stringify(state)).then(function () {
+      saving = false;
+      if (dirty) flush(); else setStatus("Salvo na nuvem", "ok");
+    }, function (err) {
+      saving = false; dirty = true;
+      if (err.message === "auth") return;
+      setStatus("Sem conexão. Tentando salvar de novo…", "erro");
+      saveTimer = setTimeout(flush, 5000);
+    });
+  }
   function save() {
     clearTimeout(saveTimer);
+    if (MODE === "conta") {
+      dirty = true; setStatus("Salvando…", "pendente");
+      saveTimer = setTimeout(flush, 700);
+      return;
+    }
     saveTimer = setTimeout(function () {
       try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
     }, 200);
   }
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", function () { if (document.hidden) flush(); });
 
   function ingById(id) { return state.ingredients.filter(function (i) { return i.id === id; })[0]; }
   function baseUnit(ing) { return (UNITS[ing.unit] || UNITS.un)[0]; }
@@ -353,6 +176,7 @@ footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-
   var app = document.getElementById("app");
 
   function setTab(tab) {
+    if (!state) return;
     view.tab = tab; view.editing = null; view.confirm = null;
     document.querySelectorAll("nav.tabs button").forEach(function (b) {
       b.setAttribute("aria-selected", String(b.dataset.tab === tab));
@@ -564,7 +388,7 @@ footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-
       "</div></section>" +
 
       '<section class="panel"><h3 class="section-title">Backup dos seus dados</h3>' +
-      '<p class="hint">Os dados ficam só neste aparelho. Para trocar de celular ou não perder nada, copie o backup e guarde (no WhatsApp, e-mail ou bloco de notas).</p>' +
+      '<p class="hint">' + (MODE === "conta" ? "Seus dados já ficam salvos na nuvem. Se quiser uma cópia extra, gere o backup e guarde." : "Na demonstração os dados ficam só neste aparelho.") + '</p>' +
       '<div class="row"><button class="btn" data-action="export">Gerar backup</button>' +
       '<button class="btn" data-action="download">Baixar arquivo</button>' +
       '<label class="btn" for="import-file">Abrir arquivo de backup</label><input type="file" id="import-file" accept=".json,application/json,text/plain" hidden></div>' +
@@ -674,6 +498,7 @@ footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-
           backupMsg("Se o download não começar, use Gerar backup e Copiar texto.");
         } catch (err) { backupMsg("Download indisponível aqui. Use Gerar backup e Copiar texto."); }
         return;
+      case "reload": location.reload(); return;
       case "restore":
         restoreFrom(document.getElementById("backup-text").value); return;
     }
@@ -716,8 +541,17 @@ footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-
     }
   });
 
-  render();
+  function boot() {
+    if (MODE === "demo") { state = loadLocal(); render(); return; }
+    app.innerHTML = '<div class="empty"><p>Carregando seus dados…</p></div>';
+    api("GET").then(function (j) {
+      if (j.data && j.data.v === 1) { state = j.data; render(); setStatus("Salvo na nuvem", "ok"); }
+      else { state = sample(); render(); save(); }
+    }, function (err) {
+      if (err.message === "auth") return;
+      app.innerHTML = '<div class="empty"><p>Não foi possível carregar seus dados. Confira sua internet.</p>' +
+        '<button class="btn" data-action="reload">Tentar de novo</button></div>';
+    });
+  }
+  boot();
 })();
-</script>
-</body>
-</html>

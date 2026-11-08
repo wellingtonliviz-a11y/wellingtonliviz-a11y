@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+<main class="wrap auth"><div class="auth-card">
+  {% include "_brand.html" %}
+  <h2>{{ 'Página não encontrada' if error.code == 404 else 'Algo deu errado' }}</h2>
+  <p class="hint">{{ error.description if error.code == 400 else 'O endereço pode estar errado ou a página foi removida.' }}</p>
+  <div class="auth-links"><a href="{{ url_for('main.app_page') }}">Ir para a calculadora</a></div>
+</div></main>
+{% endblock %}
