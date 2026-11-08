@@ -20,6 +20,19 @@ def hash_password(password: str) -> str:
     return generate_password_hash(password)
 
 
+_PARTICLES = {"da", "de", "do", "das", "dos", "e", "di", "du"}
+
+
+def format_name(name: str) -> str:
+    """'wellington felipe liviz da fonseca' -> 'Wellington Felipe Liviz da Fonseca'."""
+    words = " ".join((name or "").split()).split(" ")
+    out = []
+    for i, w in enumerate(words):
+        low = w.lower()
+        out.append(low if i > 0 and low in _PARTICLES else low[:1].upper() + low[1:])
+    return " ".join(out).strip()[:255]
+
+
 def normalize_email(email: str) -> str:
     return (email or "").strip().lower()
 
@@ -52,7 +65,7 @@ def grant_access(db: Session, platform: str, transaction_id: str, email: str, na
     result = GrantResult(user=user, duplicate=duplicate)  # type: ignore[arg-type]
     if user is None:
         password = generate_password()
-        user = User(email=email, name=(name or "").strip()[:255], password_hash=hash_password(password),
+        user = User(email=email, name=format_name(name), password_hash=hash_password(password),
                     active=True)
         db.add(user)
         result.user, result.password = user, password
@@ -60,7 +73,7 @@ def grant_access(db: Session, platform: str, transaction_id: str, email: str, na
         user.active = True
         result.reactivated = True
     if name and not user.name:
-        user.name = name.strip()[:255]
+        user.name = format_name(name)
     db.commit()
     return result
 
