@@ -23,6 +23,16 @@ def demo():
     return render_template("calculadora.html", mode="demo", admin=False)
 
 
+@bp.get("/termos")
+def terms():
+    return render_template("termos.html")
+
+
+@bp.get("/privacidade")
+def privacy():
+    return render_template("privacidade.html")
+
+
 @bp.get("/saude")
 def health():
     return jsonify(status="ok")

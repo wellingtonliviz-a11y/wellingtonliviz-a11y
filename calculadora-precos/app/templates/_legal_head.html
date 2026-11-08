@@ -1,0 +1,4 @@
+<header class="top"><div class="wrap top-inner"><div class="top-row">
+  <div class="brand"><h1><a href="{{ url_for('auth.login') }}" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:8px">{% include "_mark.html" %}{{ product_name.rsplit(' ', 1)[0] }} <span>{{ product_name.rsplit(' ', 1)[-1] if ' ' in product_name else '' }}</span></a></h1></div>
+  <div class="top-actions"><a href="{{ url_for('auth.login') }}">Entrar</a></div>
+</div><div style="height:12px"></div></div></header>

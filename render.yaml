@@ -34,6 +34,12 @@ services:
         sync: false
       - key: KIWIFY_TOKEN
         sync: false
+      - key: ASAAS_WEBHOOK_TOKEN
+        sync: false
+      - key: ASAAS_API_KEY
+        sync: false
+      - key: ASAAS_PAYMENT_LINK_IDS
+        sync: false
       - key: ADMIN_EMAILS
         sync: false
       - key: ADMIN_INITIAL_PASSWORD

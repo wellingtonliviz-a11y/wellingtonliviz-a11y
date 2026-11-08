@@ -23,7 +23,8 @@ acompanhar as vendas e resolver casos raros.
 | `/demo` | Demonstração grátis, sem login (para a página de vendas) |
 | `/c/nome-do-negocio` | Cardápio digital público de cada cliente, com pedido pelo WhatsApp |
 | `/admin` | Seu painel: clientes, reembolsos, reenviar senha, bloquear, criar cortesia |
-| `/webhooks/hotmart` e `/webhooks/kiwify` | Endereços que você cadastra nas plataformas |
+| `/webhooks/hotmart`, `/webhooks/kiwify` e `/webhooks/asaas` | Endereços que você cadastra nas plataformas |
+| `/termos` e `/privacidade` | Termos de uso e Política de privacidade (LGPD) |
 
 ## Cardápio digital
 
@@ -105,6 +106,24 @@ O modelo completo está em `.env.example`.
   **Assinatura cancelada**
 - Copie o **Token** e coloque em `KIWIFY_TOKEN`
 
+**Asaas (venda direta):**
+1. Crie um **link de pagamento** do tipo **assinatura** (mensal e/ou anual), com Pix, cartão e boleto.
+   Copie o código no final do link (`asaas.com/c/CODIGO`) e coloque em `ASAAS_PAYMENT_LINK_IDS`.
+   Esse filtro é obrigatório: pagamentos de outros links da sua conta são ignorados.
+2. Em *Integrações > Chave de API*, gere a chave e coloque em `ASAAS_API_KEY`.
+   Ela é usada só para buscar o nome e o e-mail do cliente.
+3. Em *Integrações > Webhooks*, crie um webhook para **cobranças** e outro para **assinaturas**:
+   - URL: `https://SEU-SITE/webhooks/asaas`
+   - Token de autenticação: invente um texto longo e coloque o mesmo em `ASAAS_WEBHOOK_TOKEN`
+   - Eventos de cobrança: *Cobrança confirmada, Cobrança recebida, Cobrança vencida, Cobrança estornada,
+     Chargeback solicitado e Em disputa de chargeback*. Eventos de assinatura: *Assinatura removida e Assinatura inativada*.
+4. Use o link de pagamento como `CHECKOUT_URL`.
+
+Comportamento: cada mensalidade paga mantém o acesso, sem e-mail repetido. Cobrança vencida bloqueia
+(volta sozinho quando a pessoa paga; para não bloquear, use `ASAAS_BLOCK_OVERDUE=0`). Estorno, chargeback
+e assinatura removida também bloqueiam. O sistema sempre responde 200 para eventos que não usa, para o
+Asaas não pausar a fila de avisos.
+
 ### 5. Testar antes de vender
 1. Entre em `/entrar` com `ADMIN_EMAILS` e `ADMIN_INITIAL_PASSWORD` e abra `/admin`.
 2. Use o botão de **teste de webhook** da plataforma, ou faça uma compra real de
@@ -137,7 +156,7 @@ pytest
 Os testes cobrem: compra pela Hotmart e Kiwify, aviso repetido, token errado,
 reembolso e recompra, outro produto, login, dados separados por cliente,
 esqueci a senha, troca de senha, proteção de formulários, limite de tentativas
-de login, o painel admin e o cardápio (preço igual ao da calculadora, link único,
+de login, o painel admin, o Asaas (link, renovação, vencida, estorno, outros negócios ignorados) e o cardápio (preço igual ao da calculadora, link único,
 fotos, página pública e cardápio fora do ar para cliente bloqueado).
 
 ## Estrutura
