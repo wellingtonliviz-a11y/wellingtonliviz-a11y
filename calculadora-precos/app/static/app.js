@@ -54,7 +54,7 @@
     function id(name) { return ing.filter(function (i) { return i.name === name; })[0].id; }
     return {
       v: 1, example: true,
-      settings: { business: "Doces da Ana", margin: 40, fee: 4, extras: 10, hourly: 15, round: 0.5 },
+      settings: { business: MODE === "demo" ? "Doces da Ana" : "", margin: 40, fee: 4, extras: 10, hourly: 15, round: 0.5 },
       ingredients: ing,
       products: [
         { id: uid(), name: "Brigadeiro tradicional", yield: 30, minutes: 50, margin: null, current: 1.5,
@@ -202,9 +202,16 @@
   }
 
   function exampleNotice() {
-    if (!state.example) return "";
-    return '<div class="notice"><span><b>Estes são dados de exemplo.</b> Edite à vontade ou comece com a sua lista.</span>' +
-      '<button class="btn small" data-action="start-blank">Começar do zero</button></div>';
+    var out = "";
+    if (MODE === "conta" && !(state.settings.business || "").trim()) {
+      out += '<div class="notice"><span><b>Coloque o nome do seu negócio</b> para ele aparecer no sistema e no seu cardápio.</span>' +
+        '<button class="btn small" data-action="go-settings">Ir para Ajustes</button></div>';
+    }
+    if (state.example) {
+      out += '<div class="notice"><span><b>Estes são dados de exemplo.</b> Edite à vontade ou comece com a sua lista.</span>' +
+        '<button class="btn small" data-action="start-blank">Começar do zero</button></div>';
+    }
+    return out;
   }
 
   // ---------- produtos ----------
@@ -228,7 +235,7 @@
     var biz = (state.settings.business || "").trim();
     return '<section class="hero"><div class="hero-text">' +
       '<span class="eyebrow">' + ICONS.tag.replace('<svg', '<svg width="14" height="14"') + "Calculadora de precificação</span>" +
-      "<h2>" + (biz ? "Olá, " + esc(biz) + "!" : "Descubra o preço certo") + "</h2>" +
+      "<h2>" + (biz ? "Olá, " + esc(biz) + "!" : CFG.firstName ? "Olá, " + esc(CFG.firstName) + "!" : "Descubra o preço certo") + "</h2>" +
       "<p>Calcule o custo real de cada receita com o que você comprou e usou, inclua taxas e o valor do seu trabalho e veja o preço ideal de venda por unidade.</p>" +
       '<div class="hero-stats">' +
       '<div class="hero-stat"><b>' + state.products.length + "</b><span>produtos cadastrados</span></div>" +
