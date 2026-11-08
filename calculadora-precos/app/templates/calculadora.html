@@ -14,7 +14,7 @@
 </footer>
 <template id="heroArt">{% include "_hero_art.html" %}</template>
 {% include "_liviz.html" %}
-<script>window.PRECIFICA = {{ {"mode": mode} | tojson }};</script>
+<script>window.PRECIFICA = {{ {"mode": mode, "firstName": ((g.user.name or "").split(" ")[0] if g.user and mode == "conta" else "")} | tojson }};</script>
 {% if mode == 'conta' %}<script src="{{ url_for('static', filename='vendor/qrcode-generator-1.4.4.js') }}"></script>{% endif %}
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 {% endblock %}
