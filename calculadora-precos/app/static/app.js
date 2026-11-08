@@ -36,9 +36,9 @@
   // ---------- dados ----------
   // fotos de exemplo ficam no próprio sistema (/f/ex-...)
   var SAMPLE_MENU = {
-    "Brigadeiro tradicional": { show: true, desc: "Chocolate 50% cacau e granulado, feito na hora", photo: "ex-brigadeiro" },
-    "Bolo de pote de chocolate": { show: true, desc: "Massa fofinha, brigadeiro cremoso e ganache", photo: "ex-bolo-de-pote" },
-    "Açaí 300 ml completo": { show: true, desc: "Açaí com granola, banana, leite em pó e leite condensado", photo: "ex-acai" }
+    "Brigadeiro tradicional": { show: true, desc: "Chocolate 50% cacau com granulado, feito na hora", photo: "ex-brigadeiro" },
+    "Bolo de pote de chocolate": { show: true, desc: "Massa de chocolate, creme branco e coco ralado", photo: "ex-bolo-de-pote" },
+    "Açaí 300 ml completo": { show: true, desc: "Açaí cremoso com morango, banana, granola e leite condensado", photo: "ex-acai" }
   };
   function isSamplePhoto(id) { return /^ex-/.test(id || ""); }
   function sample() {
