@@ -51,7 +51,8 @@ def _signature() -> str:
 
 def send_access_email(name: str, email: str, password: str) -> bool:
     cfg = current_app.config
-    first = (name or "").split(" ")[0]
+    first = (name or "").strip().split(" ")[0]
+    first = first[:1].upper() + first[1:].lower() if first else ""
     text = (
         f"Olá{', ' + first if first else ''}!\n\n"
         f"Sua compra foi aprovada e seu acesso ao {cfg['PRODUCT_NAME']} está pronto.\n\n"

@@ -217,3 +217,10 @@ def test_admin_panel(app, client):
 def test_demo_page_is_public(client):
     html = client.get("/demo").get_data(as_text=True)
     assert "Demonstração" in html and '"mode": "demo"' in html
+
+
+def test_access_email_capitalizes_first_name(app):
+    from app.mailer import send_access_email
+    with app.app_context():
+        send_access_email("wellington liviz", "w@x.com", "abc")
+    assert app.config["MAIL_OUTBOX"][-1]["text"].startswith("Olá, Wellington!")
