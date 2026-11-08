@@ -224,3 +224,10 @@ def test_access_email_capitalizes_first_name(app):
     with app.app_context():
         send_access_email("wellington liviz", "w@x.com", "abc")
     assert app.config["MAIL_OUTBOX"][-1]["text"].startswith("Olá, Wellington!")
+
+
+def test_format_name():
+    from app.access import format_name
+    assert format_name("wellington felipe liviz da fonseca") == "Wellington Felipe Liviz da Fonseca"
+    assert format_name("  MARIA  DOS SANTOS ") == "Maria dos Santos"
+    assert format_name("") == ""
