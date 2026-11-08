@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Precifica Fácil</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Calculadora de preço e margem de lucro para quem vende doces, salgados e açaí.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: uma coluna estreita como um caderno de receitas; abas fixas no topo, resultado do preço em destaque. */
+:root {
+  --bg: #fbf8fb;
+  --surface: #ffffff;
+  --ink: #2a1830;
+  --muted: #6f5d72;
+  --line: #e8dfe9;
+  --accent: #6b2a5f;
+  --accent-ink: #ffffff;
+  --accent-soft: #f4e9f2;
+  --good: #1d7548;
+  --good-soft: #e1f2e8;
+  --warn: #8f5b00;
+  --warn-soft: #fbefd6;
+  --crit: #b3261e;
+  --crit-soft: #fbe3e1;
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161018; --surface: #211824; --ink: #f4ebf3; --muted: #b5a3b7; --line: #3a2d3e;
+    --accent: #e09ad0; --accent-ink: #250f20; --accent-soft: #3a2337;
+    --good: #72d6a3; --good-soft: #17322a; --warn: #f2c15d; --warn-soft: #3a2c10;
+    --crit: #ff8f86; --crit-soft: #3f1b19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161018; --surface: #211824; --ink: #f4ebf3; --muted: #b5a3b7; --line: #3a2d3e;
+  --accent: #e09ad0; --accent-ink: #250f20; --accent-soft: #3a2337;
+  --good: #72d6a3; --good-soft: #17322a; --warn: #f2c15d; --warn-soft: #3a2c10;
+  --crit: #ff8f86; --crit-soft: #3f1b19;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+[hidden] { display: none !important; }
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Cabeçalho */
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+.top-inner { display: flex; flex-direction: column; gap: 10px; padding-block: 14px 0; }
+.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.brand h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.brand h1 span { color: var(--accent); }
+.brand .biz { color: var(--muted); font-size: 13px; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; }
+nav.tabs button {
+  appearance: none; border: 0; background: none; color: var(--muted);
+  font: 600 14px var(--font-body); padding: 10px 12px; cursor: pointer;
+  border-bottom: 3px solid transparent; white-space: nowrap;
+}
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+main { padding-block: 20px 64px; display: flex; flex-direction: column; gap: 18px; }
+
+/* Botões e campos */
+.btn {
+  appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 600 14px var(--font-body); padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.danger { color: var(--crit); }
+.btn.danger.armed { background: var(--crit); color: var(--surface); border-color: var(--crit); }
+.btn.small { padding: 6px 10px; font-size: 13px; }
+.btn.ghost { border-color: transparent; background: none; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+label.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+label.field > span { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.02em; }
+input, select, textarea {
+  font: 500 15px var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; width: 100%; min-width: 0;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+.suffix { position: relative; }
+.suffix input { padding-right: 38px; }
+.suffix em {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  font-style: normal; color: var(--muted); font-size: 13px; pointer-events: none;
+}
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.spread { justify-content: space-between; }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.section-title { font-size: 18px; font-weight: 600; }
+
+/* Aviso de exemplo */
+.notice {
+  display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  background: var(--accent-soft); border-radius: var(--radius); padding: 12px 14px; font-size: 14px;
+}
+
+/* Lista de produtos */
+.products { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.product {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center;
+  padding: 14px 4px; border-bottom: 1px solid var(--line); cursor: pointer; background: none;
+  border-left: 0; border-right: 0; border-top: 0; text-align: left; color: inherit; font: inherit; width: 100%;
+}
+.product:hover .p-name { color: var(--accent); }
+.p-name { font-weight: 700; font-size: 16px; min-width: 0; }
+.p-meta { color: var(--muted); font-size: 13px; grid-column: 1; }
+.p-price { text-align: right; grid-row: 1 / span 2; grid-column: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.p-price strong { font-family: var(--font-display); font-size: 20px; font-weight: 800; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.crit { background: var(--crit-soft); color: var(--crit); }
+.chip.neutral { background: var(--accent-soft); color: var(--muted); }
+.empty { text-align: center; padding: 36px 16px; color: var(--muted); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+
+/* Editor de produto */
+.items { display: flex; flex-direction: column; gap: 8px; }
+.item { display: grid; grid-template-columns: minmax(0, 1fr) 120px 84px 36px; gap: 8px; align-items: center; }
+.item .cost { text-align: right; font-size: 14px; color: var(--muted); }
+.iconbtn {
+  appearance: none; border: 1px solid transparent; background: none; color: var(--muted);
+  width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 18px; line-height: 1;
+}
+.iconbtn:hover { color: var(--crit); border-color: var(--line); }
+@media (max-width: 520px) {
+  .item { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .item select { grid-column: 1 / -1; }
+}
+
+/* Resultado */
+.result { background: var(--accent); color: var(--accent-ink); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.result .label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8; }
+.result .big { font-family: var(--font-display); font-weight: 800; font-size: clamp(40px, 11vw, 60px); line-height: 1; letter-spacing: -0.03em; }
+.result .sub { font-size: 14px; opacity: 0.88; }
+.result-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; border-top: 1px solid color-mix(in srgb, var(--accent-ink) 25%, transparent); padding-top: 14px; }
+.result-stats div { display: flex; flex-direction: column; gap: 2px; }
+.result-stats b { font-size: 18px; font-family: var(--font-display); }
+.breakdown { width: 100%; border-collapse: collapse; font-size: 14px; }
+.breakdown td { padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.breakdown td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.breakdown tr.total td { font-weight: 700; border-bottom: 0; border-top: 1px solid var(--ink); }
+.verdict { border-radius: 12px; padding: 12px 14px; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.verdict.good { background: var(--good-soft); color: var(--good); }
+.verdict.warn { background: var(--warn-soft); color: var(--warn); }
+.verdict.crit { background: var(--crit-soft); color: var(--crit); }
+.verdict strong { font-size: 15px; }
+
+/* Ingredientes */
+.ings { display: flex; flex-direction: column; gap: 10px; }
+.ing { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 76px 36px; gap: 8px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.ing .unitcost { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: -4px; }
+.ing-head { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) 76px 36px; gap: 8px; font-size: 12px; font-weight: 600; color: var(--muted); }
+@media (max-width: 520px) {
+  .ing { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 72px 36px; }
+  .ing .name { grid-column: 1 / -1; }
+  .ing-head { display: none; }
+}
+textarea.backup { min-height: 120px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+footer.foot { color: var(--muted); font-size: 12px; text-align: center; padding-block: 0 24px; }
+@media (prefers-reduced-motion: no-preference) {
+  .result .big { transition: opacity .15s; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <h1>Precifica <span>Fácil</span></h1>
+      <span class="biz" id="bizName"></span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="produtos" aria-selected="true">Produtos</button>
+      <button role="tab" data-tab="ingredientes" aria-selected="false">Ingredientes</button>
+      <button role="tab" data-tab="ajustes" aria-selected="false">Ajustes</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="app"></main>
+<footer class="wrap foot">Seus dados ficam salvos neste aparelho. Faça um backup em Ajustes de vez em quando.</footer>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "precifica-facil:v1";
+  var UNITS = { g: ["g", 1], kg: ["g", 1000], ml: ["ml", 1], L: ["ml", 1000], un: ["un", 1] };
+
+  // ---------- utilidades ----------
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function parseNum(v) {
+    if (typeof v === "number") return v;
+    var t = String(v || "").trim().replace(/r\$|%|\s/gi, "");
+    if (!t) return 0;
+    if (t.indexOf(",") >= 0) t = t.replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(t);
+    return isFinite(n) ? n : 0;
+  }
+  function brl(n) {
+    if (n == null || !isFinite(n)) return "—";
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+  function fmt(n, d) {
+    if (!isFinite(n)) return "";
+    return n.toLocaleString("pt-BR", { maximumFractionDigits: d == null ? 2 : d });
+  }
+  function pct(f) { return isFinite(f) ? fmt(f * 100, 1) + "%" : "—"; }
+  function smallBrl(n) {
+    if (!isFinite(n)) return "—";
+    if (n >= 0.1) return brl(n);
+    return "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 4 });
+  }
+
+  // ---------- dados ----------
+  function sample() {
+    var ing = [
+      ["Leite condensado", 6.49, 395, "g"], ["Creme de leite", 3.29, 200, "g"],
+      ["Chocolate em pó 50%", 9.9, 200, "g"], ["Manteiga", 11.9, 200, "g"],
+      ["Granulado", 7.5, 500, "g"], ["Forminha nº 4", 6.0, 100, "un"],
+      ["Farinha de trigo", 5.49, 1, "kg"], ["Açúcar", 4.79, 1, "kg"], ["Ovos", 12.0, 12, "un"],
+      ["Leite integral", 5.29, 1, "L"], ["Pote 250 ml com tampa", 22.0, 50, "un"],
+      ["Polpa de açaí", 24.9, 1, "kg"], ["Granola", 18.0, 1, "kg"], ["Leite em pó", 19.9, 400, "g"],
+      ["Banana", 6.0, 1, "kg"], ["Copo 300 ml + tampa", 17.5, 50, "un"]
+    ].map(function (r) { return { id: uid(), name: r[0], price: r[1], qty: r[2], unit: r[3] }; });
+    function id(name) { return ing.filter(function (i) { return i.name === name; })[0].id; }
+    return {
+      v: 1, example: true,
+      settings: { business: "Doces da Ana", margin: 40, fee: 4, extras: 10, hourly: 15, round: 0.5 },
+      ingredients: ing,
+      products: [
+        { id: uid(), name: "Brigadeiro tradicional", yield: 30, minutes: 50, margin: null, current: 1.5,
+          items: [[id("Leite condensado"), 395], [id("Chocolate em pó 50%"), 40], [id("Manteiga"), 15],
+                  [id("Granulado"), 120], [id("Forminha nº 4"), 30]] },
+        { id: uid(), name: "Bolo de pote de chocolate", yield: 8, minutes: 90, margin: null, current: 12,
+          items: [[id("Farinha de trigo"), 240], [id("Açúcar"), 200], [id("Ovos"), 3], [id("Chocolate em pó 50%"), 80],
+                  [id("Leite integral"), 240], [id("Leite condensado"), 395], [id("Creme de leite"), 200],
+                  [id("Pote 250 ml com tampa"), 8]] },
+        { id: uid(), name: "Açaí 300 ml completo", yield: 1, minutes: 4, margin: 45, current: 14,
+          items: [[id("Polpa de açaí"), 220], [id("Granola"), 30], [id("Leite em pó"), 20], [id("Banana"), 60],
+                  [id("Leite condensado"), 30], [id("Copo 300 ml + tampa"), 1]] }
+      ].map(function (p) {
+        p.items = p.items.map(function (it) { return { ingId: it[0], qty: it[1] }; });
+        return p;
+      })
+    };
+  }
+  function blank() {
+    return { v: 1, example: false,
+      settings: { business: "", margin: 40, fee: 0, extras: 10, hourly: 0, round: 0.5 },
+      ingredients: [], products: [] };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var d = JSON.parse(raw); if (d && d.v === 1) return d; }
+    } catch (e) { /* armazenamento indisponível */ }
+    return sample();
+  }
+  var state = load();
+  var saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
+    }, 200);
+  }
+
+  function ingById(id) { return state.ingredients.filter(function (i) { return i.id === id; })[0]; }
+  function baseUnit(ing) { return (UNITS[ing.unit] || UNITS.un)[0]; }
+  function costPerBase(ing) {
+    var f = (UNITS[ing.unit] || UNITS.un)[1];
+    var q = parseNum(ing.qty) * f;
+    return q > 0 ? parseNum(ing.price) / q : 0;
+  }
+
+  // ---------- cálculo ----------
+  function calc(p) {
+    var s = state.settings;
+    var ingCost = 0;
+    p.items.forEach(function (it) {
+      var ing = ingById(it.ingId);
+      if (ing) ingCost += parseNum(it.qty) * costPerBase(ing);
+    });
+    var extras = ingCost * parseNum(s.extras) / 100;
+    var labor = parseNum(p.minutes) / 60 * parseNum(s.hourly);
+    var batch = ingCost + extras + labor;
+    var y = parseNum(p.yield);
+    var unit = y > 0 ? batch / y : NaN;
+    var m = (p.margin == null || p.margin === "" ? parseNum(s.margin) : parseNum(p.margin)) / 100;
+    var f = parseNum(s.fee) / 100;
+    var denom = 1 - m - f;
+    var suggested = denom > 0.05 && isFinite(unit) ? unit / denom : NaN;
+    var step = parseNum(s.round);
+    var rounded = isFinite(suggested) && step > 0 ? Math.ceil(suggested / step - 1e-9) * step : suggested;
+    var out = {
+      ingCost: ingCost, extras: extras, labor: labor, batch: batch, unit: unit,
+      margin: m, fee: f, suggested: suggested, price: rounded,
+      profitUnit: rounded * (1 - f) - unit, invalid: denom <= 0.05
+    };
+    out.profitBatch = out.profitUnit * y;
+    var cur = parseNum(p.current);
+    if (cur > 0 && isFinite(unit)) {
+      out.current = cur;
+      out.currentProfit = cur * (1 - f) - unit;
+      out.currentMargin = out.currentProfit / cur;
+    }
+    return out;
+  }
+  // compara a margem real com a meta (com folga de meio ponto percentual)
+  function level(m, goal) { return m < 0 ? "crit" : m < goal - 0.005 ? "warn" : "good"; }
+  function levelLabel(m, goal) { return m < 0 ? "Prejuízo" : m < goal - 0.005 ? "Abaixo da meta" : "Na meta"; }
+
+  // ---------- navegação ----------
+  var view = { tab: "produtos", editing: null, confirm: null };
+  var app = document.getElementById("app");
+
+  function setTab(tab) {
+    view.tab = tab; view.editing = null; view.confirm = null;
+    document.querySelectorAll("nav.tabs button").forEach(function (b) {
+      b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+    });
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    document.getElementById("bizName").textContent = state.settings.business || "";
+    if (view.tab === "produtos") view.editing ? renderEditor() : renderProducts();
+    else if (view.tab === "ingredientes") renderIngredients();
+    else renderSettings();
+  }
+
+  function exampleNotice() {
+    if (!state.example) return "";
+    return '<div class="notice"><span><b>Estes são dados de exemplo.</b> Edite à vontade ou comece com a sua lista.</span>' +
+      '<button class="btn small" data-action="start-blank">Começar do zero</button></div>';
+  }
+
+  // ---------- produtos ----------
+  function renderProducts() {
+    var list = state.products.map(function (p) {
+      var c = calc(p);
+      var chip;
+      if (c.current != null) {
+        chip = '<span class="chip ' + level(c.currentMargin, c.margin) + '">' + levelLabel(c.currentMargin, c.margin) + " · " + pct(c.currentMargin) + "</span>";
+      } else {
+        chip = '<span class="chip neutral">Sem preço definido</span>';
+      }
+      var priceLine = c.current != null
+        ? "Você cobra " + brl(c.current) + " · sugerido " + brl(c.price)
+        : "Preço sugerido";
+      return '<button class="product" data-action="edit" data-id="' + p.id + '">' +
+        '<span class="p-name">' + esc(p.name || "Sem nome") + "</span>" +
+        '<span class="p-price"><strong class="num">' + brl(c.current != null ? c.current : c.price) + "</strong>" + chip + "</span>" +
+        '<span class="p-meta num">Rende ' + fmt(parseNum(p.yield), 0) + " un · custo " + brl(c.unit) + "/un · " + priceLine + "</span>" +
+        "</button>";
+    }).join("");
+    app.innerHTML = exampleNotice() +
+      '<div class="row spread"><h2 class="section-title">Seus produtos</h2>' +
+      '<button class="btn primary" data-action="new-product">+ Novo produto</button></div>' +
+      (state.products.length
+        ? '<div class="products">' + list + "</div>"
+        : '<div class="empty"><p>Nenhum produto ainda.<br>Cadastre os ingredientes e depois monte a receita do seu primeiro produto.</p>' +
+          (state.ingredients.length ? "" : '<button class="btn" data-action="go-ings">Cadastrar ingredientes</button>') + "</div>");
+  }
+
+  function renderEditor() {
+    var p = state.products.filter(function (x) { return x.id === view.editing; })[0];
+    if (!p) { view.editing = null; return renderProducts(); }
+    var s = state.settings;
+    var options = state.ingredients.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+    function itemRow(it, idx) {
+      var ing = ingById(it.ingId);
+      var sel = '<select data-item="' + idx + '" data-field="ingId" aria-label="Ingrediente">' +
+        '<option value="">Escolha o ingrediente</option>' +
+        options.map(function (o) {
+          return '<option value="' + o.id + '"' + (o.id === it.ingId ? " selected" : "") + ">" + esc(o.name) + "</option>";
+        }).join("") + "</select>";
+      return '<div class="item">' + sel +
+        '<span class="suffix qty"><input inputmode="decimal" data-item="' + idx + '" data-field="qty" value="' + esc(fmt(parseNum(it.qty), 3)) + '" aria-label="Quantidade usada"><em data-unit="' + idx + '">' + (ing ? baseUnit(ing) : "") + "</em></span>" +
+        '<span class="cost num" data-cost="' + idx + '"></span>' +
+        '<button class="iconbtn" data-action="del-item" data-idx="' + idx + '" aria-label="Remover ingrediente">×</button></div>';
+    }
+    var delArmed = view.confirm === "del-product";
+    app.innerHTML =
+      '<div class="row spread"><button class="btn ghost" data-action="back">← Produtos</button>' +
+      '<div class="row"><button class="btn small" data-action="dup-product">Duplicar</button>' +
+      '<button class="btn small danger' + (delArmed ? " armed" : "") + '" data-action="del-product">' + (delArmed ? "Toque de novo para excluir" : "Excluir") + "</button></div></div>" +
+
+      '<section class="panel"><label class="field"><span>NOME DO PRODUTO</span>' +
+      '<input id="p-name" data-p="name" value="' + esc(p.name) + '" placeholder="Ex: Coxinha de frango"></label>' +
+      '<div class="grid">' +
+      '<label class="field"><span>RENDIMENTO</span><span class="suffix"><input id="p-yield" inputmode="numeric" data-p="yield" value="' + esc(fmt(parseNum(p.yield), 0)) + '"><em>un</em></span></label>' +
+      '<label class="field"><span>TEMPO DE PREPARO</span><span class="suffix"><input id="p-min" inputmode="numeric" data-p="minutes" value="' + esc(fmt(parseNum(p.minutes), 0)) + '"><em>min</em></span></label>' +
+      "</div></section>" +
+
+      '<section class="panel"><div class="row spread"><h3 class="section-title">Ingredientes da receita</h3>' +
+      '<span class="hint">Use a receita inteira, incluindo embalagens</span></div>' +
+      (options.length
+        ? '<div class="items">' + p.items.map(itemRow).join("") + "</div>" +
+          '<div><button class="btn small" data-action="add-item">+ Adicionar ingrediente</button></div>'
+        : '<p class="hint">Você ainda não cadastrou ingredientes.</p><div><button class="btn small" data-action="go-ings">Cadastrar ingredientes</button></div>') +
+      "</section>" +
+
+      '<section class="panel"><div class="grid">' +
+      '<label class="field"><span>MARGEM DESEJADA</span><span class="suffix"><input id="p-margin" inputmode="decimal" data-p="margin" value="' + (p.margin == null ? "" : esc(fmt(parseNum(p.margin), 1))) + '" placeholder="' + esc(fmt(parseNum(s.margin), 1)) + ' (padrão)"><em>%</em></span></label>' +
+      '<label class="field"><span>PREÇO ATUAL (OPCIONAL)</span><span class="suffix"><input id="p-current" inputmode="decimal" data-p="current" value="' + (parseNum(p.current) > 0 ? esc(fmt(parseNum(p.current), 2)) : "") + '" placeholder="0,00"><em>R$</em></span></label>' +
+      "</div></section>" +
+
+      '<section class="result" aria-live="polite">' +
+      '<div><div class="label">Preço sugerido por unidade</div><div class="big num" data-out="price"></div><div class="sub" data-out="price-sub"></div></div>' +
+      '<div class="result-stats">' +
+      '<div><span class="label">Custo por unidade</span><b class="num" data-out="unit"></b></div>' +
+      '<div><span class="label">Lucro por unidade</span><b class="num" data-out="profit"></b></div>' +
+      '<div><span class="label">Lucro na receita</span><b class="num" data-out="profit-batch"></b></div>' +
+      "</div></section>" +
+      '<div data-out="verdict"></div>' +
+
+      '<section class="panel"><h3 class="section-title">De onde vem o custo</h3><table class="breakdown"><tbody data-out="breakdown"></tbody></table>' +
+      '<p class="hint">Gás, luz, taxas e valor da sua hora ficam em <a href="#" data-action="go-settings">Ajustes</a>.</p></section>';
+    updateEditor();
+  }
+
+  function updateEditor() {
+    var p = state.products.filter(function (x) { return x.id === view.editing; })[0];
+    if (!p) return;
+    var s = state.settings, c = calc(p);
+    p.items.forEach(function (it, idx) {
+      var ing = ingById(it.ingId);
+      var el = app.querySelector('[data-cost="' + idx + '"]');
+      if (el) el.textContent = ing ? brl(parseNum(it.qty) * costPerBase(ing)) : "";
+      var u = app.querySelector('[data-unit="' + idx + '"]');
+      if (u) u.textContent = ing ? baseUnit(ing) : "";
+    });
+    function out(k, html) { var el = app.querySelector('[data-out="' + k + '"]'); if (el) el.innerHTML = html; }
+    if (c.invalid) {
+      out("price", "—");
+      out("price-sub", "A margem mais as taxas passam de 95%. Diminua a margem desejada.");
+    } else if (!isFinite(c.unit)) {
+      out("price", "—");
+      out("price-sub", "Informe quantas unidades a receita rende.");
+    } else {
+      out("price", brl(c.price));
+      out("price-sub", (Math.abs(c.price - c.suggested) > 0.004 ? "Cálculo exato " + brl(c.suggested) + ", arredondado para cima. " : "") +
+        "Margem de " + pct(c.margin) + (c.fee ? " já descontando " + pct(c.fee) + " de taxas" : "") + ".");
+    }
+    out("unit", brl(c.unit));
+    out("profit", isFinite(c.profitUnit) ? brl(c.profitUnit) : "—");
+    out("profit-batch", isFinite(c.profitBatch) ? brl(c.profitBatch) : "—");
+
+    var v = "";
+    if (c.current != null && isFinite(c.price)) {
+      var lv = level(c.currentMargin, c.margin), diff = c.price - c.current;
+      var msg = lv === "crit"
+        ? "Cobrando " + brl(c.current) + " você perde " + brl(-c.currentProfit) + " a cada unidade vendida."
+        : "Cobrando " + brl(c.current) + " você lucra " + brl(c.currentProfit) + " por unidade (" + pct(c.currentMargin) + " do preço).";
+      var tip = diff > 0.004 ? "Para chegar na margem desejada, aumente " + brl(diff) + "."
+        : diff < -0.004 ? "Seu preço está acima do sugerido. Ótimo, se os clientes estão comprando."
+        : "Seu preço está igual ao sugerido.";
+      v = '<div class="verdict ' + lv + '"><strong>' + levelLabel(c.currentMargin, c.margin) + "</strong><span>" + msg + "</span><span>" + tip + "</span></div>";
+    }
+    out("verdict", v);
+
+    var rows = [
+      ["Ingredientes e embalagens", c.ingCost],
+      ["Gás, luz e perdas (" + fmt(parseNum(s.extras), 1) + "%)", c.extras],
+      ["Sua mão de obra (" + fmt(parseNum(p.minutes), 0) + " min a " + brl(parseNum(s.hourly)) + "/h)", c.labor]
+    ].map(function (r) { return "<tr><td>" + esc(r[0]) + "</td><td>" + brl(r[1]) + "</td></tr>"; }).join("");
+    rows += '<tr class="total"><td>Custo da receita inteira</td><td>' + brl(c.batch) + "</td></tr>";
+    out("breakdown", rows);
+  }
+
+  // ---------- ingredientes ----------
+  function usedIn(id) {
+    return state.products.filter(function (p) { return p.items.some(function (it) { return it.ingId === id; }); }).length;
+  }
+  function renderIngredients() {
+    var rows = state.ingredients.map(function (i) {
+      var armed = view.confirm === "del-ing:" + i.id, n = usedIn(i.id);
+      return '<div class="ing" data-ing="' + i.id + '">' +
+        '<input class="name" data-f="name" value="' + esc(i.name) + '" placeholder="Nome" aria-label="Nome do ingrediente">' +
+        '<span class="suffix"><input inputmode="decimal" data-f="price" value="' + esc(fmt(parseNum(i.price), 2)) + '" aria-label="Preço pago"><em>R$</em></span>' +
+        '<input inputmode="decimal" data-f="qty" value="' + esc(fmt(parseNum(i.qty), 3)) + '" aria-label="Quantidade na embalagem">' +
+        '<select data-f="unit" aria-label="Unidade">' + Object.keys(UNITS).map(function (u) {
+          return '<option value="' + u + '"' + (u === i.unit ? " selected" : "") + ">" + u + "</option>";
+        }).join("") + "</select>" +
+        '<button class="iconbtn" data-action="del-ing" data-id="' + i.id + '" aria-label="Excluir ingrediente">×</button>' +
+        '<span class="unitcost num" data-uc="' + i.id + '">' + unitCostText(i) + "</span>" +
+        (armed ? '<div class="row" style="grid-column:1/-1"><span class="hint">' +
+          (n ? "Usado em " + n + " produto(s). Ele será removido dessas receitas." : "Excluir este ingrediente?") +
+          '</span><button class="btn small danger armed" data-action="del-ing-yes" data-id="' + i.id + '">Excluir</button>' +
+          '<button class="btn small" data-action="cancel">Cancelar</button></div>' : "") +
+        "</div>";
+    }).join("");
+    app.innerHTML = exampleNotice() +
+      '<div class="row spread"><h2 class="section-title">Ingredientes e embalagens</h2>' +
+      '<button class="btn primary" data-action="new-ing">+ Novo ingrediente</button></div>' +
+      '<p class="hint">Digite o preço que você pagou e o tamanho da embalagem. Quando o preço mudar no mercado, atualize aqui: todos os produtos são recalculados.</p>' +
+      (state.ingredients.length
+        ? '<div class="ing-head"><span>Nome</span><span>Preço pago</span><span>Embalagem</span><span>Unidade</span><span></span></div><div class="ings">' + rows + "</div>"
+        : '<div class="empty"><p>Nenhum ingrediente cadastrado.<br>Comece pelo que você mais usa: leite condensado, farinha, embalagens…</p></div>');
+  }
+  function unitCostText(i) {
+    var c = costPerBase(i), b = baseUnit(i);
+    if (!c) return "Preencha preço e quantidade";
+    var n = usedIn(i.id);
+    var big = b === "un" ? "" : " · " + brl(c * 1000) + (b === "g" ? "/kg" : "/L");
+    return smallBrl(c) + " por " + b + big + (n ? " · usado em " + n + " produto(s)" : "");
+  }
+
+  // ---------- ajustes ----------
+  function renderSettings() {
+    var s = state.settings, armed = view.confirm === "wipe";
+    app.innerHTML =
+      '<h2 class="section-title">Ajustes</h2>' +
+      '<section class="panel"><label class="field"><span>NOME DO SEU NEGÓCIO</span><input id="s-business" data-s="business" value="' + esc(s.business) + '" placeholder="Ex: Doces da Ana"></label>' +
+      '<div class="grid">' +
+      settingField("s-margin", "margin", "MARGEM DE LUCRO PADRÃO", "%", "Quanto do preço é lucro. Doces costumam usar de 30% a 50%.") +
+      settingField("s-fee", "fee", "TAXAS SOBRE A VENDA", "%", "Maquininha, iFood, nota fiscal. Some tudo.") +
+      settingField("s-extras", "extras", "GÁS, LUZ E PERDAS", "%", "Adicionado sobre o custo dos ingredientes. 10% é um bom começo.") +
+      settingField("s-hourly", "hourly", "VALOR DA SUA HORA", "R$", "Quanto você quer ganhar por hora de trabalho. Deixe 0 para ignorar.") +
+      '<label class="field"><span>ARREDONDAR PREÇO PARA CIMA</span><select id="s-round" data-s="round">' +
+      [[0, "Não arredondar"], [0.1, "De R$ 0,10 em R$ 0,10"], [0.5, "De R$ 0,50 em R$ 0,50"], [1, "Para o real inteiro"]].map(function (o) {
+        return '<option value="' + o[0] + '"' + (parseNum(s.round) === o[0] ? " selected" : "") + ">" + o[1] + "</option>";
+      }).join("") + "</select></label>" +
+      "</div></section>" +
+
+      '<section class="panel"><h3 class="section-title">Backup dos seus dados</h3>' +
+      '<p class="hint">Os dados ficam só neste aparelho. Para trocar de celular ou não perder nada, copie o backup e guarde (no WhatsApp, e-mail ou bloco de notas).</p>' +
+      '<div class="row"><button class="btn" data-action="export">Gerar backup</button>' +
+      '<button class="btn" data-action="download">Baixar arquivo</button>' +
+      '<label class="btn" for="import-file">Abrir arquivo de backup</label><input type="file" id="import-file" accept=".json,application/json,text/plain" hidden></div>' +
+      '<textarea id="backup-text" class="backup" placeholder="Cole aqui um backup para restaurar, ou toque em Gerar backup."></textarea>' +
+      '<div class="row"><button class="btn small" data-action="copy">Copiar texto</button><button class="btn small" data-action="restore">Restaurar do texto colado</button>' +
+      '<span class="hint" id="backup-msg" role="status"></span></div></section>' +
+
+      '<section class="panel"><h3 class="section-title">Recomeçar</h3><div class="row">' +
+      '<button class="btn small" data-action="load-sample">Carregar exemplos</button>' +
+      '<button class="btn small danger' + (armed ? " armed" : "") + '" data-action="wipe">' + (armed ? "Toque de novo para apagar tudo" : "Apagar todos os dados") + "</button>" +
+      "</div></section>";
+  }
+  function settingField(id, key, label, unit, hint) {
+    return '<label class="field"><span>' + label + '</span><span class="suffix"><input id="' + id + '" inputmode="decimal" data-s="' + key +
+      '" value="' + esc(fmt(parseNum(state.settings[key]), 2)) + '"><em>' + unit + "</em></span><small class=\"hint\">" + hint + "</small></label>";
+  }
+  function backupMsg(t) { var el = document.getElementById("backup-msg"); if (el) el.textContent = t; }
+  function restoreFrom(text) {
+    try {
+      var d = JSON.parse(text);
+      if (!d || d.v !== 1 || !Array.isArray(d.products) || !Array.isArray(d.ingredients) || !d.settings) throw new Error();
+      state = d; save(); render(); backupMsg("Backup restaurado.");
+    } catch (e) { backupMsg("Esse texto não é um backup válido do Precifica Fácil."); }
+  }
+
+  // ---------- eventos ----------
+  document.querySelector("nav.tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-tab]");
+    if (b) setTab(b.dataset.tab);
+  });
+
+  app.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-action]");
+    if (!t) return;
+    var a = t.dataset.action;
+    if (t.tagName === "A") e.preventDefault();
+    if (a !== "del-product" && a !== "wipe" && a !== "del-ing") view.confirm = null;
+    var p = state.products.filter(function (x) { return x.id === view.editing; })[0];
+
+    switch (a) {
+      case "start-blank":
+        state = blank(); save(); setTab("ingredientes"); return;
+      case "load-sample":
+        state = sample(); save(); setTab("produtos"); return;
+      case "go-ings": setTab("ingredientes"); return;
+      case "go-settings": setTab("ajustes"); return;
+      case "new-product":
+        var np = { id: uid(), name: "", yield: 1, minutes: 0, margin: null, current: 0, items: [{ ingId: "", qty: 0 }] };
+        state.products.unshift(np); state.example = false; save();
+        view.editing = np.id; render();
+        var n = document.getElementById("p-name"); if (n) n.focus();
+        return;
+      case "edit": view.editing = t.dataset.id; render(); window.scrollTo(0, 0); return;
+      case "back":
+        state.products = state.products.filter(function (x) { return x.name || x.items.some(function (i) { return i.ingId; }); });
+        save(); view.editing = null; render(); return;
+      case "dup-product":
+        var copy = JSON.parse(JSON.stringify(p)); copy.id = uid(); copy.name = p.name + " (cópia)";
+        state.products.unshift(copy); save(); view.editing = copy.id; render(); window.scrollTo(0, 0); return;
+      case "del-product":
+        if (view.confirm === "del-product") {
+          state.products = state.products.filter(function (x) { return x.id !== p.id; });
+          save(); view.confirm = null; view.editing = null; render();
+        } else { view.confirm = "del-product"; render(); }
+        return;
+      case "add-item":
+        p.items.push({ ingId: "", qty: 0 }); save(); render();
+        var sels = app.querySelectorAll(".item select"); if (sels.length) sels[sels.length - 1].focus();
+        return;
+      case "del-item":
+        p.items.splice(+t.dataset.idx, 1); save(); render(); return;
+      case "new-ing":
+        var ni = { id: uid(), name: "", price: 0, qty: 1, unit: "g" };
+        state.ingredients.unshift(ni); state.example = false; save(); render();
+        var f = app.querySelector('[data-ing="' + ni.id + '"] input'); if (f) f.focus();
+        return;
+      case "del-ing":
+        view.confirm = "del-ing:" + t.dataset.id; render(); return;
+      case "del-ing-yes":
+        var did = t.dataset.id;
+        state.ingredients = state.ingredients.filter(function (i) { return i.id !== did; });
+        state.products.forEach(function (pp) { pp.items = pp.items.filter(function (it) { return it.ingId !== did; }); });
+        save(); view.confirm = null; render(); return;
+      case "cancel": render(); return;
+      case "wipe":
+        if (view.confirm === "wipe") { state = blank(); save(); view.confirm = null; setTab("produtos"); }
+        else { view.confirm = "wipe"; render(); }
+        return;
+      case "export":
+        document.getElementById("backup-text").value = JSON.stringify(state);
+        backupMsg("Backup gerado. Copie e guarde em lugar seguro."); return;
+      case "copy":
+        var ta = document.getElementById("backup-text");
+        if (!ta.value) ta.value = JSON.stringify(state);
+        var done = function () { backupMsg("Copiado."); };
+        var fallback = function () { ta.focus(); ta.select(); backupMsg("Texto selecionado. Use Copiar do seu aparelho."); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, fallback);
+        else fallback();
+        return;
+      case "download":
+        try {
+          var blob = new Blob([JSON.stringify(state, null, 1)], { type: "application/json" });
+          var link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "precifica-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+          document.body.appendChild(link); link.click(); link.remove();
+          backupMsg("Se o download não começar, use Gerar backup e Copiar texto.");
+        } catch (err) { backupMsg("Download indisponível aqui. Use Gerar backup e Copiar texto."); }
+        return;
+      case "restore":
+        restoreFrom(document.getElementById("backup-text").value); return;
+    }
+  });
+
+  app.addEventListener("input", function (e) {
+    var t = e.target;
+    var p = state.products.filter(function (x) { return x.id === view.editing; })[0];
+    if (t.dataset.p && p) {
+      var k = t.dataset.p;
+      if (k === "name") p.name = t.value;
+      else if (k === "margin") p.margin = t.value.trim() === "" ? null : parseNum(t.value);
+      else p[k] = parseNum(t.value);
+      state.example = false; save(); updateEditor(); return;
+    }
+    if (t.dataset.item != null && p) {
+      var it = p.items[+t.dataset.item];
+      if (t.dataset.field === "ingId") it.ingId = t.value; else it.qty = parseNum(t.value);
+      save(); updateEditor(); return;
+    }
+    var row = t.closest("[data-ing]");
+    if (row && t.dataset.f) {
+      var ing = ingById(row.dataset.ing);
+      ing[t.dataset.f] = t.dataset.f === "name" || t.dataset.f === "unit" ? t.value : parseNum(t.value);
+      save();
+      var uc = row.querySelector("[data-uc]"); if (uc) uc.textContent = unitCostText(ing);
+      return;
+    }
+    if (t.dataset.s) {
+      state.settings[t.dataset.s] = t.dataset.s === "business" ? t.value : parseNum(t.value);
+      document.getElementById("bizName").textContent = state.settings.business || "";
+      save();
+    }
+  });
+  app.addEventListener("change", function (e) {
+    if (e.target.id === "import-file" && e.target.files[0]) {
+      var r = new FileReader();
+      r.onload = function () { restoreFrom(String(r.result)); };
+      r.readAsText(e.target.files[0]);
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
