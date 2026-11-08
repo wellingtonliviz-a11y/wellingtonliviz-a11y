@@ -1,7 +1,7 @@
 """Tabelas do banco: clientes, dados da calculadora e compras."""
 from datetime import datetime, timezone
 
-from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint,
+from sqlalchemy import (Boolean, DateTime, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint,
                         create_engine)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, scoped_session, sessionmaker
 
@@ -48,6 +48,26 @@ class Purchase(Base):
     last_event: Mapped[str] = mapped_column(String(60), default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Menu(Base):
+    """Endereço público do cardápio digital (/c/<slug>)."""
+    __tablename__ = "menus"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    slug: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Photo(Base):
+    """Fotos dos produtos do cardápio (já reduzidas no navegador)."""
+    __tablename__ = "photos"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    mime: Mapped[str] = mapped_column(String(20))
+    data: Mapped[bytes] = mapped_column(LargeBinary)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class Database:

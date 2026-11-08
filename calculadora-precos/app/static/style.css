@@ -229,3 +229,25 @@ table.users tr:last-child td { border-bottom: 0; }
 table.users .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 table.users form { margin: 0; }
 .wrap.wide { max-width: 1040px; }
+
+/* ---------- Cardápio (área logada) ---------- */
+.slug-row { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.slug-row:focus-within { border-color: var(--accent); }
+.slug-base { padding: 9px 0 9px 11px; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%; }
+.slug-row input { border: 0; padding-left: 2px; }
+.slug-row input:focus-visible { outline: none; }
+.share { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--line); padding-top: 14px; }
+.share-url { font-weight: 700; word-break: break-all; color: var(--accent); }
+.qr-box { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.qr { background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid var(--line); line-height: 0; }
+.qr img, .qr canvas { display: block; }
+.qr-side { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; flex: 1; min-width: 180px; }
+.menu-items { display: flex; flex-direction: column; }
+.menu-item { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.menu-item:last-child { border-bottom: 0; }
+.mi-photo { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; }
+.mi-empty { background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 26px; }
+.mi-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.mi-price { font-weight: 700; }
+.check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; min-width: 0; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); flex: none; }

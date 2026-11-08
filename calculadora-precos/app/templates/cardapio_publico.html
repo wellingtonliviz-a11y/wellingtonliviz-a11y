@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6b2a5f">
+<title>{{ menu.business }} · Cardápio</title>
+<meta name="description" content="{{ menu.intro or 'Veja o cardápio e faça seu pedido pelo WhatsApp.' }}">
+<meta property="og:title" content="{{ menu.business }} · Cardápio">
+<meta property="og:description" content="{{ menu.intro or 'Veja o cardápio e faça seu pedido pelo WhatsApp.' }}">
+<meta property="og:url" content="{{ page_url }}">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .menu-head { padding-block: 32px 8px; display: flex; flex-direction: column; gap: 8px; }
+  .menu-head h1 { font-size: clamp(30px, 8vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
+  .menu-head p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; white-space: pre-line; }
+  .delivery { display: inline-flex; gap: 8px; align-items: flex-start; background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; white-space: pre-line; }
+  .menu-list { display: flex; flex-direction: column; padding-block: 12px 140px; }
+  .dish { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .dish-photo { width: 96px; height: 96px; border-radius: 14px; object-fit: cover; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 34px; color: var(--accent); }
+  .dish-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .dish-name { font-weight: 700; font-size: 17px; }
+  .dish-desc { color: var(--muted); font-size: 14px; margin: 0; }
+  .dish-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; }
+  .dish-price { font-family: var(--font-display); font-weight: 800; font-size: 19px; font-variant-numeric: tabular-nums; }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+  .stepper button { appearance: none; border: 0; background: none; width: 38px; height: 38px; font-size: 20px; color: var(--accent); cursor: pointer; border-radius: 999px; }
+  .stepper button:disabled { color: var(--line); cursor: default; }
+  .stepper output { min-width: 22px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .order-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(0,0,0,.08); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .order-inner { max-width: 760px; margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 10px; }
+  .order-summary { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; }
+  .order-summary b { font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
+  .order-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+  .wa-btn { background: #1f8a4c; border-color: #1f8a4c; color: #fff; justify-content: center; padding-block: 13px; font-size: 16px; width: 100%; }
+  .wa-btn:hover { border-color: #1f8a4c; filter: brightness(1.05); }
+  .powered { text-align: center; font-size: 12px; color: var(--muted); padding-block: 0 8px; }
+  .powered a { color: var(--accent); font-weight: 600; }
+  .closed { background: var(--warn-soft); color: var(--warn); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="menu-head">
+    <h1>{{ menu.business }}</h1>
+    {% if menu.intro %}<p>{{ menu.intro }}</p>{% endif %}
+    {% if menu.delivery %}<div class="delivery">🛵 <span>{{ menu.delivery }}</span></div>{% endif %}
+    {% if not menu.whatsapp %}<div class="closed">Os pedidos pelo WhatsApp ainda não foram configurados.</div>{% endif %}
+  </header>
+
+  <section class="menu-list" id="list">
+    {% for it in menu["items"] %}
+    <article class="dish" data-id="{{ it.id }}">
+      {% if it.photo %}<img class="dish-photo" src="/f/{{ it.photo }}" alt="{{ it.name }}" loading="lazy" width="96" height="96">
+      {% else %}<div class="dish-photo" aria-hidden="true">{{ it.name[:1] | upper }}</div>{% endif %}
+      <div class="dish-body">
+        <span class="dish-name">{{ it.name }}</span>
+        {% if it.desc %}<p class="dish-desc">{{ it.desc }}</p>{% endif %}
+        <div class="dish-foot">
+          <span class="dish-price" data-price="{{ it.price }}"></span>
+          {% if menu.whatsapp %}
+          <span class="stepper">
+            <button type="button" data-step="-1" aria-label="Tirar um {{ it.name }}" disabled>−</button>
+            <output aria-live="polite">0</output>
+            <button type="button" data-step="1" aria-label="Adicionar um {{ it.name }}">+</button>
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% else %}
+    <p class="hint">O cardápio está sendo montado. Volte em breve!</p>
+    {% endfor %}
+  </section>
+  <p class="powered">Cardápio feito com <a href="{{ promo_url }}" target="_blank" rel="noopener">Precifica Fácil</a>, a calculadora de preço para quem vende comida.</p>
+</main>
+
+{% if menu.whatsapp and menu["items"] %}
+<div class="order-bar" id="orderBar" hidden>
+  <div class="order-inner">
+    <div class="order-summary"><span id="orderCount"></span><b id="orderTotal"></b></div>
+    <div class="order-form">
+      <input id="o-name" placeholder="Seu nome" autocomplete="name" aria-label="Seu nome">
+      <select id="o-mode" aria-label="Entrega ou retirada">
+        <option value="Entrega">Entrega</option>
+        <option value="Retirada">Retirada</option>
+      </select>
+      <input id="o-note" placeholder="Endereço ou observação" aria-label="Endereço ou observação">
+    </div>
+    <button class="btn wa-btn" id="sendOrder" type="button">Pedir no WhatsApp</button>
+  </div>
+</div>
+{% endif %}
+
+<script>
+(function () {
+  var MENU = {{ {"business": menu.business, "whatsapp": menu.whatsapp, "items": menu["items"]} | tojson }};
+  function brl(n) { return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+  document.querySelectorAll("[data-price]").forEach(function (el) { el.textContent = brl(parseFloat(el.dataset.price)); });
+  var byId = {}; MENU.items.forEach(function (i) { byId[i.id] = i; });
+  var qty = {};
+  var bar = document.getElementById("orderBar");
+
+  function update() {
+    var count = 0, total = 0;
+    Object.keys(qty).forEach(function (id) { count += qty[id]; total += qty[id] * byId[id].price; });
+    if (!bar) return;
+    bar.hidden = count === 0;
+    document.getElementById("orderCount").textContent = count + (count === 1 ? " item" : " itens");
+    document.getElementById("orderTotal").textContent = brl(total);
+  }
+  document.getElementById("list").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-step]"); if (!b) return;
+    var card = b.closest("[data-id]"), id = card.dataset.id;
+    qty[id] = Math.max(0, (qty[id] || 0) + parseInt(b.dataset.step, 10));
+    if (!qty[id]) delete qty[id];
+    card.querySelector("output").textContent = qty[id] || 0;
+    card.querySelector('[data-step="-1"]').disabled = !qty[id];
+    update();
+  });
+  var send = document.getElementById("sendOrder");
+  if (send) send.addEventListener("click", function () {
+    var lines = ["Olá, " + MENU.business + "! Quero fazer um pedido:", ""], total = 0;
+    MENU.items.forEach(function (i) {
+      if (!qty[i.id]) return;
+      total += qty[i.id] * i.price;
+      lines.push(qty[i.id] + "x " + i.name + " — " + brl(qty[i.id] * i.price));
+    });
+    lines.push("", "*Total: " + brl(total) + "*", "");
+    var name = document.getElementById("o-name").value.trim();
+    var mode = document.getElementById("o-mode").value;
+    var note = document.getElementById("o-note").value.trim();
+    if (name) lines.push("Nome: " + name);
+    lines.push(mode + (note ? ": " + note : ""));
+    window.location.href = "https://wa.me/" + MENU.whatsapp + "?text=" + encodeURIComponent(lines.join("\n"));
+  });
+})();
+</script>
+</body>
+</html>

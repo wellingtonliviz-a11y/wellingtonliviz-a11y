@@ -189,6 +189,7 @@
     document.getElementById("bizName").textContent = state.settings.business || "";
     if (view.tab === "produtos") view.editing ? renderEditor() : renderProducts();
     else if (view.tab === "ingredientes") renderIngredients();
+    else if (view.tab === "cardapio") renderMenu();
     else renderSettings();
   }
 
@@ -370,6 +371,168 @@
     return smallBrl(c) + " por " + b + big + (n ? " · usado em " + n + " produto(s)" : "");
   }
 
+  // ---------- cardápio digital ----------
+  var menuLink = { loaded: false, slug: null, url: null, base: "", error: "" };
+  function apiJson(method, url, body, type) {
+    return fetch(url, {
+      method: method, credentials: "same-origin", body: body,
+      headers: { "Content-Type": type || "application/json", "X-Requested-With": "fetch" }
+    }).then(function (r) {
+      if (r.status === 401) { location.href = "/entrar"; throw new Error("auth"); }
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || "Não foi possível concluir (erro " + r.status + ").");
+        return j;
+      });
+    });
+  }
+  function menuState() {
+    if (!state.menu) state.menu = { whatsapp: "", intro: "", delivery: "" };
+    return state.menu;
+  }
+  function pmenu(p) {
+    if (!p.menu) p.menu = { show: true, desc: "", photo: null };
+    return p.menu;
+  }
+  function productById(id) { return state.products.filter(function (x) { return x.id === id; })[0]; }
+  function shownPrice(p) { var c = calc(p); return c.current != null ? c.current : c.price; }
+  function slugify(t) {
+    return String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
+  }
+  function copyText(text, msgEl) {
+    var ok = function () { if (msgEl) msgEl.textContent = "Link copiado."; };
+    var fail = function () { if (msgEl) msgEl.textContent = "Selecione o link acima e copie."; };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fail);
+    else fail();
+  }
+  // QR Code gerado no próprio navegador (biblioteca em /static/vendor)
+  function qrCanvas(url, size) {
+    if (!window.qrcode) return null;
+    var qr = window.qrcode(0, "M");
+    qr.addData(url); qr.make();
+    var n = qr.getModuleCount(), margin = 4, cell = Math.max(1, Math.floor(size / (n + margin * 2)));
+    var px = cell * (n + margin * 2), c = document.createElement("canvas");
+    c.width = c.height = px;
+    var ctx = c.getContext("2d");
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, px, px);
+    ctx.fillStyle = "#1a1a1a";
+    for (var r = 0; r < n; r++) for (var col = 0; col < n; col++) {
+      if (qr.isDark(r, col)) ctx.fillRect((col + margin) * cell, (r + margin) * cell, cell, cell);
+    }
+    return c;
+  }
+  function drawQr(el, url, size) {
+    if (!el) return;
+    var c = qrCanvas(url, size * 2);
+    if (!c) { el.innerHTML = '<p class="hint">QR Code indisponível no momento.</p>'; return; }
+    c.style.width = c.style.height = size + "px";
+    el.innerHTML = ""; el.appendChild(c);
+  }
+  function resizeImage(file) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image(), url = URL.createObjectURL(file);
+      img.onload = function () {
+        var max = 800, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+        var c = document.createElement("canvas");
+        c.width = Math.round(w * k); c.height = Math.round(h * k);
+        var ctx = c.getContext("2d");
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function (b) { b ? resolve(b) : reject(new Error("Não consegui ler a imagem.")); }, "image/jpeg", 0.82);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Esse arquivo não parece ser uma imagem.")); };
+      img.src = url;
+    });
+  }
+
+  function renderMenu() {
+    var m = menuState();
+    if (MODE === "conta" && !menuLink.loaded) {
+      app.innerHTML = '<div class="empty"><p>Carregando seu cardápio…</p></div>';
+      apiJson("GET", "/api/cardapio").then(function (j) {
+        menuLink.loaded = true; menuLink.slug = j.slug; menuLink.url = j.url; menuLink.base = j.base;
+        if (view.tab === "cardapio") renderMenu();
+      }, function (err) {
+        if (err.message === "auth") return;
+        menuLink.loaded = true; menuLink.error = "Não foi possível carregar o link agora.";
+        if (view.tab === "cardapio") renderMenu();
+      });
+      return;
+    }
+    var linkBlock;
+    if (MODE !== "conta") {
+      linkBlock = '<section class="panel"><h3 class="section-title">Seu link de cardápio</h3>' +
+        '<p class="hint">Na conta completa você ganha um link próprio, como <b>/c/doces-da-ana</b>, e um QR Code para imprimir. ' +
+        'Seus clientes abrem, escolhem os produtos e o pedido chega pronto no seu WhatsApp.</p></section>';
+    } else {
+      var suggestion = menuLink.slug || slugify(state.settings.business);
+      linkBlock = '<section class="panel"><h3 class="section-title">Seu link de cardápio</h3>' +
+        '<label class="field"><span>ENDEREÇO DO CARDÁPIO</span><span class="slug-row"><span class="slug-base">' + esc(menuLink.base) + '</span>' +
+        '<input id="m-slug" value="' + esc(suggestion) + '" placeholder="doces-da-ana" autocapitalize="off" autocomplete="off" spellcheck="false"></span></label>' +
+        '<div class="row"><button class="btn primary" data-action="save-slug">' + (menuLink.slug ? "Salvar novo link" : "Criar meu link") + '</button>' +
+        '<span class="hint" id="slug-msg" role="status">' + esc(menuLink.error) + '</span></div>' +
+        (menuLink.url
+          ? '<div class="share"><div class="share-url num" id="share-url">' + esc(menuLink.url) + '</div><div class="row">' +
+            '<button class="btn small" data-action="copy-link">Copiar link</button>' +
+            '<a class="btn small" href="' + esc(menuLink.url) + '" target="_blank" rel="noopener">Abrir cardápio</a>' +
+            '<a class="btn small" href="https://wa.me/?text=' + encodeURIComponent("Veja nosso cardápio e faça seu pedido: " + menuLink.url) + '" target="_blank" rel="noopener">Enviar no WhatsApp</a>' +
+            '</div><div class="qr-box"><div id="qr" class="qr"></div><div class="qr-side"><b>QR Code do cardápio</b>' +
+            '<p class="hint">Imprima e cole no balcão, na embalagem ou no cartão de visita.</p>' +
+            '<button class="btn small" data-action="download-qr">Baixar QR Code</button></div></div></div>'
+          : "") +
+        "</section>";
+    }
+    var rows = state.products.filter(function (p) { return (p.name || "").trim(); }).map(function (p) {
+      var pm = pmenu(p), price = shownPrice(p);
+      var photo = pm.photo
+        ? '<img class="mi-photo" src="/f/' + esc(pm.photo) + '" alt="">'
+        : '<div class="mi-photo mi-empty" aria-hidden="true">' + esc(p.name.trim().charAt(0).toUpperCase()) + "</div>";
+      return '<div class="menu-item" data-mp="' + p.id + '">' + photo + '<div class="mi-body">' +
+        '<div class="row spread"><label class="check"><input type="checkbox" data-mf="show"' + (pm.show !== false ? " checked" : "") + "> <b>" + esc(p.name) + "</b></label>" +
+        '<span class="num mi-price">' + (isFinite(price) && price > 0 ? brl(price) : "sem preço") + "</span></div>" +
+        '<input data-mf="desc" value="' + esc(pm.desc) + '" maxlength="300" placeholder="Descrição curta (ex: massa fofinha com recheio de Ninho)" aria-label="Descrição de ' + esc(p.name) + '">' +
+        (MODE === "conta"
+          ? '<div class="row"><label class="btn small" for="ph-' + p.id + '">' + (pm.photo ? "Trocar foto" : "Adicionar foto") + "</label>" +
+            '<input type="file" accept="image/*" id="ph-' + p.id + '" data-photo="' + p.id + '" hidden>' +
+            (pm.photo ? '<button class="btn small ghost" data-action="del-photo" data-id="' + p.id + '">Remover foto</button>' : "") +
+            '<span class="hint" data-phmsg="' + p.id + '"></span></div>'
+          : "") +
+        "</div></div>";
+    }).join("");
+    app.innerHTML =
+      '<h2 class="section-title">Cardápio digital</h2>' +
+      '<p class="hint">Monte um cardápio com fotos e preços. Seus clientes escolhem os produtos e o pedido chega pronto no seu WhatsApp, com o total calculado.</p>' +
+      linkBlock +
+      '<section class="panel"><h3 class="section-title">Informações do cardápio</h3>' +
+      '<label class="field"><span>WHATSAPP PARA RECEBER PEDIDOS</span><input id="m-wa" data-m="whatsapp" inputmode="tel" value="' + esc(m.whatsapp) + '" placeholder="(11) 99999-8888"></label>' +
+      '<label class="field"><span>MENSAGEM DE BOAS-VINDAS</span><textarea id="m-intro" data-m="intro" maxlength="500" rows="2" placeholder="Doces artesanais feitos com carinho. Encomendas com 2 dias de antecedência.">' + esc(m.intro) + "</textarea></label>" +
+      '<label class="field"><span>ENTREGA E RETIRADA</span><input id="m-delivery" data-m="delivery" maxlength="300" value="' + esc(m.delivery) + '" placeholder="Entregamos no Centro (taxa R$ 5). Retirada na Rua das Flores, 123."></label>' +
+      "</section>" +
+      '<section class="panel"><h3 class="section-title">Produtos no cardápio</h3>' +
+      '<p class="hint">O preço mostrado é o que você cobra hoje. Se você não informou, usamos o preço sugerido. Desmarque o que não quiser mostrar.</p>' +
+      (rows ? '<div class="menu-items">' + rows + "</div>" : '<p class="hint">Cadastre produtos na aba Produtos para eles aparecerem aqui.</p>') +
+      "</section>";
+    if (menuLink.url) drawQr(document.getElementById("qr"), menuLink.url, 148);
+  }
+
+  function uploadPhoto(input) {
+    var p = productById(input.dataset.photo), file = input.files[0];
+    var msg = app.querySelector('[data-phmsg="' + input.dataset.photo + '"]');
+    if (!p || !file) return;
+    if (msg) msg.textContent = "Enviando foto…";
+    resizeImage(file).then(function (blob) {
+      return apiJson("POST", "/api/fotos", blob, "image/jpeg");
+    }).then(function (j) {
+      var pm = pmenu(p), old = pm.photo;
+      pm.photo = j.id; save();
+      if (old) apiJson("DELETE", "/api/fotos/" + old).catch(function () {});
+      renderMenu();
+    }, function (err) {
+      if (err.message !== "auth" && msg) msg.textContent = err.message;
+    });
+  }
+
   // ---------- ajustes ----------
   function renderSettings() {
     var s = state.settings, armed = view.confirm === "wipe";
@@ -499,6 +662,31 @@
         } catch (err) { backupMsg("Download indisponível aqui. Use Gerar backup e Copiar texto."); }
         return;
       case "reload": location.reload(); return;
+      case "save-slug":
+        var slugIn = document.getElementById("m-slug"), slugMsg = document.getElementById("slug-msg");
+        var val = slugify(slugIn.value); slugIn.value = val;
+        slugMsg.textContent = "Salvando…";
+        apiJson("PUT", "/api/cardapio", JSON.stringify({ slug: val })).then(function (j) {
+          menuLink.slug = j.slug; menuLink.url = j.url; menuLink.error = "";
+          renderMenu();
+          var m2 = document.getElementById("slug-msg"); if (m2) m2.textContent = "Link salvo. Já pode compartilhar!";
+        }, function (err) { if (err.message !== "auth") slugMsg.textContent = err.message; });
+        return;
+      case "copy-link":
+        copyText(menuLink.url, document.getElementById("slug-msg")); return;
+      case "download-qr":
+        var canvas = qrCanvas(menuLink.url, 720);
+        if (canvas) {
+          var a2 = document.createElement("a");
+          a2.href = canvas.toDataURL("image/png");
+          a2.download = "qrcode-cardapio-" + (menuLink.slug || "precifica") + ".png";
+          document.body.appendChild(a2); a2.click(); a2.remove();
+        }
+        return;
+      case "del-photo":
+        var pp = productById(t.dataset.id), oldPhoto = pp && pmenu(pp).photo;
+        if (oldPhoto) { pmenu(pp).photo = null; save(); apiJson("DELETE", "/api/fotos/" + oldPhoto).catch(function () {}); }
+        renderMenu(); return;
       case "restore":
         restoreFrom(document.getElementById("backup-text").value); return;
     }
@@ -506,6 +694,12 @@
 
   app.addEventListener("input", function (e) {
     var t = e.target;
+    if (t.dataset.m) { menuState()[t.dataset.m] = t.value; save(); return; }
+    if (t.dataset.mf) {
+      var mrow = t.closest("[data-mp]"), mp = productById(mrow.dataset.mp);
+      if (t.dataset.mf === "show") pmenu(mp).show = t.checked; else pmenu(mp).desc = t.value;
+      save(); return;
+    }
     var p = state.products.filter(function (x) { return x.id === view.editing; })[0];
     if (t.dataset.p && p) {
       var k = t.dataset.p;
@@ -534,6 +728,7 @@
     }
   });
   app.addEventListener("change", function (e) {
+    if (e.target.dataset.photo) { uploadPhoto(e.target); return; }
     if (e.target.id === "import-file" && e.target.files[0]) {
       var r = new FileReader();
       r.onload = function () { restoreFrom(String(r.result)); };
