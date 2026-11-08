@@ -321,18 +321,11 @@ table.users form { margin: 0; }
   .auth-promo h2 { font-size: 26px; }
 }
 
-/* ---------- Rodapé Liviz Software ---------- */
+/* ---------- Rodapé Liviz Software (arte original) ---------- */
 .liviz { border-top: 1px solid var(--line); background: var(--surface); margin-top: 8px; }
-.liviz-inner { display: flex; align-items: center; gap: 18px; padding-block: 18px calc(18px + env(safe-area-inset-bottom, 0px)); flex-wrap: wrap; justify-content: center; }
-.liviz-logo { background: #ffffff; border-radius: 14px; padding: 4px 8px; line-height: 0; flex: none; }
-.liviz-logo img { width: 84px; height: auto; }
-.liviz-text { display: flex; flex-direction: column; gap: 2px; font-size: 14px; min-width: 0; }
-.liviz-text i { color: var(--muted); }
-.liviz-name { font-family: var(--font-display); font-weight: 800; letter-spacing: .01em;
-  background: linear-gradient(90deg, #6a2cf5, #2f63f6 55%, #16c3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.liviz-contact { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.liviz-contact a { color: var(--ink); text-decoration: none; font-weight: 600; }
-.liviz-contact a:hover { color: var(--accent); }
+.liviz-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-block: 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
+.liviz-banner { display: block; width: 100%; max-width: 600px; background: #ffffff; border-radius: 16px; line-height: 0; overflow: hidden; }
+.liviz-banner img { width: 100%; height: auto; display: block; }
 .liviz-legal { font-size: 12px; color: var(--muted); }
 .liviz-legal a { color: var(--muted); }
 /* ---------- Páginas legais ---------- */

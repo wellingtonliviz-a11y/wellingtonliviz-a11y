@@ -1,15 +1,10 @@
 <footer class="liviz">
   <div class="wrap liviz-inner">
-    <span class="liviz-logo"><img src="{{ url_for('static', filename='img/liviz-logo.webp') }}" alt="Liviz Software" width="84" height="74"></span>
-    <div class="liviz-text">
-      <span>Desenvolvido por <b class="liviz-name">LIVIZ SOFTWARE</b></span>
-      <i>Tecnologia que simplifica negócios.</i>
-      <span class="liviz-contact">
-        <a href="mailto:contato@livizsoftware.com.br">contato@livizsoftware.com.br</a>
-        <span aria-hidden="true">•</span>
-        <a href="https://wa.me/5511927206740" target="_blank" rel="noopener">(11) 92720-6740</a>
-      </span>
-      <span class="liviz-legal"><a href="{{ url_for('main.terms') }}">Termos de uso</a> · <a href="{{ url_for('main.privacy') }}">Política de privacidade</a></span>
-    </div>
+    <a class="liviz-banner" href="https://wa.me/5511927206740" target="_blank" rel="noopener"
+       aria-label="Desenvolvido por Liviz Software. Tecnologia que simplifica negócios. Contato: contato@livizsoftware.com.br, (11) 92720-6740">
+      <img src="{{ url_for('static', filename='img/liviz-banner.webp') }}" width="600" height="200"
+           alt="Desenvolvido por Liviz Software. Tecnologia que simplifica negócios. contato@livizsoftware.com.br • (11) 92720-6740">
+    </a>
+    <span class="liviz-legal"><a href="{{ url_for('main.terms') }}">Termos de uso</a> · <a href="{{ url_for('main.privacy') }}">Política de privacidade</a></span>
   </div>
 </footer>
