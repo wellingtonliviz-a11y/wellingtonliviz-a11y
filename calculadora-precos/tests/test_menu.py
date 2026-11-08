@@ -93,3 +93,14 @@ def test_blocked_customer_menu_goes_offline(app, client):
     hotmart(client, "PURCHASE_REFUNDED")
     assert app.test_client().get("/c/doces-da-ana").status_code == 404
     assert app.test_client().get("/c/nao-existe").status_code == 404
+
+
+def test_sample_photo_route(app, client, tmp_path, monkeypatch):
+    folder = tmp_path / "img" / "exemplos"
+    folder.mkdir(parents=True)
+    (folder / "brigadeiro.jpg").write_bytes(JPEG)
+    monkeypatch.setattr(app, "static_folder", str(tmp_path))
+    r = client.get("/f/ex-brigadeiro")
+    assert r.status_code == 200 and r.data == JPEG
+    assert client.get("/f/ex-nao-existe").status_code == 404
+    assert client.get("/f/ex-..%2Fsegredo").status_code == 404

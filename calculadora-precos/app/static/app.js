@@ -34,6 +34,13 @@
   }
 
   // ---------- dados ----------
+  // fotos de exemplo ficam no próprio sistema (/f/ex-...)
+  var SAMPLE_MENU = {
+    "Brigadeiro tradicional": { show: true, desc: "Chocolate 50% cacau com granulado, feito na hora", photo: "ex-brigadeiro" },
+    "Bolo de pote de chocolate": { show: true, desc: "Massa de chocolate, creme branco e coco ralado", photo: "ex-bolo-de-pote" },
+    "Açaí 300 ml completo": { show: true, desc: "Açaí cremoso com morango, banana, granola e leite condensado", photo: "ex-acai" }
+  };
+  function isSamplePhoto(id) { return /^ex-/.test(id || ""); }
   function sample() {
     var ing = [
       ["Leite condensado", 6.49, 395, "g"], ["Creme de leite", 3.29, 200, "g"],
@@ -62,6 +69,7 @@
                   [id("Leite condensado"), 30], [id("Copo 300 ml + tampa"), 1]] }
       ].map(function (p) {
         p.items = p.items.map(function (it) { return { ingId: it[0], qty: it[1] }; });
+        p.menu = SAMPLE_MENU[p.name] || { show: true, desc: "", photo: null };
         return p;
       })
     };
@@ -205,7 +213,7 @@
     tag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5V4.5A1.5 1.5 0 0 1 4.5 3h7l9.5 9.5-8.5 8.5L3 11.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/></svg>',
     trend: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
-  function productPhoto(p) { return p.menu && p.menu.photo && MODE === "conta" ? p.menu.photo : null; }
+  function productPhoto(p) { var id = p.menu && p.menu.photo; return id && (MODE === "conta" || isSamplePhoto(id)) ? id : null; }
   function heroArt() {
     var withPhoto = state.products.filter(productPhoto)[0];
     if (withPhoto) return '<img src="/f/' + esc(productPhoto(withPhoto)) + '" alt="' + esc(withPhoto.name) + '">';
@@ -510,7 +518,7 @@
     }
     var rows = state.products.filter(function (p) { return (p.name || "").trim(); }).map(function (p) {
       var pm = pmenu(p), price = shownPrice(p);
-      var photo = pm.photo
+      var photo = productPhoto(p)
         ? '<img class="mi-photo" src="/f/' + esc(pm.photo) + '" alt="">'
         : '<div class="mi-photo mi-empty" aria-hidden="true">' + esc(p.name.trim().charAt(0).toUpperCase()) + "</div>";
       return '<div class="menu-item" data-mp="' + p.id + '">' + photo + '<div class="mi-body">' +
@@ -556,7 +564,7 @@
     }).then(function (j) {
       var pm = pmenu(p), old = pm.photo;
       pm.photo = j.id; save();
-      if (old) apiJson("DELETE", "/api/fotos/" + old).catch(function () {});
+      if (old && !isSamplePhoto(old)) apiJson("DELETE", "/api/fotos/" + old).catch(function () {});
       renderMenu();
     }, function (err) {
       if (err.message !== "auth" && msg) msg.textContent = err.message;
@@ -720,7 +728,7 @@
         return;
       case "del-photo":
         var pp = productById(t.dataset.id), oldPhoto = pp && pmenu(pp).photo;
-        if (oldPhoto) { pmenu(pp).photo = null; save(); apiJson("DELETE", "/api/fotos/" + oldPhoto).catch(function () {}); }
+        if (oldPhoto) { pmenu(pp).photo = null; save(); if (!isSamplePhoto(oldPhoto)) apiJson("DELETE", "/api/fotos/" + oldPhoto).catch(function () {}); }
         renderMenu(); return;
       case "restore":
         restoreFrom(document.getElementById("backup-text").value); return;
