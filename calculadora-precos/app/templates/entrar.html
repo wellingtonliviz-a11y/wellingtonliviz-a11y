@@ -1,23 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Entrar · {{ product_name }}{% endblock %}
 {% block body %}
-<main class="wrap auth"><div class="auth-card">
-  {% include "_brand.html" %}
-  <h2>Entre na sua conta</h2>
-  {% include "_flashes.html" %}
-  <form method="post" class="panel">
-    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-    <label class="field"><span>E-MAIL DA COMPRA</span>
-      <input id="email" type="email" name="email" value="{{ email }}" autocomplete="email" required autofocus></label>
-    <label class="field"><span>SENHA</span>
-      <input id="password" type="password" name="password" autocomplete="current-password" required></label>
-    <button class="btn primary" type="submit">Entrar</button>
-  </form>
-  <div class="auth-links">
-    <a href="{{ url_for('auth.forgot') }}">Esqueci minha senha</a>
-    {% if demo_enabled %}<a href="{{ url_for('main.demo') }}">Testar a demonstração</a>{% endif %}
+<main class="wrap wide auth">
+  <div class="auth-split">
+    <section class="auth-promo">
+      {% include "_brand.html" %}
+      <h2>O preço certo e o lucro real de cada doce, salgado e açaí.</h2>
+      <div class="hero-art">{% include "_hero_art.html" %}</div>
+      <ul class="benefits">
+        <li>Custo por unidade com ingredientes, embalagens, gás e o seu trabalho</li>
+        <li>Preço sugerido já com as taxas da maquininha e do iFood</li>
+        <li>Cardápio digital com pedido pronto no seu WhatsApp</li>
+      </ul>
+    </section>
+    <div class="auth-card">
+      <h2>Entre na sua conta</h2>
+      {% include "_flashes.html" %}
+      <form method="post" class="panel">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <label class="field"><span>E-MAIL DA COMPRA</span>
+          <input id="email" type="email" name="email" value="{{ email }}" autocomplete="email" required autofocus></label>
+        <label class="field"><span>SENHA</span>
+          <input id="password" type="password" name="password" autocomplete="current-password" required></label>
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+      <div class="auth-links">
+        <a href="{{ url_for('auth.forgot') }}">Esqueci minha senha</a>
+        {% if demo_enabled %}<a href="{{ url_for('main.demo') }}">Testar a demonstração</a>{% endif %}
+      </div>
+      <p class="hint">A senha chega no seu e-mail logo após a compra ser aprovada. Confira também o spam.
+      {% if support_email %}Precisa de ajuda? {{ support_email }}{% endif %}</p>
+    </div>
   </div>
-  <p class="hint">A senha chega no seu e-mail logo após a compra ser aprovada. Confira também o spam.
-  {% if support_email %}Precisa de ajuda? {{ support_email }}{% endif %}</p>
-</div></main>
+</main>
+{% include "_liviz.html" %}
 {% endblock %}

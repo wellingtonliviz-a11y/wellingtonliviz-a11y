@@ -200,25 +200,52 @@
   }
 
   // ---------- produtos ----------
+  var ICONS = {
+    coin: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M14.8 9.2c-.5-.8-1.5-1.2-2.8-1.2-1.6 0-2.8.8-2.8 2s1.2 1.7 2.8 2 2.8.8 2.8 2-1.2 2-2.8 2c-1.3 0-2.4-.5-2.9-1.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    tag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5V4.5A1.5 1.5 0 0 1 4.5 3h7l9.5 9.5-8.5 8.5L3 11.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/></svg>',
+    trend: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  function productPhoto(p) { return p.menu && p.menu.photo && MODE === "conta" ? p.menu.photo : null; }
+  function heroArt() {
+    var withPhoto = state.products.filter(productPhoto)[0];
+    if (withPhoto) return '<img src="/f/' + esc(productPhoto(withPhoto)) + '" alt="' + esc(withPhoto.name) + '">';
+    var tpl = document.getElementById("heroArt");
+    return tpl ? tpl.innerHTML : "";
+  }
+  function renderHero() {
+    var calcs = state.products.map(function (p) { return { p: p, c: calc(p) }; });
+    var priced = calcs.filter(function (x) { return x.c.current != null; });
+    var avg = priced.length ? priced.reduce(function (s, x) { return s + x.c.currentMargin; }, 0) / priced.length : NaN;
+    var attention = priced.filter(function (x) { return level(x.c.currentMargin, x.c.margin) !== "good"; }).length;
+    var biz = (state.settings.business || "").trim();
+    return '<section class="hero"><div class="hero-text">' +
+      '<span class="eyebrow">' + ICONS.tag.replace('<svg', '<svg width="14" height="14"') + "Calculadora de precificação</span>" +
+      "<h2>" + (biz ? "Olá, " + esc(biz) + "!" : "Descubra o preço certo") + "</h2>" +
+      "<p>Calcule o custo real de cada receita com o que você comprou e usou, inclua taxas e o valor do seu trabalho e veja o preço ideal de venda por unidade.</p>" +
+      '<div class="hero-stats">' +
+      '<div class="hero-stat"><b>' + state.products.length + "</b><span>produtos cadastrados</span></div>" +
+      '<div class="hero-stat"><b>' + (isFinite(avg) ? pct(avg) : "—") + "</b><span>margem média do que você cobra</span></div>" +
+      '<div class="hero-stat' + (attention ? " attn" : "") + '"><b>' + attention + "</b><span>" + (attention === 1 ? "produto precisa" : "produtos precisam") + " de atenção</span></div>" +
+      "</div></div>" +
+      '<div class="hero-art">' + heroArt() + "</div></section>";
+  }
   function renderProducts() {
     var list = state.products.map(function (p) {
       var c = calc(p);
-      var chip;
-      if (c.current != null) {
-        chip = '<span class="chip ' + level(c.currentMargin, c.margin) + '">' + levelLabel(c.currentMargin, c.margin) + " · " + pct(c.currentMargin) + "</span>";
-      } else {
-        chip = '<span class="chip neutral">Sem preço definido</span>';
-      }
-      var priceLine = c.current != null
-        ? "Você cobra " + brl(c.current) + " · sugerido " + brl(c.price)
-        : "Preço sugerido";
-      return '<button class="product" data-action="edit" data-id="' + p.id + '">' +
-        '<span class="p-name">' + esc(p.name || "Sem nome") + "</span>" +
-        '<span class="p-price"><strong class="num">' + brl(c.current != null ? c.current : c.price) + "</strong>" + chip + "</span>" +
-        '<span class="p-meta num">Rende ' + fmt(parseNum(p.yield), 0) + " un · custo " + brl(c.unit) + "/un · " + priceLine + "</span>" +
-        "</button>";
+      var chip = c.current != null
+        ? '<span class="chip ' + level(c.currentMargin, c.margin) + '">' + levelLabel(c.currentMargin, c.margin) + " · " + pct(c.currentMargin) + "</span>"
+        : '<span class="chip neutral">Sugerido</span>';
+      var photo = productPhoto(p);
+      var thumb = photo
+        ? '<img class="p-thumb" src="/f/' + esc(photo) + '" alt="">'
+        : '<span class="p-thumb" aria-hidden="true">' + esc((p.name || "?").trim().charAt(0).toUpperCase() || "?") + "</span>";
+      var meta = "Rende " + fmt(parseNum(p.yield), 0) + " un · custo " + brl(c.unit) + "/un" +
+        (c.current != null ? " · sugerido " + brl(c.price) : "");
+      return '<button class="product" data-action="edit" data-id="' + p.id + '">' + thumb +
+        '<span class="p-main"><span class="p-name">' + esc(p.name || "Sem nome") + '</span><span class="p-meta num">' + meta + "</span></span>" +
+        '<span class="p-price"><strong>' + brl(c.current != null ? c.current : c.price) + "</strong>" + chip + "</span></button>";
     }).join("");
-    app.innerHTML = exampleNotice() +
+    app.innerHTML = renderHero() + exampleNotice() +
       '<div class="row spread"><h2 class="section-title">Seus produtos</h2>' +
       '<button class="btn primary" data-action="new-product">+ Novo produto</button></div>' +
       (state.products.length
@@ -270,13 +297,11 @@
       '<label class="field"><span>PREÇO ATUAL (OPCIONAL)</span><span class="suffix"><input id="p-current" inputmode="decimal" data-p="current" value="' + (parseNum(p.current) > 0 ? esc(fmt(parseNum(p.current), 2)) : "") + '" placeholder="0,00"><em>R$</em></span></label>' +
       "</div></section>" +
 
-      '<section class="result" aria-live="polite">' +
-      '<div><div class="label">Preço sugerido por unidade</div><div class="big num" data-out="price"></div><div class="sub" data-out="price-sub"></div></div>' +
-      '<div class="result-stats">' +
-      '<div><span class="label">Custo por unidade</span><b class="num" data-out="unit"></b></div>' +
-      '<div><span class="label">Lucro por unidade</span><b class="num" data-out="profit"></b></div>' +
-      '<div><span class="label">Lucro na receita</span><b class="num" data-out="profit-batch"></b></div>' +
-      "</div></section>" +
+      '<section class="result" aria-live="polite"><div class="tiles">' +
+      '<div class="tile tile-cost"><span class="tile-label">' + ICONS.coin + 'Custo por unidade</span><b class="num" data-out="unit"></b></div>' +
+      '<div class="tile tile-price"><span class="tile-label">' + ICONS.tag + 'Preço sugerido</span><b class="num" data-out="price"></b></div>' +
+      '<div class="tile tile-profit"><span class="tile-label">' + ICONS.trend + 'Lucro por unidade</span><b class="num" data-out="profit"></b></div>' +
+      '</div><p class="result-sub"><span data-out="price-sub"></span> Lucro na receita inteira: <b class="num" data-out="profit-batch"></b>.</p></section>' +
       '<div data-out="verdict"></div>' +
 
       '<section class="panel"><h3 class="section-title">De onde vem o custo</h3><table class="breakdown"><tbody data-out="breakdown"></tbody></table>' +
@@ -496,8 +521,9 @@
           ? '<div class="row"><label class="btn small" for="ph-' + p.id + '">' + (pm.photo ? "Trocar foto" : "Adicionar foto") + "</label>" +
             '<input type="file" accept="image/*" id="ph-' + p.id + '" data-photo="' + p.id + '" hidden>' +
             (pm.photo ? '<button class="btn small ghost" data-action="del-photo" data-id="' + p.id + '">Remover foto</button>' : "") +
+            '<button class="btn small ghost" data-action="menu-edit" data-id="' + p.id + '">Editar produto</button>' +
             '<span class="hint" data-phmsg="' + p.id + '"></span></div>'
-          : "") +
+          : '<div class="row"><button class="btn small ghost" data-action="menu-edit" data-id="' + p.id + '">Editar produto</button></div>') +
         "</div></div>";
     }).join("");
     app.innerHTML =
@@ -509,9 +535,13 @@
       '<label class="field"><span>MENSAGEM DE BOAS-VINDAS</span><textarea id="m-intro" data-m="intro" maxlength="500" rows="2" placeholder="Doces artesanais feitos com carinho. Encomendas com 2 dias de antecedência.">' + esc(m.intro) + "</textarea></label>" +
       '<label class="field"><span>ENTREGA E RETIRADA</span><input id="m-delivery" data-m="delivery" maxlength="300" value="' + esc(m.delivery) + '" placeholder="Entregamos no Centro (taxa R$ 5). Retirada na Rua das Flores, 123."></label>' +
       "</section>" +
-      '<section class="panel"><h3 class="section-title">Produtos no cardápio</h3>' +
-      '<p class="hint">O preço mostrado é o que você cobra hoje. Se você não informou, usamos o preço sugerido. Desmarque o que não quiser mostrar.</p>' +
-      (rows ? '<div class="menu-items">' + rows + "</div>" : '<p class="hint">Cadastre produtos na aba Produtos para eles aparecerem aqui.</p>') +
+      '<section class="panel"><div class="row spread"><h3 class="section-title">Produtos no cardápio</h3>' +
+      '<button class="btn primary small" data-action="menu-new">+ Novo produto</button></div>' +
+      '<p class="hint">Os produtos do cardápio são os mesmos da aba <b>Produtos</b>: todo produto que você cadastra aparece aqui. ' +
+      'Desmarque o que não quiser mostrar. O preço é o que você cobra hoje ou, se não informou, o sugerido.</p>' +
+      (rows ? '<div class="menu-items">' + rows + "</div>"
+        : '<div class="empty"><p>Você ainda não tem produtos.<br>Crie o primeiro e ele aparece aqui no cardápio.</p>' +
+          '<button class="btn primary" data-action="menu-new">+ Criar meu primeiro produto</button></div>') +
       "</section>";
     if (menuLink.url) drawQr(document.getElementById("qr"), menuLink.url, 148);
   }
@@ -598,6 +628,11 @@
         state = sample(); save(); setTab("produtos"); return;
       case "go-ings": setTab("ingredientes"); return;
       case "go-settings": setTab("ajustes"); return;
+      case "menu-edit":
+        setTab("produtos"); view.editing = t.dataset.id; render(); window.scrollTo(0, 0); return;
+      case "menu-new":
+        setTab("produtos");
+        /* falls through */
       case "new-product":
         var np = { id: uid(), name: "", yield: 1, minutes: 0, margin: null, current: 0, items: [{ ingId: "", qty: 0 }] };
         state.products.unshift(np); state.example = false; save();
