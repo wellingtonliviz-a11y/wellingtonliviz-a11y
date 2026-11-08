@@ -4,7 +4,7 @@ import math
 import re
 import secrets
 
-from flask import Blueprint, Response, abort, current_app, g, jsonify, render_template, request
+from flask import Blueprint, Response, abort, current_app, g, jsonify, render_template, request, send_from_directory
 from sqlalchemy import func, select
 
 from .models import Menu, Photo, User, UserData, utcnow
@@ -156,6 +156,11 @@ def delete_photo(photo_id):
 
 @bp.get("/f/<photo_id>")
 def photo(photo_id):
+    sample = re.fullmatch(r"ex-([a-z0-9-]{1,40})", photo_id)
+    if sample:  # fotos dos produtos de exemplo, guardadas no projeto
+        resp = send_from_directory(f"{current_app.static_folder}/img/exemplos", f"{sample.group(1)}.jpg",
+                                   max_age=60 * 60 * 24 * 7)
+        return resp
     row = current_app.db.session.get(Photo, photo_id) if re.fullmatch(r"[0-9a-f]{32}", photo_id) else None
     if row is None:
         abort(404)
