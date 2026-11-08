@@ -50,6 +50,17 @@ def load_config() -> dict:
         "HOTMART_PRODUCT_IDS": _list("HOTMART_PRODUCT_IDS"),
         "KIWIFY_TOKEN": os.getenv("KIWIFY_TOKEN", ""),
         "KIWIFY_PRODUCT_IDS": _list("KIWIFY_PRODUCT_IDS"),
+        "ASAAS_WEBHOOK_TOKEN": os.getenv("ASAAS_WEBHOOK_TOKEN", ""),
+        "ASAAS_API_KEY": os.getenv("ASAAS_API_KEY", ""),
+        "ASAAS_API_URL": os.getenv("ASAAS_API_URL", "https://api.asaas.com/v3").rstrip("/"),
+        # Só pagamentos destes links liberam acesso (obrigatório: a conta pode ter outros negócios)
+        "ASAAS_PAYMENT_LINK_IDS": _list("ASAAS_PAYMENT_LINK_IDS"),
+        # Bloqueia quando a cobrança vence sem pagamento (libera de novo ao pagar)
+        "ASAAS_BLOCK_OVERDUE": os.getenv("ASAAS_BLOCK_OVERDUE", "1") != "0",
+        # Empresa (Termos de uso e Política de privacidade)
+        "COMPANY_NAME": os.getenv("COMPANY_NAME", "Liviz Software"),
+        "COMPANY_DOC": os.getenv("COMPANY_DOC", ""),
+        "COMPANY_EMAIL": os.getenv("COMPANY_EMAIL", "contato@livizsoftware.com.br"),
         # Administração
         "ADMIN_EMAILS": _list("ADMIN_EMAILS"),
         "ADMIN_INITIAL_PASSWORD": os.getenv("ADMIN_INITIAL_PASSWORD", ""),

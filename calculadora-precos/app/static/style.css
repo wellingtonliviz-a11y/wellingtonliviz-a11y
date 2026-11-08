@@ -321,15 +321,31 @@ table.users form { margin: 0; }
   .auth-promo h2 { font-size: 26px; }
 }
 
-/* ---------- Rodapé Liviz Software ---------- */
+/* ---------- Rodapé Liviz Software (arte original) ---------- */
 .liviz { border-top: 1px solid var(--line); background: var(--surface); margin-top: 8px; }
-.liviz-inner { display: flex; align-items: center; gap: 18px; padding-block: 18px calc(18px + env(safe-area-inset-bottom, 0px)); flex-wrap: wrap; justify-content: center; }
-.liviz-logo { background: #ffffff; border-radius: 14px; padding: 4px 8px; line-height: 0; flex: none; }
-.liviz-logo img { width: 84px; height: auto; }
-.liviz-text { display: flex; flex-direction: column; gap: 2px; font-size: 14px; min-width: 0; }
-.liviz-text i { color: var(--muted); }
-.liviz-name { font-family: var(--font-display); font-weight: 800; letter-spacing: .01em;
-  background: linear-gradient(90deg, #6a2cf5, #2f63f6 55%, #16c3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.liviz-contact { display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-.liviz-contact a { color: var(--ink); text-decoration: none; font-weight: 600; }
-.liviz-contact a:hover { color: var(--accent); }
+.liviz-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-block: 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
+.liviz-banner { display: block; width: 100%; max-width: 600px; background: #ffffff; border-radius: 16px; line-height: 0; overflow: hidden; }
+.liviz-banner img { width: 100%; height: auto; display: block; }
+.liviz-legal { font-size: 12px; color: var(--muted); }
+.liviz-legal a { color: var(--muted); }
+/* ---------- Páginas legais ---------- */
+.legal { max-width: 720px; padding-block: 32px 48px; display: flex; flex-direction: column; gap: 14px; }
+.legal h1 { font-size: clamp(28px, 6vw, 38px); font-weight: 800; }
+.legal h2 { font-size: 19px; font-weight: 600; margin-top: 12px; }
+.legal p, .legal li { color: var(--ink); max-width: 68ch; }
+.legal ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.legal .updated { color: var(--muted); font-size: 13px; }
+
+/* ---------- Chave de tema claro/escuro ---------- */
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.theme-switch { appearance: none; border: 0; background: none; padding: 4px; cursor: pointer; line-height: 0; flex: none; }
+.ts-track { position: relative; display: block; width: 52px; height: 28px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--line); transition: background .2s; }
+.ts-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); color: var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center; }
+.ts-thumb svg { width: 13px; height: 13px; }
+.ts-moon { display: none; }
+.theme-switch[aria-checked="true"] .ts-thumb { transform: translateX(24px); }
+.theme-switch[aria-checked="true"] .ts-sun { display: none; }
+.theme-switch[aria-checked="true"] .ts-moon { display: block; }
+@media (prefers-reduced-motion: no-preference) { .ts-thumb { transition: transform .2s ease; } }
+.theme-switch[aria-checked="true"] .ts-track { background: var(--accent); border-color: var(--accent); }

@@ -23,6 +23,7 @@
         <label class="field"><span>SENHA</span>
           <input id="password" type="password" name="password" autocomplete="current-password" required></label>
         <button class="btn primary" type="submit">Entrar</button>
+        <p class="hint">Ao entrar, você concorda com os <a href="{{ url_for('main.terms') }}">Termos de uso</a> e a <a href="{{ url_for('main.privacy') }}">Política de privacidade</a>.</p>
       </form>
       <div class="auth-links">
         <a href="{{ url_for('auth.forgot') }}">Esqueci minha senha</a>

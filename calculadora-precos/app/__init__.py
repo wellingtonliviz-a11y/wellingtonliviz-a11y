@@ -41,7 +41,9 @@ def create_app(overrides: dict | None = None) -> Flask:
         cfg = app.config
         return {"csrf_token": csrf_token, "product_name": cfg["PRODUCT_NAME"],
                 "support_email": cfg["SUPPORT_EMAIL"], "checkout_url": cfg["CHECKOUT_URL"],
-                "demo_enabled": cfg["DEMO_ENABLED"], "is_admin": is_admin(g.get("user"))}
+                "demo_enabled": cfg["DEMO_ENABLED"], "is_admin": is_admin(g.get("user")),
+                "company_name": cfg["COMPANY_NAME"], "company_doc": cfg["COMPANY_DOC"],
+                "company_email": cfg["COMPANY_EMAIL"], "app_url": cfg["APP_URL"]}
 
     @app.after_request
     def security_headers(resp):
