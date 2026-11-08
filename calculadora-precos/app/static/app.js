@@ -631,9 +631,9 @@
 
     switch (a) {
       case "start-blank":
-        state = blank(); save(); setTab("ingredientes"); return;
+        var keepMenu1 = state.menu; state = blank(); if (keepMenu1) state.menu = keepMenu1; save(); setTab("ingredientes"); return;
       case "load-sample":
-        state = sample(); save(); setTab("produtos"); return;
+        var keepMenu2 = state.menu; state = sample(); if (keepMenu2) state.menu = keepMenu2; save(); setTab("produtos"); return;
       case "go-ings": setTab("ingredientes"); return;
       case "go-settings": setTab("ajustes"); return;
       case "menu-edit":
