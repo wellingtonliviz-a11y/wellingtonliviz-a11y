@@ -3,14 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#6b2a5f">
+<meta name="theme-color" content="#cf2f66">
 <title>{% block title %}{{ product_name }}{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script>(function(){try{var t=localStorage.getItem("pf-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
 </head>
 <body>
 {% block body %}{% endblock %}
+<script>
+(function () {
+  var root = document.documentElement, mq = window.matchMedia("(prefers-color-scheme: dark)");
+  function isDark() { var t = root.getAttribute("data-theme"); return t ? t === "dark" : mq.matches; }
+  function sync() {
+    var dark = isDark();
+    document.querySelectorAll("[data-theme-toggle]").forEach(function (b) {
+      b.setAttribute("aria-checked", String(dark));
+      b.title = dark ? "Mudar para o tema claro" : "Mudar para o tema escuro";
+    });
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = dark ? "#191115" : "#cf2f66";
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest("[data-theme-toggle]")) return;
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem("pf-theme", next); } catch (err) { /* aparelho sem armazenamento */ }
+    sync();
+  });
+  if (mq.addEventListener) mq.addEventListener("change", sync);
+  sync();
+})();
+</script>
 </body>
 </html>

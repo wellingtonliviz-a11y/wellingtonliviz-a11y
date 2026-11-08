@@ -335,3 +335,17 @@ table.users form { margin: 0; }
 .legal p, .legal li { color: var(--ink); max-width: 68ch; }
 .legal ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .legal .updated { color: var(--muted); font-size: 13px; }
+
+/* ---------- Chave de tema claro/escuro ---------- */
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.theme-switch { appearance: none; border: 0; background: none; padding: 4px; cursor: pointer; line-height: 0; flex: none; }
+.ts-track { position: relative; display: block; width: 52px; height: 28px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--line); transition: background .2s; }
+.ts-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); color: var(--accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center; }
+.ts-thumb svg { width: 13px; height: 13px; }
+.ts-moon { display: none; }
+.theme-switch[aria-checked="true"] .ts-thumb { transform: translateX(24px); }
+.theme-switch[aria-checked="true"] .ts-sun { display: none; }
+.theme-switch[aria-checked="true"] .ts-moon { display: block; }
+@media (prefers-reduced-motion: no-preference) { .ts-thumb { transition: transform .2s ease; } }
+.theme-switch[aria-checked="true"] .ts-track { background: var(--accent); border-color: var(--accent); }

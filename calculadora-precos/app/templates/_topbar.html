@@ -6,6 +6,7 @@
         <span class="biz" id="bizName"></span>
       </div>
       <div class="top-actions">
+        {% include "_theme_toggle.html" %}
         {% if mode == 'conta' %}<span class="save-status" id="saveStatus" aria-live="polite"></span>{% endif %}
         {% if g.user %}
           {% if is_admin %}<a href="{{ url_for('admin.index') }}">Painel</a>{% endif %}
