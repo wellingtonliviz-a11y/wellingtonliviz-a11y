@@ -323,9 +323,23 @@ table.users form { margin: 0; }
 
 /* ---------- Rodapé Liviz Software (arte original) ---------- */
 .liviz { border-top: 1px solid var(--line); background: var(--surface); margin-top: 8px; }
+:root:not([data-theme="dark"]) .liviz { background: #ffffff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .liviz { background: var(--surface); } }
 .liviz-inner { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-block: 14px calc(14px + env(safe-area-inset-bottom, 0px)); }
-.liviz-banner { display: block; width: 100%; max-width: 600px; background: #ffffff; border-radius: 16px; line-height: 0; overflow: hidden; }
+.liviz-banner { display: block; width: 100%; max-width: 600px; line-height: 0; }
 .liviz-banner img { width: 100%; height: auto; display: block; }
+/* versão de letras escuras no tema claro; versão transparente de letras brancas no tema escuro */
+.liviz-img-dark { display: none !important; }
+.liviz-contact-line { display: none; font-size: 13px; }
+.liviz-contact-line a { color: var(--ink); text-decoration: none; font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .liviz-img-light { display: none !important; }
+  :root:not([data-theme="light"]) .liviz-img-dark { display: block !important; }
+  :root:not([data-theme="light"]) .liviz-contact-line { display: block; }
+}
+:root[data-theme="dark"] .liviz-img-light { display: none !important; }
+:root[data-theme="dark"] .liviz-img-dark { display: block !important; }
+:root[data-theme="dark"] .liviz-contact-line { display: block; }
 .liviz-legal { font-size: 12px; color: var(--muted); }
 .liviz-legal a { color: var(--muted); }
 /* ---------- Páginas legais ---------- */
