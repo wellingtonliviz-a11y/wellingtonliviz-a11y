@@ -10,6 +10,7 @@ Cada cliente tem a sua pasta, assim nada fica espalhado.
 - **Painel:** o que sai hoje, posts atrasados, próximos 7 dias, o que está com o cliente, entregas do mês por cliente e pagamentos chegando.
 - **Agenda:** calendário do mês com todos os clientes (ou um só), com cor por cliente e por status.
 - **Aprovação pelo cliente:** cada cliente tem um link secreto. Lá ele vê as artes e as legendas e aprova ou pede ajuste, sem senha. Esse link pode ser enviado pelo WhatsApp com um clique.
+- **Criar arte:** 4 modelos (promoção, produto em destaque, horário de funcionamento e data comemorativa), em feed 4:5 ou story 9:16. Eles usam as cores, o logo, o endereço e o WhatsApp do cliente. Você escolhe uma foto da pasta do cliente ou do computador (por exemplo, gerada no Flow), digita os textos e salva o PNG direto na postagem.
 - **Na hora de postar:** prévia estilo Instagram, um botão para copiar legenda e hashtags e outro para baixar a arte.
 
 ## Rodar no computador

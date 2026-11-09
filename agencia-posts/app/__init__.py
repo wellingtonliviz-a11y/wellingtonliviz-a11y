@@ -21,10 +21,10 @@ def create_app(overrides: dict | None = None) -> Flask:
 
     app.db = Database(app.config["DATABASE_URL"])
 
-    from . import aprovacao, arquivos, auth, cli, clientes, postagens
+    from . import aprovacao, arquivos, artes, auth, cli, clientes, postagens
     from .security import check_csrf, csrf_token, load_current_user
 
-    for module in (auth, clientes, arquivos, postagens, aprovacao):
+    for module in (auth, clientes, arquivos, artes, postagens, aprovacao):
         app.register_blueprint(module.bp)
     cli.register(app)
 

@@ -27,7 +27,8 @@ def fill_client(client: Client, form) -> list[str]:
     client.name = form.get("name", "").strip()[:120]
     if not client.name:
         errors.append("Informe o nome do comércio.")
-    for field, limit in (("segment", 80), ("contact_name", 120), ("phone", 40), ("email", 255), ("fonts", 200)):
+    for field, limit in (("segment", 80), ("contact_name", 120), ("phone", 40), ("email", 255), ("address", 200),
+                         ("fonts", 200)):
         setattr(client, field, form.get(field, "").strip()[:limit])
     client.instagram = form.get("instagram", "").strip().lstrip("@").removeprefix("https://www.instagram.com/")
     client.instagram = client.instagram.strip("/")[:80]

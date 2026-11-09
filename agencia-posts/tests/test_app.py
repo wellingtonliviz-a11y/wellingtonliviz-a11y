@@ -167,3 +167,27 @@ def test_open_redirect_blocked(app):
     r = c.post("/entrar", data={"_csrf": _csrf(c), "email": "dono@ex.com", "password": "senha-forte-1",
                                 "next": "//evil.com"})
     assert r.headers["Location"] == "/"
+
+
+def test_art_editor_saves_png(web, app):
+    cid = _new_client(web, address="Rua A, 1")
+    day = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    web.post("/postagens/nova", data={"_csrf": web.token, "client_id": str(cid), "date": day, "theme": "Promo"})
+    post = app.db.session.query(Post).one()
+    html = web.get(f"/clientes/{cid}/criar-arte?post={post.id}").get_data(as_text=True)
+    assert "Rua A, 1" in html and "Salvar na postagem" in html
+    r = web.post(f"/clientes/{cid}/criar-arte", content_type="multipart/form-data",
+                 data={"_csrf": web.token, "post_id": str(post.id), "arte": (io.BytesIO(PNG), "a.png")})
+    assert r.status_code == 200 and r.json["ok"] and r.json["voltar"] == f"/postagens/{post.id}"
+    app.db.session.expire_all()
+    assert len(app.db.session.get(Post, post.id).arts) == 1
+    # outro tipo de arquivo é recusado
+    r = web.post(f"/clientes/{cid}/criar-arte", content_type="multipart/form-data",
+                 data={"_csrf": web.token, "arte": (io.BytesIO(b"%PDF-1.4"), "a.pdf")})
+    assert r.status_code == 400
+    assert app.db.session.query(File).count() == 1
+    # postagem de outro cliente não é aceita
+    other = _new_client(web, name="Outro")
+    r = web.post(f"/clientes/{other}/criar-arte", content_type="multipart/form-data",
+                 data={"_csrf": web.token, "post_id": str(post.id), "arte": (io.BytesIO(PNG), "b.png")})
+    assert r.json["voltar"].startswith(f"/clientes/{other}")

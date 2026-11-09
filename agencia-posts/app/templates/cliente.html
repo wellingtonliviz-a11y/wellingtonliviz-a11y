@@ -19,6 +19,7 @@
   </div>
   <div class="botoes">
     <a class="btn btn-primario" href="{{ url_for('postagens.new', cliente=client.id) }}">+ Postagem</a>
+    <a class="btn" href="{{ url_for('artes.editor', cid=client.id) }}">🎨 Criar arte</a>
     <a class="btn" href="{{ url_for('postagens.agenda', cliente=client.id) }}">Agenda</a>
     <a class="btn" href="{{ url_for('clientes.edit', cid=client.id) }}">Editar</a>
   </div>
@@ -94,6 +95,7 @@
       <dl class="dados">
         <dt>Responsável</dt><dd>{{ client.contact_name or '—' }}</dd>
         <dt>WhatsApp</dt><dd>{% if wa_link %}<a href="{{ wa_link.split('?')[0] }}" target="_blank" rel="noopener">{{ client.phone }}</a>{% else %}{{ client.phone or '—' }}{% endif %}</dd>
+        <dt>Endereço</dt><dd>{{ client.address or '—' }}</dd>
         <dt>E-mail</dt><dd>{% if client.email %}<a href="mailto:{{ client.email }}">{{ client.email }}</a>{% else %}—{% endif %}</dd>
       </dl>
     </section>

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Criar arte · {{ client.name }}{% endblock %}
+{% block content %}
+{% set cfg = {
+  "name": client.name, "segment": client.segment, "instagram": client.instagram, "phone": client.phone,
+  "address": client.address, "primary": client.color_primary, "secondary": client.color_secondary,
+  "logo": url_for('arquivos.show', fid=client.logo_id) if client.logo_id else None,
+  "post_id": post.id if post else None, "theme": post.theme if post else "",
+  "save_url": url_for('artes.save', cid=client.id), "csrf": csrf_token(),
+  "fonts": url_for('static', filename='fonts/'), "format": fmt
+} %}
+<div class="cabecalho">
+  <div>
+    <h1>Criar arte</h1>
+    <p class="sutil">{{ client.name }}{% if post %} · para a postagem “{{ post.theme or 'sem tema' }}” de {{ post.scheduled_at | data_curta }}{% endif %}</p>
+  </div>
+  <a class="btn" href="{{ url_for('postagens.edit', pid=post.id) if post else url_for('clientes.detail', cid=client.id) }}">Voltar</a>
+</div>
+
+<div class="grade-arte">
+  <div class="arte-palco cartao">
+    <canvas id="arte" width="1080" height="1350" aria-label="Prévia da arte"></canvas>
+    <p class="sutil arte-carregando" data-carregando>Carregando fontes…</p>
+  </div>
+
+  <form class="cartao form arte-form" id="arte-form" data-cliente="{{ cfg | tojson | forceescape }}" onsubmit="return false">
+    <fieldset>
+      <legend>Modelo</legend>
+      <div class="opcoes">
+        <label class="opcao"><input type="radio" name="modelo" value="promo" checked><span>🏷️ Promoção</span></label>
+        <label class="opcao"><input type="radio" name="modelo" value="produto"><span>📸 Produto em destaque</span></label>
+        <label class="opcao"><input type="radio" name="modelo" value="horario"><span>🕒 Horário</span></label>
+        <label class="opcao"><input type="radio" name="modelo" value="recado"><span>🎉 Data / recado</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Formato</legend>
+      <div class="opcoes">
+        <label class="opcao"><input type="radio" name="formato" value="feed" {{ 'checked' if fmt == 'feed' }}><span>Feed 4:5</span></label>
+        <label class="opcao"><input type="radio" name="formato" value="story" {{ 'checked' if fmt == 'story' }}><span>Story / Reels 9:16</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset data-campo="foto">
+      <legend>Foto</legend>
+      <div class="fotos">
+        <label class="foto-opcao"><input type="radio" name="foto" value="" checked><span class="foto-nenhuma">sem foto</span></label>
+        {% for f in images %}
+        <label class="foto-opcao"><input type="radio" name="foto" value="{{ url_for('arquivos.show', fid=f.id) }}"><img src="{{ url_for('arquivos.show', fid=f.id) }}" alt="{{ f.name }}" loading="lazy"></label>
+        {% endfor %}
+      </div>
+      <label>Ou use uma foto do computador (ex.: gerada no Flow)
+        <input type="file" name="foto_local" accept="image/png,image/jpeg,image/webp"></label>
+      <div class="linha">
+        <label>Zoom <input type="range" name="zoom" min="1" max="2.5" step="0.05" value="1"></label>
+        <label>Posição ↕ <input type="range" name="posy" min="0" max="100" value="50"></label>
+      </div>
+      <label>Posição ↔ <input type="range" name="posx" min="0" max="100" value="50"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Textos</legend>
+      <label data-campo="selo">Selo <input name="selo" maxlength="40"></label>
+      <label data-campo="titulo">Título <input name="titulo" maxlength="60"></label>
+      <label data-campo="destaque">Título — parte colorida <input name="destaque" maxlength="60"></label>
+      <label data-campo="texto">Texto de apoio <input name="texto" maxlength="120"></label>
+      <label data-campo="horarios">Horários (um por linha, use “:”) <textarea name="horarios" rows="4"></textarea></label>
+      <div class="linha" data-campo="preco">
+        <label>Preço (R$) <input name="preco" maxlength="10" inputmode="decimal" placeholder="vazio = sem selo"></label>
+        <label>Acima do preço <input name="preco_topo" maxlength="20"></label>
+      </div>
+      <label data-campo="preco_base">Abaixo do preço <input name="preco_base" maxlength="22"></label>
+      <label data-campo="cta">Botão (só no story) <input name="cta" maxlength="30"></label>
+      <label data-campo="rodape1">Rodapé 1 <input name="rodape1" maxlength="50"></label>
+      <label data-campo="rodape2">Rodapé 2 <input name="rodape2" maxlength="50"></label>
+    </fieldset>
+
+    <div class="botoes arte-botoes">
+      <button type="button" class="btn btn-primario" data-salvar>{{ 'Salvar na postagem' if post else 'Salvar na pasta do cliente' }}</button>
+      <button type="button" class="btn" data-baixar>Baixar PNG</button>
+    </div>
+    <p class="sutil" data-status role="status"></p>
+  </form>
+</div>
+<script src="{{ url_for('static', filename='arte.js') }}"></script>
+{% endblock %}

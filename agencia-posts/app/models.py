@@ -45,6 +45,7 @@ class Client(Base):
     contact_name: Mapped[str] = mapped_column(String(120), default="")
     phone: Mapped[str] = mapped_column(String(40), default="")
     email: Mapped[str] = mapped_column(String(255), default="")
+    address: Mapped[str] = mapped_column(String(200), default="")           # sai no rodapé das artes
     color_primary: Mapped[str] = mapped_column(String(7), default="#7c3aed")
     color_secondary: Mapped[str] = mapped_column(String(7), default="#f59e0b")
     fonts: Mapped[str] = mapped_column(String(200), default="")

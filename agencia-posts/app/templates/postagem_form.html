@@ -59,6 +59,7 @@
         {% endfor %}
       </div>
       {% endif %}
+      {% if post.id %}<a class="btn btn-peq criar-arte" href="{{ url_for('artes.editor', cid=post.client_id, post=post.id) }}">🎨 Criar arte com modelo</a>{% endif %}
       <label>Enviar arte(s) <input type="file" name="artes" multiple accept="image/*,application/pdf,video/mp4"></label>
       {% if loose %}
       <details class="mais"><summary>Usar fotos que já estão na pasta do cliente ({{ loose|length }})</summary>

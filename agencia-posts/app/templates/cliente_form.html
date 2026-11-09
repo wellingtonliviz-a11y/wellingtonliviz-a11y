@@ -22,6 +22,7 @@
     <label>Responsável <input name="contact_name" value="{{ client.contact_name or '' }}" maxlength="120"></label>
     <label>WhatsApp <input name="phone" value="{{ client.phone or '' }}" maxlength="40" inputmode="tel" placeholder="(11) 99999-9999"></label>
     <label>E-mail <input type="email" name="email" value="{{ client.email or '' }}" maxlength="255"></label>
+    <label>Endereço (aparece nas artes) <input name="address" value="{{ client.address or '' }}" maxlength="200" placeholder="Rua das Flores, 123 · Centro"></label>
   </section>
 
   <section class="cartao">
