@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% set buy_url = checkout_url or url_for('main.demo') %}
+{% block title %}{{ product_name }} · Calculadora de preço para doces, salgados e açaí{% endblock %}
+{% block head %}
+<meta name="description" content="Descubra o preço certo e o lucro real de cada doce, salgado e açaí. Calculadora online com cardápio digital e pedidos no WhatsApp. R$ {{ plan_price }} por mês.">
+<meta property="og:title" content="{{ product_name }}: o preço certo e o lucro real de cada produto">
+<meta property="og:description" content="Calculadora de preço para quem vende doces, salgados e açaí, com cardápio digital e pedidos no WhatsApp.">
+<meta property="og:image" content="{{ app_url }}{{ url_for('static', filename='img/precifica-facil-og.jpg') }}">
+<meta property="og:url" content="{{ app_url }}/">
+{% endblock %}
+{% block body %}
+<header class="top lp-top">
+  <div class="wrap wide top-inner">
+    <div class="top-row">
+      <div class="brand"><h1>{% include "_mark.html" %}{{ product_name.rsplit(' ', 1)[0] }} <span>{{ product_name.rsplit(' ', 1)[-1] if ' ' in product_name else '' }}</span></h1></div>
+      <div class="top-actions">
+        {% include "_theme_toggle.html" %}
+        <a href="{{ url_for('auth.login') }}">Entrar</a>
+        <a class="btn primary small lp-top-cta" href="{{ buy_url }}">Assinar</a>
+      </div>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+</header>
+
+<main class="lp">
+  <!-- Destaque -->
+  <section class="lp-band lp-hero-band">
+    <div class="wrap wide lp-hero">
+      <div class="lp-hero-text">
+        <span class="eyebrow">Para quem vende doces, salgados, bolos e açaí</span>
+        <h2>Descubra o <em>preço certo</em> e o lucro real de cada produto</h2>
+        <p>Cadastre o que você paga no mercado, monte a receita e veja na hora quanto custa cada unidade, quanto cobrar e quanto sobra no seu bolso. Com taxas, gás, embalagem e o seu trabalho incluídos.</p>
+        <div class="lp-ctas">
+          <a class="btn primary lp-big" href="{{ buy_url }}">Assinar por R$ {{ plan_price }}/mês</a>
+          {% if demo_enabled %}<a class="btn lp-big" href="{{ url_for('main.demo') }}">Testar grátis</a>{% endif %}
+        </div>
+        <ul class="lp-trust">
+          <li>Acesso na hora, por e-mail</li>
+          <li>Cancele quando quiser</li>
+          <li>7 dias para desistir</li>
+        </ul>
+      </div>
+      <div class="lp-hero-art">
+        <img src="{{ url_for('static', filename='img/exemplos/brigadeiro.jpg') }}" alt="Brigadeiro com granulado em forminha rosa" width="900" height="900">
+        <div class="lp-price-card">
+          <span class="tile-label">Preço sugerido</span>
+          <b>R$ 2,00</b>
+          <small>Custo R$ 0,89 · lucro de R$ 1,03 por unidade</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dor -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Você sabe quanto lucra em cada venda?</h2>
+    <div class="lp-cards three">
+      <article class="lp-card"><h3>Preço no chute</h3><p>Copiar o preço da concorrente ou "arredondar para cima" parece seguro, até a conta não fechar no fim do mês.</p></article>
+      <article class="lp-card"><h3>Custos escondidos</h3><p>Embalagem, gás, luz, taxa da maquininha e do iFood e as horas que você passa na cozinha também saem do seu lucro.</p></article>
+      <article class="lp-card"><h3>Mercado que sobe</h3><p>O leite condensado aumentou? Sem refazer as contas, o lucro que você tinha vira prejuízo sem você perceber.</p></article>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section class="lp-band">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Como funciona</h2>
+      <ol class="lp-steps">
+        <li><b>Cadastre os ingredientes</b><span>Digite o preço que pagou e o tamanho da embalagem. Ex.: leite condensado, R$ 6,49, 395 g.</span></li>
+        <li><b>Monte a receita</b><span>Escolha os ingredientes, as quantidades, quantas unidades rende e o tempo de preparo.</span></li>
+        <li><b>Veja o preço e o lucro</b><span>Custo por unidade, preço sugerido e lucro aparecem na hora. Se você já vende, ele diz se está na meta ou no prejuízo.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Exemplo real -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Veja um exemplo real</h2>
+    <p class="lp-lead">Brigadeiro tradicional: receita que rende 30 unidades, com 50 minutos de trabalho, margem de 40% e 4% de taxa da maquininha.</p>
+    <div class="lp-example">
+      <div class="tiles">
+        <div class="tile tile-cost"><span class="tile-label">Custo por unidade</span><b class="num">R$ 0,89</b></div>
+        <div class="tile tile-price"><span class="tile-label">Preço sugerido</span><b class="num">R$ 2,00</b></div>
+        <div class="tile tile-profit"><span class="tile-label">Lucro por unidade</span><b class="num">R$ 1,03</b></div>
+      </div>
+      <div class="verdict warn"><strong>Abaixo da meta</strong><span>Cobrando R$ 1,50 você lucra R$ 0,55 por unidade. Para chegar na margem desejada, aumente R$ 0,50.</span></div>
+    </div>
+  </section>
+
+  <!-- Recursos -->
+  <section class="lp-band">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Tudo o que você precisa para precificar e vender</h2>
+      <div class="lp-cards three">
+        <article class="lp-card"><h3>Preço sugerido completo</h3><p>Já considera taxas da maquininha e do iFood, gás, luz, perdas e o valor da sua hora.</p></article>
+        <article class="lp-card"><h3>Diagnóstico do seu preço</h3><p>Mostra se o que você cobra hoje está na meta, abaixo dela ou dando prejuízo, e quanto ajustar.</p></article>
+        <article class="lp-card"><h3>Atualização automática</h3><p>Mudou o preço de um ingrediente? Todos os produtos que usam ele são recalculados na hora.</p></article>
+        <article class="lp-card"><h3>Cardápio digital</h3><p>Link próprio e QR Code com fotos e preços dos seus produtos, para mandar aos clientes.</p></article>
+        <article class="lp-card"><h3>Pedido pronto no WhatsApp</h3><p>Seu cliente escolhe as quantidades e a mensagem chega com os itens e o total calculado.</p></article>
+        <article class="lp-card"><h3>Celular e computador</h3><p>Seus dados ficam salvos na nuvem. Use no celular como um aplicativo, sem instalar nada.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cardápio -->
+  <section class="wrap wide lp-section lp-menu-show">
+    <div>
+      <h2 class="lp-h2">Seu cardápio com link e QR Code</h2>
+      <p class="lp-lead">Os produtos que você cadastrou viram um cardápio bonito, com fotos e preços. Coloque o link na bio do Instagram, no status do WhatsApp ou imprima o QR Code para o balcão.</p>
+      <ul class="lp-trust">
+        <li>O preço do cardápio é o que você cobra</li>
+        <li>Acabou um produto? Desmarque e ele some</li>
+        <li>O pedido chega com o total somado</li>
+      </ul>
+    </div>
+    <div class="lp-phone" aria-label="Exemplo de cardápio no celular">
+      <div class="lp-phone-head">Doces da Ana</div>
+      <div class="lp-dish"><img src="{{ url_for('static', filename='img/exemplos/brigadeiro.jpg') }}" alt="" width="64" height="64"><span><b>Brigadeiro tradicional</b><small>R$ 2,00</small></span><i>2</i></div>
+      <div class="lp-dish"><img src="{{ url_for('static', filename='img/exemplos/bolo-de-pote.jpg') }}" alt="" width="64" height="64"><span><b>Bolo de pote de chocolate</b><small>R$ 12,00</small></span><i>1</i></div>
+      <div class="lp-dish"><img src="{{ url_for('static', filename='img/exemplos/acai.jpg') }}" alt="" width="64" height="64"><span><b>Açaí 300 ml completo</b><small>R$ 14,00</small></span><i>0</i></div>
+      <div class="lp-phone-cta">Pedir no WhatsApp · R$ 16,00</div>
+    </div>
+  </section>
+
+  <!-- Preço -->
+  <section class="lp-band" id="assinar">
+    <div class="wrap wide lp-section lp-pricing">
+      <div class="lp-plan">
+        <span class="eyebrow">Assinatura</span>
+        <div class="lp-plan-price"><small>R$</small><b>{{ plan_price }}</b><span>/mês</span></div>
+        <ul class="lp-check">
+          <li>Calculadora de preço e lucro ilimitada</li>
+          <li>Cardápio digital com link e QR Code</li>
+          <li>Pedidos prontos no WhatsApp</li>
+          <li>Funciona no celular e no computador</li>
+          <li>Guia de primeiros passos</li>
+        </ul>
+        <a class="btn primary lp-big lp-block" href="{{ buy_url }}">Assinar agora</a>
+        <p class="hint">Pix, cartão de crédito ou boleto. O login chega no seu e-mail assim que o pagamento é confirmado. Cancele quando quiser.</p>
+      </div>
+      <div class="lp-guarantee">
+        <h3>7 dias para testar sem risco</h3>
+        <p>Se não gostar, peça o reembolso em até 7 dias após a assinatura e devolvemos o valor pago, como garante o Código de Defesa do Consumidor.</p>
+        {% if demo_enabled %}<p>Quer ver antes? <a href="{{ url_for('main.demo') }}">Teste a demonstração grátis</a>, sem cadastro.</p>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Perguntas -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Perguntas frequentes</h2>
+    <div class="lp-faq">
+      <details><summary>Como eu recebo o acesso?</summary><p>Assim que o pagamento é confirmado, você recebe um e-mail com o endereço, seu login e uma senha. No Pix e no cartão costuma levar poucos minutos; no boleto, até 3 dias úteis. Confira também o spam.</p></details>
+      <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Funciona pelo navegador do celular ou do computador. No celular, você pode adicionar à tela inicial e usar como um aplicativo.</p></details>
+      <details><summary>Serve para salgados, marmitas e açaí também?</summary><p>Sim. Serve para qualquer produto feito por receita: doces, bolos, salgados, lanches, marmitas, açaí, bebidas. Você cadastra os seus próprios ingredientes e embalagens.</p></details>
+      <details><summary>Posso cancelar quando quiser?</summary><p>Sim, sem multa e sem fidelidade. É só pedir pelo e-mail ou WhatsApp do suporte. O acesso continua até o fim do mês já pago.</p></details>
+      <details><summary>E se eu não gostar?</summary><p>Você tem 7 dias a partir da assinatura para pedir o reembolso integral.</p></details>
+      <details><summary>Meus dados ficam salvos?</summary><p>Sim, na nuvem, ligados à sua conta. Você entra de qualquer aparelho e encontra tudo do jeito que deixou. Também dá para gerar um backup quando quiser.</p></details>
+    </div>
+  </section>
+
+  <!-- Chamada final -->
+  <section class="lp-band lp-final">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Pare de chutar preço. Comece a lucrar de verdade.</h2>
+      <div class="lp-ctas center">
+        <a class="btn primary lp-big" href="{{ buy_url }}">Assinar por R$ {{ plan_price }}/mês</a>
+        {% if demo_enabled %}<a class="btn lp-big" href="{{ url_for('main.demo') }}">Testar grátis</a>{% endif %}
+      </div>
+      <p class="hint">Já é cliente? <a href="{{ url_for('auth.login') }}">Entre na sua conta</a>.</p>
+    </div>
+  </section>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}

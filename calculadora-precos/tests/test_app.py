@@ -101,7 +101,7 @@ def test_refund_blocks_and_new_purchase_unblocks(app, client):
     assert client.get("/").status_code == 200
 
     assert hotmart(client, "PURCHASE_REFUNDED").json["blocked"] is True
-    assert client.get("/").status_code == 302  # sessão derrubada
+    assert "app.js" not in client.get("/").get_data(as_text=True)  # sessão derrubada: volta à página de vendas
     r = login(client, "ana@cliente.com", pw)
     assert "bloqueado" in r.get_data(as_text=True)
 
@@ -231,3 +231,10 @@ def test_format_name():
     assert format_name("wellington felipe liviz da fonseca") == "Wellington Felipe Liviz da Fonseca"
     assert format_name("  MARIA  DOS SANTOS ") == "Maria dos Santos"
     assert format_name("") == ""
+
+
+def test_sales_page_for_visitors(app, client):
+    app.config["CHECKOUT_URL"] = "https://www.asaas.com/c/teste123"
+    html = client.get("/").get_data(as_text=True)
+    assert "Assinar agora" in html and "https://www.asaas.com/c/teste123" in html and "24,90" in html
+    assert "Perguntas frequentes" in html and "app.js" not in html

@@ -43,7 +43,8 @@ def create_app(overrides: dict | None = None) -> Flask:
                 "support_email": cfg["SUPPORT_EMAIL"], "checkout_url": cfg["CHECKOUT_URL"],
                 "demo_enabled": cfg["DEMO_ENABLED"], "is_admin": is_admin(g.get("user")),
                 "company_name": cfg["COMPANY_NAME"], "company_doc": cfg["COMPANY_DOC"],
-                "company_email": cfg["COMPANY_EMAIL"], "app_url": cfg["APP_URL"]}
+                "company_email": cfg["COMPANY_EMAIL"], "app_url": cfg["APP_URL"],
+                "plan_price": cfg["PLAN_PRICE"]}
 
     @app.after_request
     def security_headers(resp):
