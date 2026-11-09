@@ -238,3 +238,10 @@ def test_sales_page_for_visitors(app, client):
     html = client.get("/").get_data(as_text=True)
     assert "Assinar agora" in html and "https://www.asaas.com/c/teste123" in html and "24,90" in html
     assert "Perguntas frequentes" in html and "app.js" not in html
+
+
+def test_guide_pdf_and_email_link(app, client):
+    r = client.get("/guia")
+    assert r.status_code == 200 and r.mimetype == "application/pdf" and r.data[:4] == b"%PDF"
+    hotmart(client, "PURCHASE_APPROVED", email="guia@x.com", txn="G9")
+    assert "https://precifica.test/guia" in app.config["MAIL_OUTBOX"][-1]["text"]

@@ -207,6 +207,10 @@
       out += '<div class="notice"><span><b>Coloque o nome do seu negócio</b> para ele aparecer no sistema e no seu cardápio.</span>' +
         '<button class="btn small" data-action="go-settings">Ir para Ajustes</button></div>';
     }
+    if (state.example && MODE === "conta") {
+      out += '<div class="notice"><span><b>Novo por aqui?</b> Baixe o Guia de primeiros passos e veja o passo a passo com imagens.</span>' +
+        '<a class="btn small" href="/guia" target="_blank" rel="noopener">Baixar o guia (PDF)</a></div>';
+    }
     if (state.example) {
       out += '<div class="notice"><span><b>Estes são dados de exemplo.</b> Edite à vontade ou comece com a sua lista.</span>' +
         '<button class="btn small" data-action="start-blank">Começar do zero</button></div>';
@@ -595,6 +599,9 @@
       }).join("") + "</select></label>" +
       "</div></section>" +
 
+      '<section class="panel"><h3 class="section-title">Ajuda</h3>' +
+      '<p class="hint">O Guia de primeiros passos explica cada tela com imagens: ajustes, ingredientes, receitas, preço e cardápio.</p>' +
+      '<div class="row"><a class="btn" href="/guia" target="_blank" rel="noopener">Baixar o guia (PDF)</a></div></section>' +
       '<section class="panel"><h3 class="section-title">Backup dos seus dados</h3>' +
       '<p class="hint">' + (MODE === "conta" ? "Seus dados já ficam salvos na nuvem. Se quiser uma cópia extra, gere o backup e guarde." : "Na demonstração os dados ficam só neste aparelho.") + '</p>' +
       '<div class="row"><button class="btn" data-action="export">Gerar backup</button>' +

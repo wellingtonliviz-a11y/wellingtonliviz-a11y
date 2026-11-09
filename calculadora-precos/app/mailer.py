@@ -59,6 +59,7 @@ def send_access_email(name: str, email: str, password: str) -> bool:
         f"Acesse: {cfg['APP_URL']}/entrar\n"
         f"E-mail: {email}\n"
         f"Senha: {password}\n\n"
+        f"Guia de primeiros passos (PDF): {cfg['APP_URL']}/guia\n\n"
         "Dica: depois de entrar, troque a senha em \"Minha conta\".\n"
         "No celular, adicione o site à tela inicial para usar como um aplicativo."
         + _signature()
