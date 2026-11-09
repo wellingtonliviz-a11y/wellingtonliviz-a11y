@@ -11,8 +11,10 @@ MAX_DATA_BYTES = 512 * 1024
 
 
 @bp.get("/")
-@login_required
 def app_page():
+    # visitante vê a página de vendas; cliente logado vai direto para a calculadora
+    if g.get("user") is None:
+        return render_template("vendas.html")
     return render_template("calculadora.html", mode="conta", admin=is_admin(g.user))
 
 

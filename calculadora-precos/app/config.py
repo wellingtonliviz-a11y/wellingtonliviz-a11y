@@ -38,6 +38,8 @@ def load_config() -> dict:
         "PRODUCT_NAME": os.getenv("PRODUCT_NAME", "Precifica Fácil"),
         "SUPPORT_EMAIL": os.getenv("SUPPORT_EMAIL", ""),
         "CHECKOUT_URL": os.getenv("CHECKOUT_URL", ""),
+        # Preço mostrado na página de vendas
+        "PLAN_PRICE": os.getenv("PLAN_PRICE", "24,90"),
         "DEMO_ENABLED": os.getenv("DEMO_ENABLED", "1") != "0",
         # E-mail (qualquer SMTP: Brevo, Resend, Gmail com senha de app...)
         "SMTP_HOST": os.getenv("SMTP_HOST", ""),
