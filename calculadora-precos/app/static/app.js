@@ -34,46 +34,80 @@
   }
 
   // ---------- dados ----------
-  // fotos de exemplo ficam no próprio sistema (/f/ex-...)
-  var SAMPLE_MENU = {
-    "Brigadeiro tradicional": { show: true, desc: "Chocolate 50% cacau com granulado, feito na hora", photo: "ex-brigadeiro" },
-    "Bolo de pote de chocolate": { show: true, desc: "Massa de chocolate, creme branco e coco ralado", photo: "ex-bolo-de-pote" },
-    "Açaí 300 ml completo": { show: true, desc: "Açaí cremoso com morango, banana, granola e leite condensado", photo: "ex-acai" }
+  // ---------- exemplos por segmento (fotos de exemplo ficam no sistema: /f/ex-...) ----------
+  // ingrediente: [nome, preço pago, tamanho da embalagem, unidade]
+  // produto: [nome, rende, minutos, preço atual, margem (null = padrão), itens [[ingrediente, qtd]], descrição, foto]
+  var SEGMENTS = {
+    doces: { label: "Doces e bolos", business: "Doces da Ana", margin: 40, round: 0.5,
+      ing: [["Leite condensado", 6.49, 395, "g"], ["Creme de leite", 3.29, 200, "g"], ["Chocolate em pó 50%", 9.9, 200, "g"],
+            ["Manteiga", 11.9, 200, "g"], ["Granulado", 7.5, 500, "g"], ["Forminha nº 4", 6, 100, "un"],
+            ["Farinha de trigo", 5.49, 1, "kg"], ["Açúcar", 4.79, 1, "kg"], ["Ovos", 12, 12, "un"], ["Leite integral", 5.29, 1, "L"],
+            ["Pote 250 ml com tampa", 22, 50, "un"], ["Chocolate meio amargo", 39.9, 1, "kg"], ["Embalagem para brownie", 15, 50, "un"]],
+      prod: [["Brigadeiro tradicional", 30, 50, 1.5, null, [["Leite condensado", 395], ["Chocolate em pó 50%", 40], ["Manteiga", 15], ["Granulado", 120], ["Forminha nº 4", 30]],
+              "Chocolate 50% cacau com granulado, feito na hora", "ex-brigadeiro"],
+             ["Bolo de pote de chocolate", 8, 90, 12, null, [["Farinha de trigo", 240], ["Açúcar", 200], ["Ovos", 3], ["Chocolate em pó 50%", 80], ["Leite integral", 240],
+              ["Leite condensado", 395], ["Creme de leite", 200], ["Pote 250 ml com tampa", 8]], "Massa de chocolate, creme branco e coco ralado", "ex-bolo-de-pote"],
+             ["Brownie de chocolate", 12, 60, 8, null, [["Chocolate meio amargo", 200], ["Manteiga", 150], ["Açúcar", 200], ["Ovos", 3], ["Farinha de trigo", 100],
+              ["Embalagem para brownie", 12]], "Casquinha crocante e recheio molhadinho", null]] },
+    acai: { label: "Açaí", business: "Açaí da Praça", margin: 40, round: 0.5,
+      ing: [["Polpa de açaí", 24.9, 1, "kg"], ["Granola", 18, 1, "kg"], ["Leite em pó", 19.9, 400, "g"], ["Banana", 6, 1, "kg"],
+            ["Morango", 14, 1, "kg"], ["Leite condensado", 6.49, 395, "g"], ["Copo 300 ml + tampa", 17.5, 50, "un"],
+            ["Copo 500 ml + tampa", 24, 50, "un"], ["Colher descartável", 8, 100, "un"]],
+      prod: [["Açaí 300 ml completo", 1, 4, 14, null, [["Polpa de açaí", 220], ["Granola", 30], ["Leite em pó", 20], ["Banana", 60], ["Morango", 40],
+              ["Leite condensado", 30], ["Copo 300 ml + tampa", 1], ["Colher descartável", 1]], "Açaí cremoso com morango, banana, granola e leite condensado", "ex-acai"],
+             ["Açaí 500 ml completo", 1, 5, 20, null, [["Polpa de açaí", 380], ["Granola", 40], ["Leite em pó", 30], ["Banana", 80], ["Morango", 60],
+              ["Leite condensado", 40], ["Copo 500 ml + tampa", 1], ["Colher descartável", 1]], "O mesmo completo, no tamanho grande", "ex-acai"],
+             ["Açaí 300 ml simples", 1, 3, 10, null, [["Polpa de açaí", 250], ["Granola", 20], ["Copo 300 ml + tampa", 1], ["Colher descartável", 1]],
+              "Açaí puro com granola", null]] },
+    salgados: { label: "Salgados", business: "Salgados da Bia", margin: 40, round: 1,
+      ing: [["Farinha de trigo", 5.49, 1, "kg"], ["Leite integral", 5.29, 1, "L"], ["Manteiga", 11.9, 200, "g"], ["Peito de frango", 21.9, 1, "kg"],
+            ["Requeijão", 8.9, 200, "g"], ["Farinha de rosca", 6.9, 500, "g"], ["Óleo de soja", 8.49, 900, "ml"], ["Carne moída", 34.9, 1, "kg"],
+            ["Trigo para kibe", 7.9, 500, "g"], ["Temperos", 5, 100, "g"], ["Caixa para 50 salgados", 3.5, 1, "un"]],
+      prod: [["Cento de coxinha de frango", 1, 120, 140, null, [["Farinha de trigo", 1000], ["Leite integral", 1000], ["Manteiga", 50], ["Peito de frango", 800],
+              ["Requeijão", 200], ["Farinha de rosca", 500], ["Óleo de soja", 500], ["Temperos", 20], ["Caixa para 50 salgados", 2]], "100 coxinhas de festa, recheio cremoso", null],
+             ["Cento de kibe", 1, 120, 130, null, [["Trigo para kibe", 500], ["Carne moída", 800], ["Óleo de soja", 500], ["Temperos", 30], ["Caixa para 50 salgados", 2]],
+              "100 kibes de festa, carne bem temperada", null],
+             ["Coxinha grande (unidade)", 20, 90, 7, null, [["Farinha de trigo", 500], ["Leite integral", 500], ["Manteiga", 50], ["Peito de frango", 600],
+              ["Requeijão", 200], ["Farinha de rosca", 300], ["Óleo de soja", 500], ["Temperos", 10]], "Coxinha de 120 g para vender na hora", null]] },
+    lanches: { label: "Lanches", business: "Lanchonete do Zé", margin: 40, round: 1,
+      ing: [["Pão de hambúrguer", 12.9, 6, "un"], ["Hambúrguer bovino 150 g", 49.9, 10, "un"], ["Queijo mussarela fatiado", 49.9, 1, "kg"],
+            ["Bacon", 39.9, 1, "kg"], ["Alface", 3.5, 1, "un"], ["Tomate", 8.9, 1, "kg"], ["Maionese", 12.9, 500, "g"],
+            ["Batata congelada", 24.9, 2, "kg"], ["Óleo de soja", 8.49, 900, "ml"], ["Embalagem para lanche", 25, 100, "un"], ["Embalagem para batata", 18, 100, "un"]],
+      prod: [["X-Burguer", 1, 8, 22, null, [["Pão de hambúrguer", 1], ["Hambúrguer bovino 150 g", 1], ["Queijo mussarela fatiado", 40], ["Maionese", 20],
+              ["Embalagem para lanche", 1]], "Pão, hambúrguer de 150 g, queijo e maionese da casa", null],
+             ["X-Bacon", 1, 9, 28, null, [["Pão de hambúrguer", 1], ["Hambúrguer bovino 150 g", 1], ["Queijo mussarela fatiado", 40], ["Bacon", 40],
+              ["Alface", 0.1], ["Tomate", 40], ["Maionese", 20], ["Embalagem para lanche", 1]], "Hambúrguer de 150 g, queijo, bacon e salada", null],
+             ["Porção de batata frita (400 g)", 1, 10, 25, null, [["Batata congelada", 400], ["Óleo de soja", 100], ["Embalagem para batata", 1]],
+              "Batata crocante, porção para duas pessoas", null]] },
+    marmitas: { label: "Marmitas", business: "Marmitas da Lu", margin: 35, round: 1,
+      ing: [["Arroz", 27.9, 5, "kg"], ["Feijão carioca", 8.49, 1, "kg"], ["Peito de frango", 21.9, 1, "kg"], ["Carne bovina (acém)", 39.9, 1, "kg"],
+            ["Legumes", 8, 1, "kg"], ["Batata", 6.99, 1, "kg"], ["Óleo de soja", 8.49, 900, "ml"], ["Temperos", 5, 100, "g"],
+            ["Marmitex 750 ml com tampa", 45, 100, "un"]],
+      prod: [["Marmita de frango grelhado", 10, 120, 22, null, [["Arroz", 1200], ["Feijão carioca", 600], ["Peito de frango", 1500], ["Legumes", 800],
+              ["Óleo de soja", 100], ["Temperos", 30], ["Marmitex 750 ml com tampa", 10]], "Arroz, feijão, frango grelhado e legumes", null],
+             ["Marmita de carne de panela", 10, 150, 25, null, [["Arroz", 1200], ["Feijão carioca", 600], ["Carne bovina (acém)", 1500], ["Batata", 800],
+              ["Óleo de soja", 100], ["Temperos", 30], ["Marmitex 750 ml com tampa", 10]], "Arroz, feijão, carne de panela com batata", null],
+             ["Marmita fit", 10, 90, 24, null, [["Peito de frango", 1500], ["Legumes", 1500], ["Batata", 1000], ["Temperos", 30],
+              ["Marmitex 750 ml com tampa", 10]], "Frango, legumes e batata, sem fritura", null]] }
   };
   function isSamplePhoto(id) { return /^ex-/.test(id || ""); }
-  function sample() {
-    var ing = [
-      ["Leite condensado", 6.49, 395, "g"], ["Creme de leite", 3.29, 200, "g"],
-      ["Chocolate em pó 50%", 9.9, 200, "g"], ["Manteiga", 11.9, 200, "g"],
-      ["Granulado", 7.5, 500, "g"], ["Forminha nº 4", 6.0, 100, "un"],
-      ["Farinha de trigo", 5.49, 1, "kg"], ["Açúcar", 4.79, 1, "kg"], ["Ovos", 12.0, 12, "un"],
-      ["Leite integral", 5.29, 1, "L"], ["Pote 250 ml com tampa", 22.0, 50, "un"],
-      ["Polpa de açaí", 24.9, 1, "kg"], ["Granola", 18.0, 1, "kg"], ["Leite em pó", 19.9, 400, "g"],
-      ["Banana", 6.0, 1, "kg"], ["Copo 300 ml + tampa", 17.5, 50, "un"]
-    ].map(function (r) { return { id: uid(), name: r[0], price: r[1], qty: r[2], unit: r[3] }; });
+  function sampleFor(seg, business) {
+    var S = SEGMENTS[seg] || SEGMENTS.doces;
+    var ing = S.ing.map(function (r) { return { id: uid(), name: r[0], price: r[1], qty: r[2], unit: r[3] }; });
     function id(name) { return ing.filter(function (i) { return i.name === name; })[0].id; }
     return {
-      v: 1, example: true,
-      settings: { business: MODE === "demo" ? "Doces da Ana" : "", margin: 40, fee: 4, extras: 10, hourly: 15, round: 0.5 },
+      v: 1, example: true, onboarded: false,
+      settings: { business: business == null ? "" : business, segment: SEGMENTS[seg] ? seg : "doces",
+                  margin: S.margin, fee: 4, extras: 10, hourly: 15, round: S.round },
       ingredients: ing,
-      products: [
-        { id: uid(), name: "Brigadeiro tradicional", yield: 30, minutes: 50, margin: null, current: 1.5,
-          items: [[id("Leite condensado"), 395], [id("Chocolate em pó 50%"), 40], [id("Manteiga"), 15],
-                  [id("Granulado"), 120], [id("Forminha nº 4"), 30]] },
-        { id: uid(), name: "Bolo de pote de chocolate", yield: 8, minutes: 90, margin: null, current: 12,
-          items: [[id("Farinha de trigo"), 240], [id("Açúcar"), 200], [id("Ovos"), 3], [id("Chocolate em pó 50%"), 80],
-                  [id("Leite integral"), 240], [id("Leite condensado"), 395], [id("Creme de leite"), 200],
-                  [id("Pote 250 ml com tampa"), 8]] },
-        { id: uid(), name: "Açaí 300 ml completo", yield: 1, minutes: 4, margin: 45, current: 14,
-          items: [[id("Polpa de açaí"), 220], [id("Granola"), 30], [id("Leite em pó"), 20], [id("Banana"), 60],
-                  [id("Leite condensado"), 30], [id("Copo 300 ml + tampa"), 1]] }
-      ].map(function (p) {
-        p.items = p.items.map(function (it) { return { ingId: it[0], qty: it[1] }; });
-        p.menu = SAMPLE_MENU[p.name] || { show: true, desc: "", photo: null };
-        return p;
+      products: S.prod.map(function (r) {
+        return { id: uid(), name: r[0], yield: r[1], minutes: r[2], current: r[3], margin: r[4],
+                 items: r[5].map(function (it) { return { ingId: id(it[0]), qty: it[1] }; }),
+                 menu: { show: true, desc: r[6], photo: r[7] } };
       })
     };
   }
+  function sample() { return sampleFor("doces", MODE === "demo" ? SEGMENTS.doces.business : ""); }
   function blank() {
     return { v: 1, example: false,
       settings: { business: "", margin: 40, fee: 0, extras: 10, hourly: 0, round: 0.5 },
@@ -127,9 +161,7 @@
       saveTimer = setTimeout(flush, 700);
       return;
     }
-    saveTimer = setTimeout(function () {
-      try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
-    }, 200);
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignora */ }
   }
   window.addEventListener("pagehide", flush);
   document.addEventListener("visibilitychange", function () { if (document.hidden) flush(); });
@@ -228,6 +260,7 @@
   function heroArt() {
     var withPhoto = state.products.filter(productPhoto)[0];
     if (withPhoto) return '<img src="/f/' + esc(productPhoto(withPhoto)) + '" alt="' + esc(withPhoto.name) + '">';
+    if ((state.settings.segment || "doces") !== "doces") return "";
     var tpl = document.getElementById("heroArt");
     return tpl ? tpl.innerHTML : "";
   }
@@ -237,7 +270,8 @@
     var avg = priced.length ? priced.reduce(function (s, x) { return s + x.c.currentMargin; }, 0) / priced.length : NaN;
     var attention = priced.filter(function (x) { return level(x.c.currentMargin, x.c.margin) !== "good"; }).length;
     var biz = (state.settings.business || "").trim();
-    return '<section class="hero"><div class="hero-text">' +
+    var art = heroArt();
+    return '<section class="hero' + (art ? "" : " no-art") + '"><div class="hero-text">' +
       '<span class="eyebrow">' + ICONS.tag.replace('<svg', '<svg width="14" height="14"') + "Calculadora de precificação</span>" +
       "<h2>" + (biz ? "Olá, " + esc(biz) + "!" : CFG.firstName ? "Olá, " + esc(CFG.firstName) + "!" : "Descubra o preço certo") + "</h2>" +
       "<p>Calcule o custo real de cada receita com o que você comprou e usou, inclua taxas e o valor do seu trabalho e veja o preço ideal de venda por unidade.</p>" +
@@ -246,7 +280,23 @@
       '<div class="hero-stat"><b>' + (isFinite(avg) ? pct(avg) : "—") + "</b><span>margem média do que você cobra</span></div>" +
       '<div class="hero-stat' + (attention ? " attn" : "") + '"><b>' + attention + "</b><span>" + (attention === 1 ? "produto precisa" : "produtos precisam") + " de atenção</span></div>" +
       "</div></div>" +
-      '<div class="hero-art">' + heroArt() + "</div></section>";
+      (art ? '<div class="hero-art">' + art + "</div>" : "") + "</section>";
+  }
+  function needsOnboarding() {
+    return state.example && !state.onboarded && (MODE === "demo" || !(state.settings.business || "").trim());
+  }
+  function onboardingCard() {
+    var seg = view.obSeg || state.settings.segment || "doces";
+    var chips = Object.keys(SEGMENTS).map(function (k) {
+      return '<button type="button" class="seg-chip" data-action="ob-seg" data-seg="' + k + '" aria-pressed="' + (k === seg) + '">' + SEGMENTS[k].label + "</button>";
+    }).join("");
+    return '<section class="panel onboard"><div><h3 class="section-title">Vamos deixar com a cara do seu negócio</h3>' +
+      '<p class="hint">Em 10 segundos o sistema monta exemplos do que você vende. Depois é só ajustar com os seus preços.</p></div>' +
+      '<label class="field"><span>NOME DO SEU NEGÓCIO</span><input id="ob-name" maxlength="60" placeholder="Ex: ' + esc(SEGMENTS[seg].business) + '" value="' +
+      esc(MODE === "demo" ? "" : state.settings.business || "") + '"></label>' +
+      '<div class="field"><span>O QUE VOCÊ VENDE?</span><div class="seg-chips" role="group" aria-label="Segmento">' + chips + "</div></div>" +
+      '<div class="row"><button class="btn primary" data-action="ob-go">Montar meus exemplos</button>' +
+      '<button class="btn ghost" data-action="ob-skip">Pular</button></div></section>';
   }
   function renderProducts() {
     var list = state.products.map(function (p) {
@@ -264,7 +314,7 @@
         '<span class="p-main"><span class="p-name">' + esc(p.name || "Sem nome") + '</span><span class="p-meta num">' + meta + "</span></span>" +
         '<span class="p-price"><strong>' + brl(c.current != null ? c.current : c.price) + "</strong>" + chip + "</span></button>";
     }).join("");
-    app.innerHTML = renderHero() + exampleNotice() +
+    app.innerHTML = (needsOnboarding() ? onboardingCard() : "") + renderHero() + exampleNotice() +
       '<div class="row spread"><h2 class="section-title">Seus produtos</h2>' +
       '<button class="btn primary" data-action="new-product">+ Novo produto</button></div>' +
       (state.products.length
@@ -647,9 +697,24 @@
       case "start-blank":
         var keepMenu1 = state.menu; state = blank(); if (keepMenu1) state.menu = keepMenu1; save(); setTab("ingredientes"); return;
       case "load-sample":
-        var keepMenu2 = state.menu; state = sample(); if (keepMenu2) state.menu = keepMenu2; save(); setTab("produtos"); return;
+        var keepMenu2 = state.menu, seg2 = state.settings.segment || "doces", biz2 = state.settings.business;
+        state = sampleFor(seg2, biz2); state.onboarded = true; if (keepMenu2) state.menu = keepMenu2; save(); setTab("produtos"); return;
       case "go-ings": setTab("ingredientes"); return;
       case "go-settings": setTab("ajustes"); return;
+      case "ob-seg":
+        view.obSeg = t.dataset.seg;
+        app.querySelectorAll(".seg-chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c === t)); });
+        var obIn = document.getElementById("ob-name"); if (obIn) obIn.placeholder = "Ex: " + SEGMENTS[view.obSeg].business;
+        return;
+      case "ob-go":
+        var obSeg = view.obSeg || state.settings.segment || "doces";
+        var obName = (document.getElementById("ob-name").value || "").trim();
+        if (!obName && MODE === "demo") obName = SEGMENTS[obSeg].business;
+        var keepMenu0 = state.menu;
+        state = sampleFor(obSeg, obName); state.onboarded = true; if (keepMenu0) state.menu = keepMenu0;
+        save(); view.obSeg = null; render(); window.scrollTo(0, 0); return;
+      case "ob-skip":
+        state.onboarded = true; save(); render(); return;
       case "menu-edit":
         setTab("produtos"); view.editing = t.dataset.id; render(); window.scrollTo(0, 0); return;
       case "menu-new":
