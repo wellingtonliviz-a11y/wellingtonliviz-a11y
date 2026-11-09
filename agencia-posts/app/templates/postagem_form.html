@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, status_badge with context %}
+{% block title %}{{ 'Postagem' if post.id else 'Nova postagem' }}{% endblock %}
+{% block content %}
+<div class="cabecalho">
+  <h1>{{ (post.theme or 'Postagem') if post.id else 'Nova postagem' }}</h1>
+  {% if post.id %}<div class="botoes">
+    {% if post.client %}<a class="btn btn-peq" href="{{ url_for('clientes.detail', cid=post.client_id) }}">Pasta do cliente</a>{% endif %}
+    <form method="post" action="{{ url_for('postagens.duplicate', pid=post.id) }}">{{ csrf() }}<button class="btn btn-peq">Duplicar p/ semana seguinte</button></form>
+  </div>{% endif %}
+</div>
+
+{% if post.feedback %}
+<div class="cartao recado {{ 'alerta' if post.status == 'ajuste' }}">
+  <h2>Resposta do cliente</h2>
+  <p class="texto-livre">{{ post.feedback }}</p>
+</div>
+{% endif %}
+
+<div class="grade-post">
+  <form method="post" enctype="multipart/form-data" class="form cartao" id="form-post">
+    {{ csrf() }}<input type="hidden" name="voltar" value="{{ voltar or '' }}">
+    <label>Cliente *
+      <select name="client_id" required data-trocar-cliente>
+        <option value="">Escolha...</option>
+        {% for c in clients %}<option value="{{ c.id }}" {{ 'selected' if c.id == post.client_id }} data-nome="{{ c.name }}" data-insta="{{ c.instagram }}" data-cor="{{ c.color_primary }}" data-logo="{{ url_for('arquivos.show', fid=c.logo_id) if c.logo_id else '' }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <div class="linha">
+      <label>Data * <input type="date" name="date" required value="{{ post.scheduled_at.strftime('%Y-%m-%d') if post.scheduled_at else '' }}"></label>
+      <label>Horário <input type="time" name="time" value="{{ post.scheduled_at.strftime('%H:%M') if post.scheduled_at else '12:00' }}"></label>
+    </div>
+    <div class="linha">
+      <label>Formato <select name="format">{% for k, v in FORMATS.items() %}<option value="{{ k }}" {{ 'selected' if k == post.format }}>{{ v }}</option>{% endfor %}</select></label>
+      <label>Status <select name="status">{% for k, v in STATUSES.items() %}<option value="{{ k }}" {{ 'selected' if k == post.status }}>{{ v }}</option>{% endfor %}</select></label>
+    </div>
+    <label>Tema / ideia <input name="theme" value="{{ post.theme or '' }}" maxlength="200" placeholder="Promoção do pão de queijo"></label>
+    <label>Legenda
+      <textarea name="caption" rows="7" data-legenda placeholder="Texto que vai no post">{{ post.caption or '' }}</textarea></label>
+    <label>Hashtags <textarea name="hashtags" rows="2" data-hashtags placeholder="#padaria #paoquente #bairro">{{ post.hashtags or '' }}</textarea></label>
+    <p class="contagem sutil" data-contagem></p>
+    <label>Link (Canva, Drive, vídeo...) <input type="url" name="link" value="{{ post.link or '' }}" maxlength="500" placeholder="https://"></label>
+    <label>Anotações internas <textarea name="notes" rows="3" placeholder="O cliente não vê isto">{{ post.notes or '' }}</textarea></label>
+
+    <fieldset>
+      <legend>Artes</legend>
+      {% if post.arts %}
+      <div class="galeria pequena">
+        {% for f in post.arts %}
+        <figure class="arquivo">
+          <a class="arquivo-previa" href="{{ url_for('arquivos.show', fid=f.id) }}" target="_blank">
+            {% if f.mime.startswith('image/') %}<img src="{{ url_for('arquivos.show', fid=f.id) }}" alt="{{ f.name }}" loading="lazy">{% else %}<span>{{ 'vídeo' if f.mime == 'video/mp4' else 'PDF' }}</span>{% endif %}
+          </a>
+          <figcaption>
+            <a href="{{ url_for('arquivos.show', fid=f.id, baixar=1) }}">Baixar</a>
+            <label class="check"><input type="checkbox" name="desanexar" value="{{ f.id }}"> tirar</label>
+          </figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <label>Enviar arte(s) <input type="file" name="artes" multiple accept="image/*,application/pdf,video/mp4"></label>
+      {% if loose %}
+      <details class="mais"><summary>Usar fotos que já estão na pasta do cliente ({{ loose|length }})</summary>
+        <div class="galeria pequena">
+          {% for f in loose %}
+          <label class="arquivo escolher">
+            <input type="checkbox" name="anexar" value="{{ f.id }}">
+            <span class="arquivo-previa"><img src="{{ url_for('arquivos.show', fid=f.id) }}" alt="{{ f.name }}" loading="lazy"></span>
+            <small class="arquivo-nome">{{ KINDS[f.kind] }}</small>
+          </label>
+          {% endfor %}
+        </div>
+      </details>
+      {% endif %}
+    </fieldset>
+
+    <div class="form-rodape">
+      <button class="btn btn-primario">Salvar</button>
+      {% if not post.id %}<button class="btn" name="depois" value="outra">Salvar e criar outra</button>{% endif %}
+    </div>
+  </form>
+
+  <aside class="coluna">
+    <div class="cartao previa-insta" data-previa>
+      <div class="previa-topo">
+        <span class="previa-logo" style="--cor: {{ post.client.color_primary if post.client else '#999' }}">{% if post.client and post.client.logo_id %}<img src="{{ url_for('arquivos.show', fid=post.client.logo_id) }}" alt="">{% endif %}</span>
+        <strong data-previa-nome>{{ (post.client.instagram or post.client.name) if post.client else 'cliente' }}</strong>
+      </div>
+      <div class="previa-imagem" style="--cor: {{ post.client.color_primary if post.client else '#999' }}">
+        {% set ns = namespace(img=none) %}
+        {% for f in post.arts or [] %}{% if not ns.img and f.mime.startswith('image/') %}{% set ns.img = f %}{% endif %}{% endfor %}
+        {% if ns.img %}<img src="{{ url_for('arquivos.show', fid=ns.img.id) }}" alt="">{% else %}<span>sem arte ainda</span>{% endif %}
+      </div>
+      <p class="previa-legenda"><strong data-previa-nome>{{ (post.client.instagram or post.client.name) if post.client else 'cliente' }}</strong> <span data-previa-texto></span></p>
+    </div>
+    <div class="cartao">
+      <h2>Na hora de postar</h2>
+      <p class="sutil">Baixe a arte e copie o texto pronto (legenda + hashtags) para colar no Instagram.</p>
+      <div class="botoes">
+        <button type="button" class="btn btn-primario" data-copiar-legenda>Copiar legenda + hashtags</button>
+        {% if post.arts %}<a class="btn" href="{{ url_for('arquivos.show', fid=post.arts[0].id, baixar=1) }}">Baixar arte</a>{% endif %}
+      </div>
+      {% if post.id and post.status != 'publicado' %}
+      <form method="post" action="{{ url_for('postagens.change_status', pid=post.id) }}">
+        {{ csrf() }}<input type="hidden" name="status" value="publicado"><input type="hidden" name="voltar" value="{{ url_for('postagens.edit', pid=post.id) }}">
+        <button class="btn btn-largo">✓ Marcar como publicada</button>
+      </form>
+      {% elif post.published_at %}<p>Publicada em {{ post.published_at | data_curta }}.</p>{% endif %}
+    </div>
+    {% if post.client and post.client.voice %}
+    <div class="cartao"><h2>Tom de voz de {{ post.client.name }}</h2><p class="texto-livre sutil">{{ post.client.voice }}</p></div>
+    {% endif %}
+    {% if post.id %}
+    <form method="post" action="{{ url_for('postagens.delete', pid=post.id) }}" class="centro-texto" data-confirmar="Excluir esta postagem? As artes continuam na pasta do cliente.">
+      {{ csrf() }}<button class="link-discreto perigo">Excluir postagem</button>
+    </form>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

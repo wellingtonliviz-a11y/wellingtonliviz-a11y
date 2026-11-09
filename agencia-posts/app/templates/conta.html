@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}Conta{% endblock %}
+{% block content %}
+<h1>Minha conta</h1>
+<form method="post" class="cartao form form-estreito">
+  {{ csrf() }}
+  <label>E-mail <input value="{{ g.user.email }}" disabled></label>
+  <label>Seu nome <input name="name" value="{{ g.user.name }}" maxlength="120"></label>
+  <fieldset>
+    <legend>Trocar senha (opcional)</legend>
+    <label>Senha atual <input type="password" name="current_password" autocomplete="current-password"></label>
+    <label>Nova senha <input type="password" name="new_password" minlength="8" autocomplete="new-password"></label>
+  </fieldset>
+  <button class="btn btn-primario">Salvar</button>
+</form>
+<p class="sutil">Para dar acesso a alguém da equipe, rode no servidor: <code>flask --app wsgi criar-usuario email@exemplo.com</code></p>
+{% endblock %}

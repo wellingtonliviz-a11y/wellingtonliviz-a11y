@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block main_class %}centro{% endblock %}
+{% block content %}
+<div class="cartao cartao-login">
+  <div class="brand brand-grande"><span class="brand-mark" aria-hidden="true"></span>{{ product_name }}</div>
+  <p class="sutil">Clientes, artes e programação de posts num lugar só.</p>
+  <form method="post" class="form">
+    <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <label>E-mail <input type="email" name="email" value="{{ email }}" required autofocus autocomplete="username"></label>
+    <label>Senha <input type="password" name="password" required autocomplete="current-password"></label>
+    <button class="btn btn-primario btn-largo">Entrar</button>
+  </form>
+</div>
+{% endblock %}

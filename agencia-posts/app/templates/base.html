@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% if public %}<meta name="robots" content="noindex">{% endif %}
+  <title>{% block title %}{% endblock %} · {{ product_name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if g.user and not public %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('postagens.painel') }}"><span class="brand-mark" aria-hidden="true"></span>{{ product_name }}</a>
+  <nav class="nav">
+    {% set ep = request.endpoint or '' %}
+    <a href="{{ url_for('postagens.painel') }}" class="{{ 'ativo' if ep == 'postagens.painel' }}">Painel</a>
+    <a href="{{ url_for('postagens.agenda') }}" class="{{ 'ativo' if ep == 'postagens.agenda' }}">Agenda</a>
+    <a href="{{ url_for('clientes.index') }}" class="{{ 'ativo' if ep.startswith('clientes.') }}">Clientes</a>
+  </nav>
+  <div class="nav-acoes">
+    <a class="btn btn-primario btn-peq" href="{{ url_for('postagens.new') }}">+ Postagem</a>
+    <a class="link-discreto" href="{{ url_for('auth.account') }}">Conta</a>
+    <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="_csrf" value="{{ csrf_token() }}"><button class="link-discreto">Sair</button></form>
+  </div>
+</header>
+{% endif %}
+<main class="conteudo {% block main_class %}{% endblock %}">
+  {% include "_flashes.html" %}
+  {% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

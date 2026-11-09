@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% from "_macros.html" import post_row, client_chip, csrf with context %}
+{% block title %}Painel{% endblock %}
+{% block content %}
+{% set voltar = url_for('postagens.painel') %}
+<div class="cabecalho">
+  <div>
+    <h1>Olá{{ ', ' + g.user.name.split()[0] if g.user.name }}!</h1>
+    <p class="sutil">{{ now | data_curta }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('postagens.agenda') }}">Ver agenda do mês</a>
+</div>
+
+{% if not clients %}
+<div class="cartao vazio-grande">
+  <h2>Comece cadastrando seu primeiro cliente</h2>
+  <p>Cada comércio ganha uma pasta com logo, cores, fotos, artes e a programação de posts.</p>
+  <a class="btn btn-primario" href="{{ url_for('clientes.new') }}">+ Cadastrar cliente</a>
+</div>
+{% endif %}
+
+<div class="grade-painel">
+  <section class="cartao">
+    <h2>Hoje <span class="contador">{{ today_posts|length }}</span></h2>
+    {% if today_posts %}<ul class="lista-posts">{% for p in today_posts %}{{ post_row(p, voltar) }}{% endfor %}</ul>
+    {% else %}<p class="vazio">Nenhuma postagem para hoje.</p>{% endif %}
+  </section>
+
+  {% if late %}
+  <section class="cartao alerta">
+    <h2>Atrasadas <span class="contador">{{ late|length }}</span></h2>
+    <p class="sutil">A data já passou e ainda não estão marcadas como publicadas.</p>
+    <ul class="lista-posts">{% for p in late %}{{ post_row(p, voltar) }}{% endfor %}</ul>
+  </section>
+  {% endif %}
+
+  <section class="cartao">
+    <h2>Próximos 7 dias <span class="contador">{{ week|length }}</span></h2>
+    {% if week %}<ul class="lista-posts">{% for p in week %}{{ post_row(p, voltar) }}{% endfor %}</ul>
+    {% else %}<p class="vazio">Nada programado. <a href="{{ url_for('postagens.new') }}">Criar postagem</a></p>{% endif %}
+  </section>
+
+  <section class="cartao">
+    <h2>Com o cliente <span class="contador">{{ waiting|length }}</span></h2>
+    <p class="sutil">Aguardando aprovação ou com ajuste pedido.</p>
+    {% if waiting %}<ul class="lista-posts">{% for p in waiting %}{{ post_row(p, voltar) }}{% endfor %}</ul>
+    {% else %}<p class="vazio">Nada pendente com clientes.</p>{% endif %}
+  </section>
+</div>
+
+{% if clients %}
+<section class="cartao">
+  <h2>Entregas de {{ month_name }}</h2>
+  <table class="tabela">
+    <thead><tr><th>Cliente</th><th>Programadas</th><th>Publicadas</th><th>Contratadas</th><th class="col-barra"></th></tr></thead>
+    <tbody>
+    {% for c in clients %}{% set pc = per_client[c.id] %}
+      <tr>
+        <td><a href="{{ url_for('clientes.detail', cid=c.id) }}">{{ client_chip(c) }}</a></td>
+        <td>{{ pc.total }}</td>
+        <td>{{ pc.publicado }}</td>
+        <td>{{ c.posts_per_month or '—' }}</td>
+        <td class="col-barra">{% if c.posts_per_month %}
+          <div class="barra" title="{{ pc.publicado }} de {{ c.posts_per_month }} publicadas"><span style="width: {{ [100, (pc.publicado * 100 / c.posts_per_month)|round|int]|min }}%; background: {{ c.color_primary }}"></span></div>
+          {% if pc.total < c.posts_per_month %}<small class="sutil">faltam programar {{ c.posts_per_month - pc.total }}</small>{% endif %}
+        {% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if payments %}
+<section class="cartao">
+  <h2>Pagamentos nos próximos dias</h2>
+  <ul class="lista-simples">
+  {% for c in payments %}<li>{{ client_chip(c) }} dia {{ c.payment_day }} · {{ c.monthly_fee_cents | brl }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

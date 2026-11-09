@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import client_chip with context %}
+{% block title %}Agenda{% endblock %}
+{% block content %}
+{% set voltar = request.full_path %}
+<div class="cabecalho">
+  <div class="mes-nav">
+    <a class="btn btn-peq" href="{{ url_for('postagens.agenda', mes=prev_month.strftime('%Y-%m'), cliente=client_id or '') }}" aria-label="Mês anterior">‹</a>
+    <h1>{{ month_name|capitalize }} {{ first.year }}</h1>
+    <a class="btn btn-peq" href="{{ url_for('postagens.agenda', mes=next_month.strftime('%Y-%m'), cliente=client_id or '') }}" aria-label="Próximo mês">›</a>
+  </div>
+  <form method="get" class="filtro">
+    <input type="hidden" name="mes" value="{{ first.strftime('%Y-%m') }}">
+    <select name="cliente" data-autosubmit aria-label="Filtrar por cliente">
+      <option value="">Todos os clientes</option>
+      {% for c in clients %}<option value="{{ c.id }}" {{ 'selected' if c.id == client_id }}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn btn-peq">Filtrar</button></noscript>
+  </form>
+</div>
+
+<div class="calendario">
+  {% for wd in ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'] %}<div class="cal-semana">{{ wd }}</div>{% endfor %}
+  {% for week in weeks %}{% for day in week %}
+    {% set posts = by_day.get(day, []) %}
+    <div class="cal-dia {{ 'fora' if day.month != first.month }} {{ 'hoje' if day == today }} {{ 'tem-post' if posts }}">
+      <div class="cal-topo">
+        <span class="cal-num"><span class="cal-dia-semana">{{ ['seg','ter','qua','qui','sex','sáb','dom'][day.weekday()] }}, </span>{{ day.day }}</span>
+        <a class="cal-add" href="{{ url_for('postagens.new', data=day.isoformat(), cliente=client_id or '') }}" title="Nova postagem neste dia" aria-label="Nova postagem em {{ day.strftime('%d/%m') }}">+</a>
+      </div>
+      {% for p in posts %}
+        <a class="cal-post st-borda-{{ p.status }}" href="{{ url_for('postagens.edit', pid=p.id, voltar=voltar) }}" style="--cor: {{ p.client.color_primary }}" title="{{ p.client.name }} · {{ STATUSES[p.status] }}">
+          <span class="cal-hora">{{ p.scheduled_at.strftime('%H:%M') }}</span>
+          <span class="cal-texto">{{ p.client.name }}{% if p.theme %} · {{ p.theme }}{% endif %}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endfor %}{% endfor %}
+</div>
+
+<div class="legenda">
+  {% for key, label in STATUSES.items() %}<span class="legenda-item st-borda-{{ key }}">{{ label }}</span>{% endfor %}
+</div>
+{% endblock %}

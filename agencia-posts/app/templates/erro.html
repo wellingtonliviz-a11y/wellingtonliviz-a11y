@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Ops{% endblock %}
+{% block main_class %}centro{% endblock %}
+{% block content %}
+<div class="cartao">
+  <h1>{% if error.code == 404 %}Não encontrado{% elif error.code == 413 %}Arquivo grande demais{% else %}Algo deu errado{% endif %}</h1>
+  <p>{% if error.code == 404 %}Esta página não existe ou o link mudou.
+     {% elif error.code == 413 %}O envio passou do limite. Mande menos arquivos de cada vez ou arquivos menores.
+     {% else %}{{ error.description }}{% endif %}</p>
+  {% if not public %}<a class="btn" href="{{ url_for('postagens.painel') }}">Voltar ao painel</a>{% endif %}
+</div>
+{% endblock %}

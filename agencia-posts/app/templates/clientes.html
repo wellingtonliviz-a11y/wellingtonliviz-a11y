@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="cabecalho">
+  <h1>Clientes</h1>
+  <div class="botoes">
+    {% if show == 'todos' %}<a class="btn btn-peq" href="{{ url_for('clientes.index') }}">Só ativos</a>
+    {% else %}<a class="btn btn-peq" href="{{ url_for('clientes.index', mostrar='todos') }}">Mostrar arquivados</a>{% endif %}
+    <a class="btn btn-primario" href="{{ url_for('clientes.new') }}">+ Novo cliente</a>
+  </div>
+</div>
+{% if clients %}
+<div class="grade-clientes">
+  {% for c in clients %}
+  <a class="cartao cliente-card {{ 'arquivado' if not c.active }}" href="{{ url_for('clientes.detail', cid=c.id) }}" style="--cor: {{ c.color_primary }}; --cor2: {{ c.color_secondary }}">
+    <div class="cliente-faixa"></div>
+    <div class="cliente-logo">
+      {% if c.logo_id %}<img src="{{ url_for('arquivos.show', fid=c.logo_id) }}" alt="" loading="lazy">{% else %}<span>{{ c.name[:1]|upper }}</span>{% endif %}
+    </div>
+    <strong>{{ c.name }}</strong>
+    <span class="sutil">{{ c.segment or 'Sem segmento' }}{% if c.instagram %} · @{{ c.instagram }}{% endif %}</span>
+    <span class="sutil">{{ counts.get(c.id, 0) }} de {{ c.posts_per_month or '—' }} posts este mês{% if not c.active %} · arquivado{% endif %}</span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="cartao vazio-grande">
+  <h2>Nenhum cliente {{ 'ativo ' if show != 'todos' }}ainda</h2>
+  <a class="btn btn-primario" href="{{ url_for('clientes.new') }}">+ Cadastrar cliente</a>
+</div>
+{% endif %}
+{% endblock %}

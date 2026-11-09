@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}Aprovação de artes · {{ client.name }}{% endblock %}
+{% block main_class %}estreito{% endblock %}
+{% block content %}
+<header class="aprov-topo" style="--cor: {{ client.color_primary }}">
+  {% if client.logo_id %}<img class="aprov-logo" src="{{ url_for('aprovacao.file', token=client.approval_token, fid=client.logo_id) }}" alt="Logo de {{ client.name }}">{% endif %}
+  <h1>Artes de {{ client.name }}</h1>
+  <p class="sutil">Veja cada arte e a legenda. Aprove ou diga o que quer mudar.</p>
+</header>
+
+{% if pending %}
+  {% for p in pending %}
+  <article class="cartao aprov-post" id="post-{{ p.id }}">
+    <div class="post-meta"><strong>{{ p.scheduled_at | data_curta }}</strong> · {{ FORMATS[p.format] }}{% if p.theme %} · {{ p.theme }}{% endif %}</div>
+    {% for f in p.arts %}
+      {% if f.mime.startswith('image/') %}<img class="aprov-img" src="{{ url_for('aprovacao.file', token=client.approval_token, fid=f.id) }}" alt="Arte {{ loop.index }}" loading="lazy">
+      {% elif f.mime == 'video/mp4' %}<video class="aprov-img" controls preload="metadata" src="{{ url_for('aprovacao.file', token=client.approval_token, fid=f.id) }}"></video>
+      {% else %}<a class="btn" href="{{ url_for('aprovacao.file', token=client.approval_token, fid=f.id) }}" target="_blank">Abrir arquivo {{ loop.index }}</a>{% endif %}
+    {% else %}<p class="vazio">Arte ainda não anexada.</p>{% endfor %}
+    {% if p.caption or p.hashtags %}<p class="texto-livre aprov-legenda">{{ p.caption }}{% if p.hashtags %}
+
+{{ p.hashtags }}{% endif %}</p>{% endif %}
+    <form method="post" action="{{ url_for('aprovacao.answer', token=client.approval_token, pid=p.id) }}" class="form">
+      {{ csrf() }}
+      <label>Comentário (obrigatório para pedir ajuste)
+        <textarea name="comentario" rows="2" placeholder="Ex.: trocar o preço para R$ 9,90"></textarea></label>
+      <div class="botoes">
+        <button class="btn btn-primario" name="acao" value="aprovar">✓ Aprovar</button>
+        <button class="btn" name="acao" value="ajuste">Pedir ajuste</button>
+      </div>
+    </form>
+  </article>
+  {% endfor %}
+{% else %}
+  <div class="cartao vazio-grande"><h2>Tudo em dia!</h2><p>Não há artes esperando sua aprovação agora.</p></div>
+{% endif %}
+
+{% if others %}
+<section class="cartao">
+  <h2>Próximas postagens</h2>
+  <ul class="lista-simples">
+    {% for p in others %}<li><strong>{{ p.scheduled_at | data_curta }}</strong> · {{ p.theme or FORMATS[p.format] }} · <span class="badge st-{{ p.status }}">{{ 'Ajuste em andamento' if p.status == 'ajuste' else STATUSES[p.status] }}</span></li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

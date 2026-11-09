@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, post_row with context %}
+{% block title %}{{ client.name }}{% endblock %}
+{% block content %}
+{% set voltar = url_for('clientes.detail', cid=client.id) %}
+<section class="cartao cliente-topo" style="--cor: {{ client.color_primary }}; --cor2: {{ client.color_secondary }}">
+  <div class="cliente-logo grande">
+    {% if client.logo_id %}<img src="{{ url_for('arquivos.show', fid=client.logo_id) }}" alt="Logo de {{ client.name }}">{% else %}<span>{{ client.name[:1]|upper }}</span>{% endif %}
+  </div>
+  <div class="cliente-dados">
+    <h1>{{ client.name }} {% if not client.active %}<span class="badge">Arquivado</span>{% endif %}</h1>
+    <p class="sutil">{{ client.segment or 'Sem segmento' }}
+      {% if client.instagram %} · <a href="https://www.instagram.com/{{ client.instagram }}/" target="_blank" rel="noopener">@{{ client.instagram }}</a>{% endif %}</p>
+    <div class="paleta">
+      <button type="button" class="cor" style="background: {{ client.color_primary }}" data-copiar="{{ client.color_primary }}" title="Copiar">{{ client.color_primary }}</button>
+      <button type="button" class="cor" style="background: {{ client.color_secondary }}" data-copiar="{{ client.color_secondary }}" title="Copiar">{{ client.color_secondary }}</button>
+      {% if client.fonts %}<span class="sutil">{{ client.fonts }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="botoes">
+    <a class="btn btn-primario" href="{{ url_for('postagens.new', cliente=client.id) }}">+ Postagem</a>
+    <a class="btn" href="{{ url_for('postagens.agenda', cliente=client.id) }}">Agenda</a>
+    <a class="btn" href="{{ url_for('clientes.edit', cid=client.id) }}">Editar</a>
+  </div>
+</section>
+
+<div class="grade-cliente">
+  <div class="coluna">
+    <section class="cartao">
+      <h2>Aprovação pelo cliente</h2>
+      <p class="sutil">Mande este link: o cliente vê as artes "Aguardando aprovação" e aprova ou pede ajuste, sem precisar de senha.</p>
+      <div class="copiar-linha">
+        <input readonly value="{{ approval_url }}" aria-label="Link de aprovação">
+        <button type="button" class="btn btn-peq" data-copiar="{{ approval_url }}">Copiar</button>
+      </div>
+      <div class="botoes">
+        {% if wa_link %}<a class="btn btn-whats btn-peq" href="{{ wa_link }}" target="_blank" rel="noopener">Enviar no WhatsApp{% if waiting %} ({{ waiting }} arte{{ 's' if waiting > 1 }}){% endif %}</a>{% endif %}
+        <a class="btn btn-peq" href="{{ approval_url }}" target="_blank" rel="noopener">Ver como o cliente</a>
+        <form method="post" action="{{ url_for('clientes.new_link', cid=client.id) }}" data-confirmar="Trocar o link? O link antigo para de funcionar.">{{ csrf() }}<button class="link-discreto">Gerar link novo</button></form>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <h2>Próximas postagens</h2>
+      {% if upcoming %}<ul class="lista-posts">{% for p in upcoming %}{{ post_row(p, voltar, false) }}{% endfor %}</ul>
+      {% else %}<p class="vazio">Nada programado. <a href="{{ url_for('postagens.new', cliente=client.id) }}">Criar postagem</a></p>{% endif %}
+      {% if recent %}
+      <details class="mais"><summary>Últimos 30 dias ({{ recent|length }})</summary>
+        <ul class="lista-posts">{% for p in recent %}{{ post_row(p, voltar, false) }}{% endfor %}</ul>
+      </details>
+      {% endif %}
+    </section>
+
+    <section class="cartao">
+      <h2>Arquivos</h2>
+      <nav class="abas">
+        <a href="{{ url_for('clientes.detail', cid=client.id) }}" class="{{ 'ativo' if not kind }}">Todos</a>
+        {% for key, label in KINDS.items() %}<a href="{{ url_for('clientes.detail', cid=client.id, tipo=key) }}" class="{{ 'ativo' if kind == key }}">{{ label }} <small>{{ counts.get(key, 0) }}</small></a>{% endfor %}
+      </nav>
+      <form method="post" action="{{ url_for('clientes.upload', cid=client.id) }}" enctype="multipart/form-data" class="upload">
+        {{ csrf() }}<input type="hidden" name="voltar_tipo" value="{{ kind }}">
+        <input type="file" name="arquivos" multiple required accept="image/*,application/pdf,video/mp4" aria-label="Arquivos">
+        <select name="kind" aria-label="Tipo">{% for key, label in KINDS.items() %}<option value="{{ key }}" {{ 'selected' if key == (kind or 'foto') }}>{{ label }}</option>{% endfor %}</select>
+        <button class="btn btn-peq">Enviar</button>
+      </form>
+      {% if files %}
+      <div class="galeria">
+        {% for f in files %}
+        <figure class="arquivo">
+          <a href="{{ url_for('arquivos.show', fid=f.id) }}" target="_blank" class="arquivo-previa">
+            {% if f.mime.startswith('image/') %}<img src="{{ url_for('arquivos.show', fid=f.id) }}" alt="{{ f.name }}" loading="lazy">
+            {% elif f.mime == 'video/mp4' %}<span>▶ vídeo</span>{% else %}<span>PDF</span>{% endif %}
+          </a>
+          <figcaption>
+            <span class="arquivo-nome" title="{{ f.name }}">{{ f.name }}</span>
+            <span class="sutil">{{ KINDS[f.kind] }} · {{ f.size | tamanho }}{% if client.logo_id == f.id %} · <strong>logo principal</strong>{% endif %}{% if f.post_id %} · <a href="{{ url_for('postagens.edit', pid=f.post_id, voltar=voltar) }}">na postagem</a>{% endif %}</span>
+            <span class="arquivo-acoes">
+              <a href="{{ url_for('arquivos.show', fid=f.id, baixar=1) }}">Baixar</a>
+              {% if f.mime.startswith('image/') and client.logo_id != f.id and f.kind == 'logo' %}
+              <form method="post" action="{{ url_for('clientes.set_logo', cid=client.id, fid=f.id) }}">{{ csrf() }}<button class="link-discreto">Usar como logo</button></form>{% endif %}
+              <form method="post" action="{{ url_for('arquivos.delete', fid=f.id) }}" data-confirmar="Excluir {{ f.name }}?">{{ csrf() }}<input type="hidden" name="voltar" value="{{ request.full_path }}"><button class="link-discreto perigo">Excluir</button></form>
+            </span>
+          </figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+      {% else %}<p class="vazio">Nenhum arquivo {{ 'deste tipo ' if kind }}ainda.</p>{% endif %}
+    </section>
+  </div>
+
+  <aside class="coluna">
+    <section class="cartao">
+      <h2>Contato</h2>
+      <dl class="dados">
+        <dt>Responsável</dt><dd>{{ client.contact_name or '—' }}</dd>
+        <dt>WhatsApp</dt><dd>{% if wa_link %}<a href="{{ wa_link.split('?')[0] }}" target="_blank" rel="noopener">{{ client.phone }}</a>{% else %}{{ client.phone or '—' }}{% endif %}</dd>
+        <dt>E-mail</dt><dd>{% if client.email %}<a href="mailto:{{ client.email }}">{{ client.email }}</a>{% else %}—{% endif %}</dd>
+      </dl>
+    </section>
+    <section class="cartao">
+      <h2>Contrato</h2>
+      <dl class="dados">
+        <dt>Mensal</dt><dd>{{ client.monthly_fee_cents | brl }}</dd>
+        <dt>Pagamento</dt><dd>{{ 'dia ' ~ client.payment_day if client.payment_day else '—' }}</dd>
+        <dt>Posts/mês</dt><dd>{{ client.posts_per_month or '—' }}</dd>
+      </dl>
+    </section>
+    {% if client.voice %}<section class="cartao"><h2>Tom de voz e público</h2><p class="texto-livre">{{ client.voice }}</p></section>{% endif %}
+    {% if client.notes %}<section class="cartao"><h2>Anotações</h2><p class="texto-livre">{{ client.notes }}</p></section>{% endif %}
+    <form method="post" action="{{ url_for('clientes.toggle_active', cid=client.id) }}" class="centro-texto" data-confirmar="{{ 'Reativar este cliente?' if not client.active else 'Arquivar este cliente? Os dados ficam guardados.' }}">
+      {{ csrf() }}<button class="link-discreto {{ 'perigo' if client.active }}">{{ 'Reativar cliente' if not client.active else 'Arquivar cliente' }}</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

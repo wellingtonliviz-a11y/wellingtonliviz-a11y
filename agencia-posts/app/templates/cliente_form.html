@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}{{ 'Editar ' + client.name if client.id else 'Novo cliente' }}{% endblock %}
+{% block content %}
+<div class="cabecalho">
+  <h1>{{ 'Editar ' + client.name if client.id else 'Novo cliente' }}</h1>
+  {% if client.id %}<a class="btn" href="{{ url_for('clientes.detail', cid=client.id) }}">Cancelar</a>{% endif %}
+</div>
+<form method="post" enctype="multipart/form-data" class="form form-colunas">
+  {{ csrf() }}
+  <section class="cartao">
+    <h2>Comércio</h2>
+    <label>Nome * <input name="name" value="{{ client.name or '' }}" required maxlength="120" placeholder="Padaria Pão Quente"></label>
+    <label>Segmento <input name="segment" value="{{ client.segment or '' }}" maxlength="80" placeholder="Padaria, salão, pet shop..." list="segmentos"></label>
+    <datalist id="segmentos">{% for s in ['Padaria', 'Restaurante', 'Lanchonete', 'Pizzaria', 'Salão de beleza', 'Barbearia', 'Pet shop', 'Loja de roupas', 'Mercado', 'Açougue', 'Farmácia', 'Academia', 'Clínica', 'Oficina', 'Doceria'] %}<option value="{{ s }}">{% endfor %}</datalist>
+    <label>Instagram <input name="instagram" value="{{ client.instagram or '' }}" maxlength="80" placeholder="@paoquente"></label>
+    {% if not client.id %}<label>Logo <input type="file" name="logo" accept="image/*"></label>{% endif %}
+  </section>
+
+  <section class="cartao">
+    <h2>Contato</h2>
+    <label>Responsável <input name="contact_name" value="{{ client.contact_name or '' }}" maxlength="120"></label>
+    <label>WhatsApp <input name="phone" value="{{ client.phone or '' }}" maxlength="40" inputmode="tel" placeholder="(11) 99999-9999"></label>
+    <label>E-mail <input type="email" name="email" value="{{ client.email or '' }}" maxlength="255"></label>
+  </section>
+
+  <section class="cartao">
+    <h2>Identidade visual</h2>
+    <div class="linha">
+      <label>Cor principal <input type="color" name="color_primary" value="{{ client.color_primary }}"></label>
+      <label>Cor de apoio <input type="color" name="color_secondary" value="{{ client.color_secondary }}"></label>
+    </div>
+    <label>Fontes <input name="fonts" value="{{ client.fonts or '' }}" maxlength="200" placeholder="Títulos: Montserrat Bold · Textos: Open Sans"></label>
+    <label>Tom de voz e público
+      <textarea name="voice" rows="4" placeholder="Descontraído, fala com famílias do bairro. Evitar gírias. Sempre citar o delivery.">{{ client.voice or '' }}</textarea></label>
+  </section>
+
+  <section class="cartao">
+    <h2>Contrato</h2>
+    <div class="linha">
+      <label>Valor mensal (R$) <input name="monthly_fee" value="{{ money }}" inputmode="decimal" placeholder="450,00"></label>
+      <label>Dia do pagamento <input type="number" name="payment_day" min="1" max="31" value="{{ client.payment_day or '' }}"></label>
+    </div>
+    <label>Postagens por mês <input type="number" name="posts_per_month" min="0" max="300" value="{{ client.posts_per_month or 0 }}"></label>
+    <label>Anotações <textarea name="notes" rows="4" placeholder="Datas importantes, promoções fixas, o que o cliente não gosta...">{{ client.notes or '' }}</textarea></label>
+  </section>
+
+  <div class="form-rodape"><button class="btn btn-primario">{{ 'Salvar' if client.id else 'Cadastrar cliente' }}</button></div>
+</form>
+{% endblock %}

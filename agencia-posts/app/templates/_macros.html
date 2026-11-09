@@ -1,0 +1,30 @@
+{% macro csrf() %}<input type="hidden" name="_csrf" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro status_badge(status) %}<span class="badge st-{{ status }}">{{ STATUSES[status] }}</span>{% endmacro %}
+
+{% macro client_chip(client) %}<span class="chip"><span class="chip-cor" style="background: {{ client.color_primary }}"></span>{{ client.name }}</span>{% endmacro %}
+
+{% macro post_row(p, voltar, show_client=true) %}
+<li class="post-linha">
+  <a class="post-thumb" href="{{ url_for('postagens.edit', pid=p.id, voltar=voltar) }}" style="--cor: {{ p.client.color_primary }}">
+    {% if p.arts and p.arts[0].mime.startswith('image/') %}<img src="{{ url_for('arquivos.show', fid=p.arts[0].id) }}" alt="" loading="lazy">
+    {% else %}<span>{{ FORMATS[p.format].split(' ')[0] }}</span>{% endif %}
+  </a>
+  <div class="post-info">
+    <a class="post-titulo" href="{{ url_for('postagens.edit', pid=p.id, voltar=voltar) }}">{{ p.theme or 'Sem tema' }}</a>
+    <div class="post-meta">
+      {% if show_client %}{{ client_chip(p.client) }}{% endif %}
+      <span>{{ p.scheduled_at | data_curta }}</span>
+      <span>{{ FORMATS[p.format] }}</span>
+      {{ status_badge(p.status) }}
+    </div>
+  </div>
+  <form method="post" action="{{ url_for('postagens.change_status', pid=p.id) }}" class="post-acao">
+    {{ csrf() }}<input type="hidden" name="voltar" value="{{ voltar }}">
+    <select name="status" aria-label="Mudar status" data-autosubmit>
+      {% for key, label in STATUSES.items() %}<option value="{{ key }}" {{ 'selected' if key == p.status }}>{{ label }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn btn-peq">Ok</button></noscript>
+  </form>
+</li>
+{% endmacro %}
