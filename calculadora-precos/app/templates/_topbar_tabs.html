@@ -10,6 +10,7 @@
         {% if mode == 'conta' %}<span class="save-status" id="saveStatus" aria-live="polite"></span>{% endif %}
         {% if g.user %}
           {% if is_admin %}<a href="{{ url_for('admin.index') }}">Painel</a>{% endif %}
+          <a href="{{ url_for('main.guide') }}" target="_blank" rel="noopener">Guia</a>
           <a href="{{ url_for('auth.account') }}">Minha conta</a>
           <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="linklike" type="submit">Sair</button></form>
         {% else %}

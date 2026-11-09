@@ -1,7 +1,8 @@
 """Calculadora (logada e demonstração) e API que guarda os dados do cliente."""
 import json
 
-from flask import Blueprint, abort, current_app, g, jsonify, redirect, render_template, request, url_for
+from flask import (Blueprint, abort, current_app, g, jsonify, redirect, render_template, request, send_from_directory,
+                   url_for)
 
 from .models import UserData, utcnow
 from .security import is_admin, login_required
@@ -23,6 +24,14 @@ def demo():
     if not current_app.config["DEMO_ENABLED"]:
         return redirect(url_for("auth.login"))
     return render_template("calculadora.html", mode="demo", admin=False)
+
+
+@bp.get("/guia")
+def guide():
+    """Guia de primeiros passos em PDF (abre no navegador; no celular costuma baixar)."""
+    return send_from_directory(f"{current_app.static_folder}/guia", "precifica-facil-guia.pdf",
+                               mimetype="application/pdf", download_name="Precifica-Facil-Guia-de-primeiros-passos.pdf",
+                               max_age=60 * 60)
 
 
 @bp.get("/termos")
