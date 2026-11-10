@@ -35,7 +35,7 @@ def load_config() -> dict:
         "SECRET_KEY": secret,
         "DATABASE_URL": normalize_db_url(os.getenv("DATABASE_URL", "sqlite:///manicure.db")),
         "APP_URL": app_url,
-        "PRODUCT_NAME": os.getenv("PRODUCT_NAME", "Precifica Fácil Manicure"),
+        "PRODUCT_NAME": os.getenv("PRODUCT_NAME", "Agendamento Inteligente"),
         "SUPPORT_EMAIL": os.getenv("SUPPORT_EMAIL", ""),
         "CHECKOUT_URL": os.getenv("CHECKOUT_URL", ""),
         # Preço mostrado na página de vendas

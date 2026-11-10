@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  var KEY = "precifica-manicure:v1";
+  var KEY = "agendamento-inteligente:v1";
   var UNITS = { g: ["g", 1], kg: ["g", 1000], ml: ["ml", 1], L: ["ml", 1000], un: ["un", 1] };
   var WD = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
   var WD_FULL = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];

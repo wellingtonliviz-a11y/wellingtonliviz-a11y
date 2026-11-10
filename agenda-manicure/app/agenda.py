@@ -18,7 +18,7 @@ bp = Blueprint("agenda", __name__)
 
 SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$")
 RESERVED = {"admin", "api", "demo", "entrar", "sair", "conta", "esqueci", "suporte", "precifica", "agenda",
-            "agendar", "manicure", "precifica-facil", "webhooks", "static", "termos", "privacidade"}
+            "agendar", "manicure", "agendamento", "agendamento-inteligente", "precifica-facil", "webhooks", "static", "termos", "privacidade"}
 MAX_PHOTO_BYTES = 400 * 1024
 MAX_PHOTOS_PER_USER = 120
 IMAGE_MAGIC = {b"\xff\xd8\xff": "image/jpeg", b"\x89PNG": "image/png", b"RIFF": "image/webp"}
