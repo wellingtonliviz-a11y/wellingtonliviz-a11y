@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+{% if mode == 'demo' %}
+<div class="demo-bar"><div class="wrap">
+  <span><b>Demonstração.</b> Teste à vontade: aqui os dados ficam só neste aparelho.</span>
+  {% if checkout_url %}<a class="btn small" href="{{ checkout_url }}">Quero minha conta</a>{% endif %}
+</div></div>
+{% endif %}
+{% with wide=False %}{% include "_topbar_tabs.html" %}{% endwith %}
+<main class="wrap" id="app"></main>
+<footer class="wrap foot">
+  {% if mode == 'conta' %}Seus dados ficam salvos na sua conta e aparecem em qualquer aparelho.
+  {% else %}Na demonstração os dados ficam só neste navegador.{% endif %}
+</footer>
+<template id="heroArt">{% include "_hero_art.html" %}</template>
+{% include "_liviz.html" %}
+<script>window.PRECIFICA = {{ {"mode": mode, "firstName": ((g.user.name or "").split(" ")[0] if g.user and mode == "conta" else "")} | tojson }};</script>
+{% if mode == 'conta' %}<script src="{{ url_for('static', filename='vendor/qrcode-generator-1.4.4.js') }}"></script>{% endif %}
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

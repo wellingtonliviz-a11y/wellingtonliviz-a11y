@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#cf2f66">
+<title>{{ info.business }} · Agende seu horário</title>
+<meta name="description" content="{{ info.intro or 'Escolha o serviço, o dia e o horário e agende online.' }}">
+<meta property="og:title" content="{{ info.business }} · Agende seu horário">
+<meta property="og:description" content="{{ info.intro or 'Escolha o serviço, o dia e o horário e agende online.' }}">
+<meta property="og:url" content="{{ page_url }}">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .bk-head { padding-block: 32px 4px; display: flex; flex-direction: column; gap: 8px; }
+  .bk-head h1 { font-size: clamp(30px, 8vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
+  .bk-head p { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; white-space: pre-line; }
+  .bk-info { display: inline-flex; gap: 8px; align-items: flex-start; background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; font-size: 14px; white-space: pre-line; }
+  .bk { display: flex; flex-direction: column; gap: 22px; padding-block: 16px 150px; }
+  .bk-step { display: flex; flex-direction: column; gap: 12px; }
+  .bk-step h2 { font-size: 19px; font-weight: 800; display: flex; gap: 10px; align-items: center; }
+  .bk-step h2 i { font-style: normal; width: 28px; height: 28px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex: none; }
+  .bk-step.off { opacity: .45; pointer-events: none; }
+  .svc { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--surface); border: 2px solid var(--line);
+    border-radius: var(--radius); padding: 12px; cursor: pointer; text-align: left; font: inherit; color: inherit; width: 100%; }
+  .svc[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface)); }
+  .svc-photo { width: 72px; height: 72px; border-radius: 12px; object-fit: cover; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 28px; color: var(--accent); }
+  .svc-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .svc-name { font-weight: 700; font-size: 16px; }
+  .svc-desc { color: var(--muted); font-size: 13px; }
+  .svc-meta { font-size: 14px; font-variant-numeric: tabular-nums; }
+  .svc-meta b { font-family: var(--font-display); font-size: 17px; }
+  .svc-tick { width: 26px; height: 26px; border-radius: 999px; border: 2px solid var(--line); display: flex; align-items: center; justify-content: center; color: transparent; font-weight: 800; }
+  .svc[aria-pressed="true"] .svc-tick { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+  .day { flex: none; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 66px; padding: 10px 8px; border-radius: 14px;
+    border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+  .day small { font-size: 12px; color: var(--muted); text-transform: capitalize; }
+  .day b { font-family: var(--font-display); font-size: 17px; font-variant-numeric: tabular-nums; }
+  .day[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .day[aria-pressed="true"] small { color: inherit; }
+  .day:disabled { opacity: .4; cursor: default; text-decoration: line-through; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+  .slot { padding: 11px 6px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: 700 16px var(--font-body);
+    font-variant-numeric: tabular-nums; cursor: pointer; }
+  .slot[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+  .bk-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .bk-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(0,0,0,.08); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .bk-bar-inner { max-width: 760px; margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 8px; }
+  .bk-sum { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; font-size: 14px; }
+  .bk-sum b { font-family: var(--font-display); font-size: 21px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bk-go { justify-content: center; padding-block: 13px; font-size: 16px; width: 100%; }
+  .bk-err { background: var(--crit-soft); color: var(--crit); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+  .done { text-align: center; align-items: center; padding-block: 28px; }
+  .done h2 { font-size: clamp(26px, 7vw, 34px); font-weight: 800; }
+  .done-ico { width: 64px; height: 64px; border-radius: 999px; background: var(--good-soft); color: var(--good); display: flex; align-items: center; justify-content: center; font-size: 34px; font-weight: 800; }
+  .done-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 420px; }
+  .done-card b { font-family: var(--font-display); font-size: 20px; }
+  .done .btn { justify-content: center; width: 100%; max-width: 420px; padding-block: 13px; }
+  .wa-btn { background: #1f8a4c; border-color: #1f8a4c; color: #fff; }
+  .wa-btn:hover { border-color: #1f8a4c; filter: brightness(1.05); }
+  .powered { text-align: center; font-size: 12px; color: var(--muted); padding-block: 0 8px; }
+  .powered a { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="bk-head">
+    <h1>{{ info.business }}</h1>
+    {% if info.intro %}<p>{{ info.intro }}</p>{% endif %}
+    {% if info.address %}<div class="bk-info">📍 <span>{{ info.address }}</span></div>{% endif %}
+  </header>
+
+  <div class="bk" id="bk">
+  {% if services %}
+    <section class="bk-step" id="step-svc">
+      <h2><i>1</i>Escolha o serviço</h2>
+      <p class="hint">Pode escolher mais de um. O tempo é somado.</p>
+      {% for s in services %}
+      <button type="button" class="svc" data-svc="{{ s.id }}" aria-pressed="false">
+        {% if s.photo %}<img class="svc-photo" src="/f/{{ s.photo }}" alt="" loading="lazy" width="72" height="72">
+        {% else %}<span class="svc-photo" aria-hidden="true">{{ s.name[:1] | upper }}</span>{% endif %}
+        <span class="svc-body">
+          <span class="svc-name">{{ s.name }}</span>
+          {% if s.desc %}<span class="svc-desc">{{ s.desc }}</span>{% endif %}
+          <span class="svc-meta"><b data-brl="{{ s.price }}"></b> · <span data-dur="{{ s.minutes }}"></span></span>
+        </span>
+        <span class="svc-tick" aria-hidden="true">✓</span>
+      </button>
+      {% endfor %}
+    </section>
+
+    <section class="bk-step off" id="step-day">
+      <h2><i>2</i>Escolha o dia</h2>
+      <div class="days" role="group" aria-label="Dias">
+        {% for d in days %}
+        <button type="button" class="day" data-day="{{ d.day }}" aria-pressed="false" {% if not d.open %}disabled aria-label="{{ d.wd }} {{ d.dm }}: sem atendimento"{% endif %}>
+          <small>{{ d.wd }}</small><b>{{ d.dm }}</b>
+        </button>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="bk-step off" id="step-time">
+      <h2><i>3</i>Escolha o horário</h2>
+      <div id="slots" class="slots" role="group" aria-label="Horários livres"></div>
+      <p class="hint" id="slots-msg" role="status">Escolha o serviço e o dia para ver os horários livres.</p>
+    </section>
+
+    <section class="bk-step off" id="step-data">
+      <h2><i>4</i>Seus dados</h2>
+      <div class="bk-form">
+        <label class="field"><span>SEU NOME</span><input id="b-name" autocomplete="name" maxlength="120" placeholder="Nome e sobrenome"></label>
+        <label class="field"><span>SEU WHATSAPP</span><input id="b-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 98888-7777"></label>
+      </div>
+      <label class="field"><span>OBSERVAÇÃO (OPCIONAL)</span><input id="b-obs" maxlength="300" placeholder="Ex: quero fazer francesinha"></label>
+    </section>
+    <div class="bk-err" id="err" role="alert" hidden></div>
+  {% else %}
+    <p class="hint">A agenda online está sendo preparada. Volte em breve!</p>
+  {% endif %}
+  </div>
+  <p class="powered">Agenda online feita com <a href="{{ promo_url }}" target="_blank" rel="noopener">{{ product_name }}</a>, o sistema de agenda e preço para manicures.</p>
+</main>
+
+{% if services %}
+<div class="bk-bar" id="bar" hidden>
+  <div class="bk-bar-inner">
+    <div class="bk-sum"><span id="sum-text"></span><b id="sum-total"></b></div>
+    <button class="btn primary bk-go" id="go" type="button" disabled>Confirmar agendamento</button>
+  </div>
+</div>
+{% endif %}
+
+<script>
+(function () {
+  var DATA = {{ {"slug": slug, "business": info.business, "whatsapp": info.whatsapp, "services": services, "timezone": timezone} | tojson }};
+  if (!DATA.services.length) return;
+  var WD = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+  function brl(n) { return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+  function dur(min) { if (min < 60) return min + " min"; var h = Math.floor(min / 60), m = min % 60; return h + "h" + (m ? (m < 10 ? "0" : "") + m : ""); }
+  function $(id) { return document.getElementById(id); }
+  function whenText(day, time) {
+    var p = day.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return WD[d.getDay()] + ", " + p[2] + "/" + p[1] + " às " + time;
+  }
+  document.querySelectorAll("[data-brl]").forEach(function (el) { el.textContent = brl(parseFloat(el.dataset.brl)); });
+  document.querySelectorAll("[data-dur]").forEach(function (el) { el.textContent = dur(parseInt(el.dataset.dur, 10)); });
+
+  var byId = {}; DATA.services.forEach(function (s) { byId[s.id] = s; });
+  var sel = [], day = null, time = null, reqId = 0, sending = false;
+  try {
+    var saved = JSON.parse(localStorage.getItem("agenda-cliente") || "{}");
+    if (saved.name) $("b-name").value = saved.name;
+    if (saved.phone) $("b-phone").value = saved.phone;
+  } catch (e) { /* sem armazenamento */ }
+
+  function totals() {
+    return sel.reduce(function (t, id) { t.min += byId[id].minutes; t.price += byId[id].price; return t; }, { min: 0, price: 0 });
+  }
+  function showErr(msg) { var e = $("err"); e.textContent = msg || ""; e.hidden = !msg; }
+  function update() {
+    var t = totals();
+    $("step-day").classList.toggle("off", !sel.length);
+    $("step-time").classList.toggle("off", !sel.length || !day);
+    $("step-data").classList.toggle("off", !time);
+    $("bar").hidden = !sel.length;
+    $("sum-text").textContent = sel.length ? (sel.length === 1 ? byId[sel[0]].name : sel.length + " serviços") + " · " + dur(t.min) + (day && time ? " · " + whenText(day, time) : "") : "";
+    $("sum-total").textContent = brl(t.price);
+    $("go").disabled = !(sel.length && day && time);
+    $("go").textContent = !day ? "Escolha o dia" : !time ? "Escolha o horário" : "Confirmar agendamento";
+  }
+  function loadSlots() {
+    time = null; update();
+    var box = $("slots"), msg = $("slots-msg");
+    box.innerHTML = "";
+    if (!sel.length || !day) return;
+    msg.textContent = "Buscando horários livres…";
+    var my = ++reqId;
+    fetch("/api/publico/" + DATA.slug + "/horarios?dia=" + day + "&servicos=" + encodeURIComponent(sel.join(",")))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (my !== reqId) return;
+        var slots = j.slots || [];
+        box.innerHTML = slots.map(function (s) { return '<button type="button" class="slot" data-time="' + s + '" aria-pressed="false">' + s + "</button>"; }).join("");
+        msg.textContent = slots.length ? "" : "Nenhum horário livre neste dia para " + dur(totals().min) + ". Tente outro dia.";
+      }, function () { if (my === reqId) msg.textContent = "Não foi possível carregar os horários. Confira sua internet."; });
+  }
+  function pickFirstDay() {
+    if (day) return;
+    var first = document.querySelector(".day:not(:disabled)");
+    if (first) { day = first.dataset.day; first.setAttribute("aria-pressed", "true"); }
+  }
+
+  $("step-svc").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-svc]"); if (!b) return;
+    var id = b.dataset.svc, i = sel.indexOf(id);
+    if (i >= 0) sel.splice(i, 1); else sel.push(id);
+    b.setAttribute("aria-pressed", String(i < 0));
+    showErr(""); pickFirstDay(); loadSlots();
+  });
+  $("step-day").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-day]"); if (!b || b.disabled) return;
+    document.querySelectorAll(".day").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    day = b.dataset.day; showErr(""); loadSlots();
+  });
+  $("slots").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-time]"); if (!b) return;
+    document.querySelectorAll(".slot").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    time = b.dataset.time; showErr(""); update();
+    $("step-data").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  function done(item) {
+    var p = item.day.split("-"), end = item.end.replace(":", "") + "00", start = item.time.replace(":", "") + "00";
+    var when = whenText(item.day, item.time);
+    var msg = "Olá, " + item.business + "! Acabei de agendar pelo seu link:\n\n" + item.services + "\n" + when.charAt(0).toUpperCase() + when.slice(1) +
+      "\nValor: " + brl(item.price) + "\nNome: " + $("b-name").value.trim() + ($("b-obs").value.trim() ? "\nObs.: " + $("b-obs").value.trim() : "");
+    var gcal = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(item.services + " · " + item.business) +
+      "&dates=" + p.join("") + "T" + start + "/" + p.join("") + "T" + end + "&ctz=" + encodeURIComponent(DATA.timezone);
+    var ok = item.status === "confirmado";
+    $("bar").hidden = true;
+    $("bk").innerHTML = '<section class="bk-step done"><div class="done-ico" aria-hidden="true">✓</div>' +
+      "<h2>" + (ok ? "Horário agendado!" : "Pedido de horário enviado!") + "</h2>" +
+      '<p class="hint">' + (ok ? "Seu horário está garantido." : "O horário fica reservado para você. " + esc(item.business) + " vai confirmar em breve.") + "</p>" +
+      '<div class="done-card"><b>' + esc(when.charAt(0).toUpperCase() + when.slice(1)) + "</b><span>" + esc(item.services) + " · " + brl(item.price) + "</span></div>" +
+      (DATA.whatsapp ? '<a class="btn wa-btn" href="https://wa.me/' + DATA.whatsapp + "?text=" + encodeURIComponent(msg) + '">Avisar no WhatsApp</a>' : "") +
+      '<a class="btn" href="' + gcal + '" target="_blank" rel="noopener">Salvar na minha agenda</a>' +
+      '<a class="btn ghost" href="">Agendar outro horário</a></section>';
+    window.scrollTo(0, 0);
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  $("go").addEventListener("click", function () {
+    if (sending) return;
+    var name = $("b-name").value.trim(), phone = $("b-phone").value.trim();
+    if (name.length < 2) { showErr("Informe seu nome."); $("b-name").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10) { showErr("Informe seu WhatsApp com DDD."); $("b-phone").focus(); return; }
+    try { localStorage.setItem("agenda-cliente", JSON.stringify({ name: name, phone: phone })); } catch (e) { /* ignora */ }
+    sending = true; $("go").disabled = true; $("go").textContent = "Agendando…"; showErr("");
+    fetch("/api/publico/" + DATA.slug + "/agendar", {
+      method: "POST", headers: { "Content-Type": "application/json", "X-Requested-With": "fetch" },
+      body: JSON.stringify({ servicos: sel, dia: day, hora: time, nome: name, telefone: phone, obs: $("b-obs").value.trim() })
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; });
+    }).then(function (res) {
+      sending = false;
+      if (res.ok) { done(res.j.item); return; }
+      showErr(res.j.error || "Não foi possível agendar. Tente de novo.");
+      if (res.j.taken) loadSlots(); else update();
+    }, function () { sending = false; showErr("Sem conexão. Confira sua internet e tente de novo."); update(); });
+  });
+  update();
+})();
+</script>
+</body>
+</html>

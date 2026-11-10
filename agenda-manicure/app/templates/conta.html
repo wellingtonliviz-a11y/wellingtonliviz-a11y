@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Minha conta · {{ product_name }}{% endblock %}
+{% block body %}
+{% with mode='', wide=False %}{% include "_topbar.html" %}{% endwith %}
+<main class="wrap">
+  <div class="row spread"><h2 class="section-title">Minha conta</h2><a class="btn ghost" href="{{ url_for('main.app_page') }}">← Calculadora</a></div>
+  {% include "_flashes.html" %}
+  <form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="nome">
+    <label class="field"><span>E-MAIL DE ACESSO</span><input id="acc-email" value="{{ g.user.email }}" disabled></label>
+    <label class="field"><span>SEU NOME</span><input id="acc-name" name="name" value="{{ g.user.name }}" autocomplete="name"></label>
+    <div><button class="btn" type="submit">Salvar nome</button></div>
+  </form>
+  <form method="post" class="panel">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="senha">
+    <h3 class="section-title">Trocar senha</h3>
+    <label class="field"><span>SENHA ATUAL</span><input id="acc-current" type="password" name="current" autocomplete="current-password" required></label>
+    <div class="grid">
+      <label class="field"><span>NOVA SENHA</span><input id="acc-pw" type="password" name="password" minlength="6" autocomplete="new-password" required></label>
+      <label class="field"><span>REPITA A NOVA SENHA</span><input id="acc-pw2" type="password" name="password2" minlength="6" autocomplete="new-password" required></label>
+    </div>
+    <div><button class="btn primary" type="submit">Trocar senha</button></div>
+  </form>
+  {% if support_email %}<p class="hint">Precisa de ajuda? Escreva para {{ support_email }}</p>{% endif %}
+</main>
+{% include "_liviz.html" %}
+{% endblock %}
