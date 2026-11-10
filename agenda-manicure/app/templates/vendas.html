@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% set buy_url = checkout_url or url_for('main.demo') %}
+{% block title %}{{ product_name }} · Agenda online e preço certo para manicures{% endblock %}
+{% block head %}
+<meta name="description" content="Agenda online para manicure: suas clientes marcam horário sozinhas pelo link, e você descobre o preço certo de cada serviço. R$ {{ plan_price }} por mês.">
+<meta property="og:title" content="{{ product_name }}: agenda online e o preço certo de cada serviço">
+<meta property="og:description" content="Link de agendamento para manicures e nail designers, com agenda do dia, confirmação pelo WhatsApp e calculadora de preço.">
+<meta property="og:url" content="{{ app_url }}/">
+{% endblock %}
+{% block body %}
+<header class="top lp-top">
+  <div class="wrap wide top-inner">
+    <div class="top-row">
+      <div class="brand"><h1>{% include "_mark.html" %}{{ product_name.rsplit(' ', 1)[0] }} <span>{{ product_name.rsplit(' ', 1)[-1] if ' ' in product_name else '' }}</span></h1></div>
+      <div class="top-actions">
+        {% include "_theme_toggle.html" %}
+        <a href="{{ url_for('auth.login') }}">Entrar</a>
+        <a class="btn primary small lp-top-cta" href="{{ buy_url }}">Assinar</a>
+      </div>
+    </div>
+    <div style="height:12px"></div>
+  </div>
+</header>
+
+<main class="lp">
+  <!-- Destaque -->
+  <section class="lp-band lp-hero-band">
+    <div class="wrap wide lp-hero">
+      <div class="lp-hero-text">
+        <span class="eyebrow">Para manicures, pedicures e nail designers</span>
+        <h2>Sua <em>agenda cheia</em> sem passar o dia respondendo mensagem</h2>
+        <p>Mande o seu link e a cliente escolhe o serviço, o dia e um horário livre sozinha. O horário cai na sua agenda, sem conflito, e você ainda descobre o preço certo de cada serviço, com materiais, taxas e o valor da sua hora.</p>
+        <div class="lp-ctas">
+          <a class="btn primary lp-big" href="{{ buy_url }}">Assinar por R$ {{ plan_price }}/mês</a>
+          {% if demo_enabled %}<a class="btn lp-big" href="{{ url_for('main.demo') }}">Testar grátis</a>{% endif %}
+        </div>
+        <ul class="lp-trust">
+          <li>Acesso na hora, por e-mail</li>
+          <li>Cancele quando quiser</li>
+          <li>7 dias para desistir</li>
+        </ul>
+      </div>
+      <div class="lp-hero-art">
+        {% include "_hero_art.html" %}
+        <div class="lp-price-card">
+          <span class="tile-label">Novo agendamento</span>
+          <b>Pé e mão</b>
+          <small>Sábado, 14:00 · Fernanda · pelo link</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dor -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Parece com o seu dia?</h2>
+    <div class="lp-cards three">
+      <article class="lp-card"><h3>WhatsApp que não para</h3><p>"Tem horário sábado?" "E às 3?" "Quanto é o pé e mão?" Você responde entre um atendimento e outro e ainda perde cliente que desiste de esperar.</p></article>
+      <article class="lp-card"><h3>Caderninho e confusão</h3><p>Horário marcado em dois lugares, cliente encaixada em cima da outra, intervalo que some. A agenda de papel não avisa nada.</p></article>
+      <article class="lp-card"><h3>Preço no chute</h3><p>Esmalte, lixa, luva, algodão, estufa, taxa da maquininha e as horas sentada na cadeira. Cobrando igual à concorrente, sobra quanto?</p></article>
+    </div>
+  </section>
+
+  <!-- Como funciona -->
+  <section class="lp-band">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Como funciona</h2>
+      <ol class="lp-steps">
+        <li><b>Cadastre seus serviços</b><span>Nome, duração e o preço. O sistema já vem com exemplos de mão, pé, pé e mão, gel e alongamento.</span></li>
+        <li><b>Defina seus horários</b><span>Dias de atendimento, intervalo, antecedência mínima e até quantos dias a agenda fica aberta.</span></li>
+        <li><b>Mande o seu link</b><span>Na bio do Instagram, no status ou no QR Code da bancada. A cliente agenda e você confirma com um toque.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Link de agendamento -->
+  <section class="wrap wide lp-section lp-menu-show">
+    <div>
+      <h2 class="lp-h2">Seu link de agendamento, 24 horas por dia</h2>
+      <p class="lp-lead">A cliente vê só os horários realmente livres, já com o tempo de cada serviço somado. Se ela escolher pé e mão, o sistema reserva 1h30 e não deixa ninguém marcar no meio.</p>
+      <ul class="lp-trust">
+        <li>Sem conflito de horário</li>
+        <li>Respeita seu intervalo e suas folgas</li>
+        <li>Mensagem pronta no seu WhatsApp</li>
+        <li>Aviso por e-mail a cada agendamento</li>
+      </ul>
+    </div>
+    <div class="lp-phone" aria-label="Exemplo da página de agendamento no celular">
+      <div class="lp-phone-head">Espaço da Carol</div>
+      <div class="lp-dish"><span class="lp-ini" aria-hidden="true">M</span><span><b>Mão</b><small>R$ 34,00 · 45 min</small></span><i>✓</i></div>
+      <div class="lp-dish"><span class="lp-ini" aria-hidden="true">P</span><span><b>Pé</b><small>R$ 38,00 · 50 min</small></span><i>✓</i></div>
+      <div class="lp-slots"><span>09:00</span><span>10:30</span><span class="on">14:00</span><span>15:30</span></div>
+      <div class="lp-phone-cta">Confirmar agendamento · R$ 72,00</div>
+    </div>
+  </section>
+
+  <!-- Agenda -->
+  <section class="lp-band">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Tudo o que você precisa para organizar e lucrar</h2>
+      <div class="lp-cards three">
+        <article class="lp-card"><h3>Agenda do dia</h3><p>Veja quem vem hoje, o serviço, o horário e quanto vai entrar. Confirme, conclua ou cancele com um toque.</p></article>
+        <article class="lp-card"><h3>Confirmação pelo WhatsApp</h3><p>Um botão abre a conversa com a cliente e a mensagem de confirmação pronta, com dia, horário e serviço.</p></article>
+        <article class="lp-card"><h3>Bloqueio de horários</h3><p>Médico, folga, curso? Bloqueie o horário e ele some do link. Encaixes manuais também entram na agenda.</p></article>
+        <article class="lp-card"><h3>Preço certo de cada serviço</h3><p>Custo dos materiais por atendimento, luz e esterilização, taxas e o valor da sua hora, com o preço sugerido na hora.</p></article>
+        <article class="lp-card"><h3>Quanto você ganha por hora</h3><p>Descubra quais serviços pagam melhor o seu tempo e onde vale aumentar o preço.</p></article>
+        <article class="lp-card"><h3>Celular e computador</h3><p>Seus dados ficam salvos na nuvem. Use no celular como um aplicativo, sem instalar nada.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Exemplo real -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Veja um exemplo real</h2>
+    <p class="lp-lead">Mão (cutilagem e esmaltação): 45 minutos, materiais de R$ 3,53 por atendimento, sua hora a R$ 20, margem de 40% e 4% de taxa da maquininha.</p>
+    <div class="lp-example">
+      <div class="tiles">
+        <div class="tile tile-cost"><span class="tile-label">Custo do atendimento</span><b class="num">R$ 18,88</b></div>
+        <div class="tile tile-price"><span class="tile-label">Preço sugerido</span><b class="num">R$ 34,00</b></div>
+        <div class="tile tile-profit"><span class="tile-label">Lucro por atendimento</span><b class="num">R$ 13,76</b></div>
+      </div>
+      <div class="verdict warn"><strong>Abaixo da meta</strong><span>Cobrando R$ 30,00 você lucra R$ 9,92 por atendimento. Para chegar na margem desejada, aumente R$ 4,00.</span></div>
+    </div>
+  </section>
+
+  <!-- Preço -->
+  <section class="lp-band" id="assinar">
+    <div class="wrap wide lp-section lp-pricing">
+      <div class="lp-plan">
+        <span class="eyebrow">Assinatura</span>
+        <div class="lp-plan-price"><small>R$</small><b>{{ plan_price }}</b><span>/mês</span></div>
+        <ul class="lp-check">
+          <li>Link de agendamento com QR Code</li>
+          <li>Agenda com confirmação e bloqueio de horários</li>
+          <li>Mensagens prontas no WhatsApp</li>
+          <li>Aviso por e-mail de cada agendamento</li>
+          <li>Calculadora de preço e lucro dos serviços</li>
+          <li>Funciona no celular e no computador</li>
+        </ul>
+        <a class="btn primary lp-big lp-block" href="{{ buy_url }}">Assinar agora</a>
+        <p class="hint">Pix, cartão de crédito ou boleto. O login chega no seu e-mail assim que o pagamento é confirmado. Cancele quando quiser.</p>
+      </div>
+      <div class="lp-guarantee">
+        <h3>7 dias para testar sem risco</h3>
+        <p>Se não gostar, peça o reembolso em até 7 dias após a assinatura e devolvemos o valor pago, como garante o Código de Defesa do Consumidor.</p>
+        <p>Uma única cliente a mais por mês já paga a assinatura.</p>
+        {% if demo_enabled %}<p>Quer ver antes? <a href="{{ url_for('main.demo') }}">Teste a demonstração grátis</a>, sem cadastro.</p>{% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Perguntas -->
+  <section class="wrap wide lp-section">
+    <h2 class="lp-h2">Perguntas frequentes</h2>
+    <div class="lp-faq">
+      <details><summary>Como eu recebo o acesso?</summary><p>Assim que o pagamento é confirmado, você recebe um e-mail com o endereço, seu login e uma senha. No Pix e no cartão costuma levar poucos minutos; no boleto, até 3 dias úteis. Confira também o spam.</p></details>
+      <details><summary>Minha cliente precisa baixar aplicativo ou criar conta?</summary><p>Não. Ela abre o link, escolhe o serviço, o dia e o horário e informa nome e WhatsApp. Leva menos de um minuto.</p></details>
+      <details><summary>E se duas clientes tentarem o mesmo horário?</summary><p>O sistema só mostra horários livres e confere de novo na hora de confirmar. Quem chegar primeiro fica com o horário; a outra vê um aviso para escolher outro.</p></details>
+      <details><summary>Posso confirmar cada agendamento antes?</summary><p>Pode. Por padrão o horário fica reservado como "aguardando confirmação" até você confirmar. Se preferir, ligue a confirmação automática.</p></details>
+      <details><summary>Atendo a domicílio. Serve para mim?</summary><p>Serve. Você coloca na página as regiões que atende e a cliente informa o endereço na observação.</p></details>
+      <details><summary>Posso cancelar quando quiser?</summary><p>Sim, sem multa e sem fidelidade. É só pedir pelo e-mail ou WhatsApp do suporte. O acesso continua até o fim do mês já pago.</p></details>
+    </div>
+  </section>
+
+  <!-- Chamada final -->
+  <section class="lp-band lp-final">
+    <div class="wrap wide lp-section">
+      <h2 class="lp-h2">Menos mensagem, mais cliente na cadeira.</h2>
+      <div class="lp-ctas center">
+        <a class="btn primary lp-big" href="{{ buy_url }}">Assinar por R$ {{ plan_price }}/mês</a>
+        {% if demo_enabled %}<a class="btn lp-big" href="{{ url_for('main.demo') }}">Testar grátis</a>{% endif %}
+      </div>
+      <p class="hint">Já é cliente? <a href="{{ url_for('auth.login') }}">Entre na sua conta</a>.</p>
+    </div>
+  </section>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}

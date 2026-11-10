@@ -1,0 +1,13 @@
+<footer class="liviz">
+  <div class="wrap liviz-inner">
+    <a class="liviz-banner" href="https://wa.me/5511927206740" target="_blank" rel="noopener"
+       aria-label="Desenvolvido por Liviz Software. Tecnologia que simplifica negócios. Contato: contato@livizsoftware.com.br, (11) 92720-6740">
+      <img class="liviz-img-light" src="{{ url_for('static', filename='img/liviz-banner.webp') }}" width="600" height="200"
+           alt="Desenvolvido por Liviz Software. Tecnologia que simplifica negócios. contato@livizsoftware.com.br • (11) 92720-6740">
+      <img class="liviz-img-dark" src="{{ url_for('static', filename='img/liviz-banner-dark.webp') }}" width="600" height="200"
+           alt="Desenvolvido por Liviz Software. Tecnologia que simplifica negócios." loading="lazy">
+    </a>
+    <span class="liviz-contact-line"><a href="mailto:contato@livizsoftware.com.br">contato@livizsoftware.com.br</a> · <a href="https://wa.me/5511927206740" target="_blank" rel="noopener">(11) 92720-6740</a></span>
+    <span class="liviz-legal"><a href="{{ url_for('main.terms') }}">Termos de uso</a> · <a href="{{ url_for('main.privacy') }}">Política de privacidade</a></span>
+  </div>
+</footer>

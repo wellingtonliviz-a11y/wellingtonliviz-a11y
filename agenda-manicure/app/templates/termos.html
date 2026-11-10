@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Termos de uso · {{ product_name }}{% endblock %}
+{% block body %}
+{% include "_legal_head.html" %}
+<main class="wrap legal">
+  <h1>Termos de uso</h1>
+  <p class="updated">Última atualização: novembro de 2026</p>
+  <p>Estes termos regem o uso do {{ product_name }} ({{ app_url }}), serviço oferecido por <b>{{ company_name }}</b>{% if company_doc %}, inscrita no CNPJ {{ company_doc }}{% endif %}. Ao criar uma conta ou usar o serviço, você concorda com eles.</p>
+
+  <h2>1. O serviço</h2>
+  <p>O {{ product_name }} é uma ferramenta online que ajuda manicures e profissionais de unhas a calcular custos, preços sugeridos e margens de lucro dos serviços, e a organizar a agenda, com uma página pública onde as clientes marcam horário. Os resultados são estimativas baseadas nas informações que você cadastra. A decisão final de preço é sempre sua.</p>
+
+  <h2>2. Conta e acesso</h2>
+  <ul>
+    <li>O acesso é liberado após a confirmação do pagamento e enviado para o e-mail usado na compra.</li>
+    <li>A conta é pessoal. Mantenha sua senha em segurança e não a compartilhe.</li>
+    <li>Você é responsável pelas informações que cadastra, incluindo fotos, preços e descrições publicadas na sua página de agendamento, e pelos dados das suas clientes que ficam na sua agenda.</li>
+  </ul>
+
+  <h2>3. Pagamento, assinatura e cancelamento</h2>
+  <ul>
+    <li>Na assinatura, a cobrança é recorrente no período escolhido (mensal ou anual) até que você cancele.</li>
+    <li>Você pode cancelar a qualquer momento pela plataforma em que comprou ou pelo e-mail {{ company_email }}. O acesso continua até o fim do período já pago.</li>
+    <li>Se uma cobrança não for paga, o acesso pode ser suspenso e volta a ser liberado quando o pagamento for confirmado.</li>
+    <li>Reembolsos e contestações de pagamento (chargeback) encerram o acesso.</li>
+  </ul>
+
+  <h2>4. Direito de arrependimento</h2>
+  <p>Conforme o Código de Defesa do Consumidor (art. 49), você pode desistir da compra em até <b>7 dias</b> a partir da contratação e receber de volta o valor pago. Basta pedir pela plataforma em que comprou ou pelo e-mail {{ company_email }}.</p>
+
+  <h2>5. Uso adequado</h2>
+  <p>Não é permitido usar o serviço para fins ilegais, publicar conteúdo ofensivo ou que viole direitos de terceiros na sua página, tentar acessar contas de outras pessoas ou prejudicar o funcionamento do sistema. Contas que descumprirem estas regras podem ser suspensas.</p>
+
+  <h2>6. Disponibilidade e responsabilidade</h2>
+  <p>Trabalhamos para manter o serviço disponível e seus dados seguros, mas podem ocorrer interrupções para manutenção ou por falhas de terceiros (como hospedagem e internet). Recomendamos gerar backups periódicos na aba Ajustes. Não nos responsabilizamos por decisões comerciais tomadas com base nos cálculos, nem por atendimentos, faltas, atrasos ou valores combinados diretamente entre você e suas clientes. Confira a sua agenda com frequência: o sistema mostra os horários livres conforme as configurações que você define.</p>
+
+  <h2>7. Alterações</h2>
+  <p>Podemos atualizar estes termos e o próprio serviço. Mudanças importantes serão avisadas por e-mail ou dentro do sistema.</p>
+
+  <h2>8. Contato</h2>
+  <p>Dúvidas sobre estes termos: <b>{{ company_email }}</b>.</p>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Entrar · {{ product_name }}{% endblock %}
+{% block body %}
+<main class="wrap wide auth">
+  <div class="auth-split">
+    <section class="auth-promo">
+      {% include "_brand.html" %}
+      <h2>Agenda cheia e o preço certo em cada atendimento.</h2>
+      <div class="hero-art">{% include "_hero_art.html" %}</div>
+      <ul class="benefits">
+        <li>Link de agendamento: a cliente escolhe o serviço e o horário livre sozinha</li>
+        <li>Agenda do dia com confirmação e aviso pelo WhatsApp</li>
+        <li>Preço de cada serviço com materiais, taxas e o valor da sua hora</li>
+      </ul>
+    </section>
+    <div class="auth-card">
+      <h2>Entre na sua conta</h2>
+      {% include "_flashes.html" %}
+      <form method="post" class="panel">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <label class="field"><span>E-MAIL DA COMPRA</span>
+          <input id="email" type="email" name="email" value="{{ email }}" autocomplete="email" required autofocus></label>
+        <label class="field"><span>SENHA</span>
+          <input id="password" type="password" name="password" autocomplete="current-password" required></label>
+        <button class="btn primary" type="submit">Entrar</button>
+        <p class="hint">Ao entrar, você concorda com os <a href="{{ url_for('main.terms') }}">Termos de uso</a> e a <a href="{{ url_for('main.privacy') }}">Política de privacidade</a>.</p>
+      </form>
+      <div class="auth-links">
+        <a href="{{ url_for('auth.forgot') }}">Esqueci minha senha</a>
+        {% if demo_enabled %}<a href="{{ url_for('main.demo') }}">Testar a demonstração</a>{% endif %}
+      </div>
+      <p class="hint">A senha chega no seu e-mail logo após a compra ser aprovada. Confira também o spam.
+      {% if support_email %}Precisa de ajuda? {{ support_email }}{% endif %}</p>
+    </div>
+  </div>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}

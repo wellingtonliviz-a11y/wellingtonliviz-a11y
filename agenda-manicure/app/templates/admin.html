@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Painel · {{ product_name }}{% endblock %}
+{% block body %}
+{% with mode='', wide=True %}{% include "_topbar.html" %}{% endwith %}
+<main class="wrap wide">
+  <h2 class="section-title">Painel de clientes</h2>
+  {% include "_flashes.html" %}
+  <section class="panel stats">
+    <div class="stat"><b class="num">{{ stats.ativos }}</b><span>Clientes ativos</span></div>
+    <div class="stat"><b class="num">{{ stats.novos_30d }}</b><span>Novos em 30 dias</span></div>
+    <div class="stat"><b class="num">{{ stats.reembolsos_30d }}</b><span>Reembolsos em 30 dias</span></div>
+    <div class="stat"><b class="num">{{ stats.bloqueados }}</b><span>Bloqueados</span></div>
+  </section>
+  <div class="row spread">
+    <form method="get" class="row" style="flex:1;min-width:240px">
+      <input id="q" name="q" value="{{ q }}" placeholder="Buscar por e-mail ou nome" style="flex:1">
+      <button class="btn" type="submit">Buscar</button>
+    </form>
+  </div>
+  <div class="table-wrap"><table class="users">
+    <thead><tr><th>Cliente</th><th>Desde</th><th>Último acesso</th><th>Situação</th><th>Ações</th></tr></thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td><b>{{ u.name or '—' }}</b><br><span class="hint">{{ u.email }}</span></td>
+        <td class="num">{{ u.created_at.strftime('%d/%m/%Y') }}</td>
+        <td class="num">{{ u.last_login_at.strftime('%d/%m/%Y') if u.last_login_at else 'nunca entrou' }}</td>
+        <td>{% if u.active %}<span class="chip good">Ativo</span>{% else %}<span class="chip crit">Bloqueado</span>{% endif %}
+            {% if not u.access_email_sent_at and not u.last_login_at %}<br><span class="chip warn">e-mail não enviado</span>{% endif %}</td>
+        <td><div class="actions">
+          <form method="post" action="{{ url_for('admin.resend', user_id=u.id, q=q) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><button class="btn small" type="submit">Enviar nova senha</button></form>
+          <form method="post" action="{{ url_for('admin.toggle', user_id=u.id, q=q) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <input type="hidden" name="active" value="{{ '0' if u.active else '1' }}">
+            <button class="btn small {{ 'danger' if u.active else '' }}" type="submit">{{ 'Bloquear' if u.active else 'Liberar' }}</button></form>
+        </div></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="hint">Nenhum cliente {{ 'encontrado' if q else 'ainda. Assim que a primeira venda for aprovada, ele aparece aqui.' }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  <form method="post" action="{{ url_for('admin.create') }}" class="panel">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <h3 class="section-title">Criar acesso manualmente</h3>
+    <p class="hint">Para cortesias, parcerias ou quando um comprador não recebeu o e-mail.</p>
+    <div class="grid">
+      <label class="field"><span>E-MAIL</span><input id="new-email" type="email" name="email" required></label>
+      <label class="field"><span>NOME</span><input id="new-name" name="name"></label>
+    </div>
+    <div><button class="btn primary" type="submit">Criar e enviar acesso</button></div>
+  </form>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}

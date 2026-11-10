@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Política de privacidade · {{ product_name }}{% endblock %}
+{% block body %}
+{% include "_legal_head.html" %}
+<main class="wrap legal">
+  <h1>Política de privacidade</h1>
+  <p class="updated">Última atualização: novembro de 2026</p>
+  <p>Esta política explica como o {{ product_name }}, oferecido por <b>{{ company_name }}</b>{% if company_doc %} (CNPJ {{ company_doc }}){% endif %}, trata os seus dados pessoais, de acordo com a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).</p>
+
+  <h2>1. Dados que coletamos</h2>
+  <ul>
+    <li><b>Dados da compra:</b> nome e e-mail informados na plataforma de pagamento (Hotmart, Kiwify ou Asaas), e o código da transação.</li>
+    <li><b>Dados da conta:</b> e-mail, nome, senha (guardada de forma criptografada, nunca em texto puro) e datas de acesso.</li>
+    <li><b>Dados que você cadastra:</b> materiais, preços, serviços, configurações, fotos, horários de atendimento e informações da sua página de agendamento, como o seu WhatsApp e endereço.</li>
+    <li><b>Dados das suas clientes:</b> nome, WhatsApp, serviço, data, horário e observação de cada agendamento, informados por você ou pela própria cliente no seu link.</li>
+    <li><b>Dados técnicos:</b> endereço IP, para proteger o login contra tentativas abusivas, e um cookie de sessão para mantê-lo conectado.</li>
+  </ul>
+  <p>Não coletamos dados de cartão. Os pagamentos são processados pelas próprias plataformas de pagamento.</p>
+
+  <h2>2. Para que usamos</h2>
+  <ul>
+    <li>Criar e manter a sua conta e liberar ou suspender o acesso conforme o pagamento.</li>
+    <li>Enviar e-mails do serviço: acesso, nova senha e avisos importantes.</li>
+    <li>Fazer os cálculos, exibir a sua página pública de agendamento, mostrar os horários livres e guardar a sua agenda.</li>
+    <li>Avisar você por e-mail quando chegar um agendamento novo (se você deixar essa opção ligada).</li>
+    <li>Dar suporte e cumprir obrigações legais.</li>
+  </ul>
+  <p>Não vendemos seus dados e não enviamos propaganda de terceiros.</p>
+
+  <h2>3. O que fica público</h2>
+  <p>Se você criar um link de agendamento, ficam públicos para quem tiver o link: o nome do seu espaço, a mensagem de boas-vindas, o endereço, o seu WhatsApp, os serviços que você marcou para aparecer (com preço, duração, foto e descrição) e os horários livres da sua agenda. Custos, margens, materiais e os dados de outras clientes nunca aparecem na página.</p>
+
+  <h2>3.1. Dados das suas clientes</h2>
+  <p>Quando uma cliente agenda pelo seu link, ela informa nome e WhatsApp para você poder atendê-la. Em relação a esses dados, você é a responsável (controladora) e nós apenas os guardamos e processamos em seu nome (operador), sem usá-los para nenhuma outra finalidade. Se uma cliente pedir a exclusão dos dados dela, você pode apagar o agendamento na sua agenda ou nos pedir pelo e-mail abaixo.</p>
+
+  <h2>4. Com quem compartilhamos</h2>
+  <p>Apenas com os fornecedores necessários para o serviço funcionar: hospedagem do sistema e do banco de dados (Render), envio de e-mails (Brevo) e as plataformas de pagamento (Hotmart, Kiwify e Asaas). Esses fornecedores podem armazenar dados fora do Brasil, seguindo as garantias previstas na LGPD.</p>
+
+  <h2>5. Por quanto tempo guardamos</h2>
+  <p>Enquanto a sua conta existir. Se o acesso for encerrado, mantemos os dados para permitir que você volte de onde parou, a menos que você peça a exclusão. Ao pedir, apagamos tudo, exceto o que a lei obrigar a guardar.</p>
+
+  <h2>6. Seus direitos</h2>
+  <p>Você pode pedir a qualquer momento: confirmação de que tratamos seus dados, acesso a eles, correção, cópia (portabilidade) ou exclusão da conta e dos dados. Na aba Ajustes você mesmo pode gerar uma cópia dos seus serviços, materiais e configurações.</p>
+
+  <h2>7. Segurança</h2>
+  <p>Usamos conexão criptografada (HTTPS), senhas protegidas por hash, proteção contra tentativas repetidas de login e separação dos dados de cada cliente.</p>
+
+  <h2>8. Contato</h2>
+  <p>Para exercer seus direitos ou tirar dúvidas sobre privacidade: <b>{{ company_email }}</b>.</p>
+</main>
+{% include "_liviz.html" %}
+{% endblock %}
