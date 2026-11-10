@@ -1,9 +1,11 @@
 # Blueprint do Render para o Agendamento Inteligente (site + banco PostgreSQL próprios).
+# Os nomes internos (precifica-manicure) ficam assim porque o serviço e o banco já foram criados com eles.
+# O nome que aparece para as clientes vem de PRODUCT_NAME.
 # Coloque a pasta "agenda-manicure" no repositório, ao lado de "calculadora-precos",
 # e no Render: New > Blueprint > escolha o repositório e aponte para este arquivo.
 services:
   - type: web
-    name: agendamento-inteligente
+    name: precifica-manicure
     runtime: python
     rootDir: agenda-manicure
     plan: starter
@@ -15,7 +17,7 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: agendamento-inteligente-db
+          name: precifica-manicure-db
           property: connectionString
       - key: PRODUCT_NAME
         value: Agendamento Inteligente
@@ -59,5 +61,5 @@ services:
         sync: false
 
 databases:
-  - name: agendamento-inteligente-db
+  - name: precifica-manicure-db
     plan: basic-256mb
