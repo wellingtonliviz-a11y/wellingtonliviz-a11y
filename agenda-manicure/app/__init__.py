@@ -1,4 +1,4 @@
-"""Precifica Fácil Manicure: preço dos serviços e agenda online, vendido pela Hotmart/Kiwify/Asaas."""
+"""Agendamento Inteligente: preço dos serviços e agenda online, vendido pela Hotmart/Kiwify/Asaas."""
 import logging
 
 from flask import Flask, g, render_template

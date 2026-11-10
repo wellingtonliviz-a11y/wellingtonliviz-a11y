@@ -136,7 +136,7 @@ def fetch_asaas_customer(customer_id: str) -> dict | None:
         return None
     url = f"{cfg['ASAAS_API_URL']}/customers/{urllib.parse.quote(customer_id)}"
     req = urllib.request.Request(url, headers={"access_token": cfg["ASAAS_API_KEY"], "Accept": "application/json",
-                                               "User-Agent": "precifica-facil-manicure"})
+                                               "User-Agent": "agendamento-inteligente"})
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             return json.load(resp)

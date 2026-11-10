@@ -1,9 +1,9 @@
-# Precifica Fácil Manicure
+# Agendamento Inteligente
 
-Versão do Precifica Fácil para **manicures, pedicures e nail designers**, com **agenda online**.
+Sistema de **agenda online** e preço dos serviços para **manicures, pedicures e nail designers**.
 Preço sugerido de venda: **R$ 49,90 por mês** (variável `PLAN_PRICE`).
 
-É vendido pela **Hotmart**, **Kiwify** ou **Asaas** e funciona sozinho, igual ao Precifica Fácil:
+É vendido pela **Hotmart**, **Kiwify** ou **Asaas** e funciona sozinho, com a mesma base do Precifica Fácil:
 
 1. A cliente compra.
 2. A plataforma avisa o sistema (webhook).
@@ -73,7 +73,7 @@ Para os e-mails não caírem no spam, valide um domínio seu no serviço de envi
    Ele cria o site e um banco PostgreSQL só para esta versão.
 2. Preencha as variáveis que ele pedir (veja a tabela abaixo).
 3. Depois do primeiro deploy, copie o endereço do site (ex:
-   `https://precifica-manicure.onrender.com`) e coloque em `APP_URL`.
+   `https://agendamento-inteligente.onrender.com`) e coloque em `APP_URL`.
 
 **No Railway:**
 1. **New Project > Deploy from GitHub repo**, escolha o repositório e, em
@@ -94,7 +94,7 @@ Para os e-mails não caírem no spam, valide um domínio seu no serviço de envi
 | `APP_URL` | Endereço do site, sem `/` no final |
 | `DATABASE_URL` | Endereço do PostgreSQL (Render/Railway preenchem) |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Dados do serviço de e-mail |
-| `MAIL_FROM` | Remetente, ex: `Precifica Fácil Manicure <acesso@seudominio.com.br>` |
+| `MAIL_FROM` | Remetente, ex: `Agendamento Inteligente <acesso@seudominio.com.br>` |
 | `SUPPORT_EMAIL` | E-mail de suporte que aparece para o cliente |
 | `HOTMART_HOTTOK` | Hottok da Hotmart (passo 4) |
 | `KIWIFY_TOKEN` | Token do webhook da Kiwify (passo 4) |
@@ -102,7 +102,7 @@ Para os e-mails não caírem no spam, valide um domínio seu no serviço de envi
 | `ADMIN_EMAILS` | Seu e-mail (vira dono do painel `/admin`) |
 | `ADMIN_INITIAL_PASSWORD` | Senha da sua conta no primeiro acesso. Troque depois em "Minha conta" |
 | `CHECKOUT_URL` | Link do checkout, para os botões de assinar |
-| `PRODUCT_NAME` | Nome do produto (padrão `Precifica Fácil Manicure`) |
+| `PRODUCT_NAME` | Nome do produto (padrão `Agendamento Inteligente`) |
 | `PLAN_PRICE` | Preço mostrado na página de vendas (padrão `49,90`) |
 | `TIMEZONE` | Fuso da agenda (padrão `America/Sao_Paulo`) |
 
