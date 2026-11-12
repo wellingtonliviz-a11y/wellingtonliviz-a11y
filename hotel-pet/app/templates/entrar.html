@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block body %}
+<main class="auth">
+  <div class="card">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">🐾</span>{{ hotel_name }}</div>
+    {% include "_flashes.html" %}
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="field"><span>E-mail</span><input type="email" name="email" value="{{ email }}" required autofocus autocomplete="username"></label>
+      <label class="field"><span>Senha</span><input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit" style="width:100%">Entrar</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

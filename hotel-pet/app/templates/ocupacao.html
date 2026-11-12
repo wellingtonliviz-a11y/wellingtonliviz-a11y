@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Ocupação{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Mapa de ocupação</h1><p>{{ days[0] | br_date }} a {{ days[-1] | br_date }} · clique num espaço livre para reservar</p></div>
+  <div class="form-actions" style="margin:0">
+    <a class="btn ghost sm" href="{{ url_for('painel.occupancy', inicio=prev.isoformat()) }}">← Anterior</a>
+    <a class="btn ghost sm" href="{{ url_for('painel.occupancy') }}">Hoje</a>
+    <a class="btn ghost sm" href="{{ url_for('painel.occupancy', inicio=next.isoformat()) }}">Próximo →</a>
+  </div>
+</div>
+<div class="occ-wrap">
+  <table class="occ">
+    <thead><tr>
+      <th class="room">Acomodação</th>
+      {% for d in days %}<th class="{{ 'today' if d == today }}">{{ ['seg','ter','qua','qui','sex','sáb','dom'][d.weekday()] }}<br>{{ d.strftime('%d/%m') }}</th>{% endfor %}
+    </tr></thead>
+    <tbody>
+    {% for r in rooms %}
+      <tr>
+        <td class="room"><strong>{{ r.name }}</strong><div class="muted small">{{ '🐶' if r.species == 'cao' else '🐱' }} até {{ r.capacity }} pet(s)</div></td>
+        {% set row = grid[r.id] %}
+        {% for b in row %}
+          {% set d = days[loop.index0] %}
+          {% if b %}
+            {% set first = loop.first or row[loop.index0 - 1] is not sameas b %}
+            {% set last = loop.last or row[loop.index0 + 1] is not sameas b %}
+            <td class="cell"><a class="{{ b.status }}{{ ' start' if first }}{{ ' end' if last }}" href="{{ url_for('reservas.booking', booking_id=b.id) }}" title="{{ b.pet_names }} ({{ b.tutor.name }}) {{ b.check_in.strftime('%d/%m') }}→{{ b.check_out.strftime('%d/%m') }}">{{ b.pet_names if first else '' }}</a></td>
+          {% else %}
+            <td class="cell free"><a class="new" href="{{ url_for('reservas.booking_form', room=r.id, check_in=d.isoformat(), check_out=(d + one_day).isoformat()) }}" aria-label="Reservar {{ r.name }} em {{ d.strftime('%d/%m') }}">+</a></td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    {% else %}
+      <tr><td class="room" colspan="{{ days | length + 1 }}">Nenhuma acomodação cadastrada. {% if current_user.is_admin %}<a href="{{ url_for('gestao.room_form') }}">Cadastrar</a>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><td class="room muted small">Livres</td>{% for n in free_per_day %}<td>{{ n }}</td>{% endfor %}</tr></tfoot>
+  </table>
+</div>
+<p class="muted small" style="margin-top:10px"><span class="tag reservada">Reservada</span> <span class="tag hospedado">Hospedado</span> · a saída libera a acomodação no mesmo dia.</p>
+{% endblock %}

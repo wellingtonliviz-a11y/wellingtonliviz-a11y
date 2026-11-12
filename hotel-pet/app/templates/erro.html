@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Ops{% endblock %}
+{% block body %}
+<main class="auth">
+  <div class="card" style="text-align:center">
+    <div style="font-size:42px" aria-hidden="true">🐾</div>
+    <h1>{% if error.code == 404 %}Página não encontrada{% elif error.code == 403 %}Acesso só para administradores{% else %}Algo deu errado{% endif %}</h1>
+    <p class="muted">{{ error.description if error.code == 400 else '' }}</p>
+    <a class="btn" href="{{ url_for('painel.home') }}">Voltar ao painel</a>
+  </div>
+</main>
+{% endblock %}

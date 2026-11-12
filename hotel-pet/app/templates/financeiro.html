@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Financeiro{% endblock %}
+{% block content %}
+{% set months = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'] %}
+<div class="page-head">
+  <div><h1>Financeiro</h1><p>{{ months[start.month - 1] | capitalize }} de {{ start.year }}</p></div>
+  <div class="form-actions" style="margin:0">
+    <a class="btn ghost sm" href="{{ url_for('gestao.finance', mes=prev.strftime('%Y-%m')) }}">← {{ months[prev.month - 1] }}</a>
+    <a class="btn ghost sm" href="{{ url_for('gestao.finance') }}">Este mês</a>
+    <a class="btn ghost sm" href="{{ url_for('gestao.finance', mes=next.strftime('%Y-%m')) }}">{{ months[next.month - 1] }} →</a>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat accent"><div class="label">Recebido no mês</div><div class="value">{{ received | money }}</div><div class="hint">{{ payments | length }} pagamento(s)</div></div>
+  <div class="stat"><div class="label">Faturamento das reservas</div><div class="value">{{ billed | money }}</div><div class="hint">{{ bookings_count }} reserva(s) com entrada no mês</div></div>
+  <div class="stat"><div class="label">Diárias vendidas</div><div class="value">{{ nights }}</div><div class="hint">diárias × pets</div></div>
+  <div class="stat"><div class="label">Ticket médio</div><div class="value">{{ ticket | money }}</div><div class="hint">por reserva</div></div>
+</div>
+<div class="layout-side">
+  <section class="card">
+    <div class="card-head"><h2>A receber</h2><strong>{{ open_total | money }}</strong></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pets / tutor</th><th>Saída</th><th>Situação</th><th class="num">Falta</th></tr></thead>
+      <tbody>
+        {% for b in open_bookings %}
+          <tr><td><a href="{{ url_for('reservas.booking', booking_id=b.id) }}#valores"><strong>{{ b.pet_names }}</strong></a><div class="muted small">{{ b.tutor.name }}</div></td>
+            <td>{{ b.check_out | br_date }}</td><td><span class="tag {{ b.status }}">{{ STATUS[b.status] }}</span></td>
+            <td class="num" style="color:var(--crit);font-weight:700">{{ b.balance_cents | money }}</td></tr>
+        {% else %}<tr><td colspan="4" class="empty">Nada em aberto. 🎉</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <h2>Por forma de pagamento</h2>
+    <div class="money-rows">
+      {% for k, v in PAY_METHODS.items() %}<div><span>{{ v }}</span><span>{{ by_method[k] | money }}</span></div>{% endfor %}
+      <div class="big"><span>Total</span><span>{{ received | money }}</span></div>
+    </div>
+  </section>
+</div>
+{% endblock %}

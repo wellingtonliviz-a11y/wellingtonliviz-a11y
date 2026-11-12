@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Acomodações{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Acomodações</h1><p>Baias, suítes e gatis. Cada reserva ocupa a acomodação inteira.</p></div>
+  <a class="btn" href="{{ url_for('gestao.room_form') }}">+ Nova acomodação</a>
+</div>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nome</th><th>Para</th><th>Porte máx.</th><th class="num">Pets</th><th class="num">Diária por pet</th><th>Situação</th><th></th></tr></thead>
+      <tbody>
+        {% for r in rooms %}
+          <tr>
+            <td><strong>{{ r.name }}</strong>{% if r.description %}<div class="muted small">{{ r.description }}</div>{% endif %}</td>
+            <td><span class="tag {{ r.species }}">{{ '🐶 Cães' if r.species == 'cao' else '🐱 Gatos' }}</span></td>
+            <td>{{ SIZES[r.max_size] if r.species == 'cao' else '—' }}</td>
+            <td class="num">{{ r.capacity }}</td>
+            <td class="num">{{ r.daily_rate_cents | money }}</td>
+            <td>{% if r.active %}<span class="tag ok">em uso</span>{% else %}<span class="tag">desativada</span>{% endif %}</td>
+            <td><a href="{{ url_for('gestao.room_form', room_id=r.id) }}">editar</a></td>
+          </tr>
+        {% else %}<tr><td colspan="7" class="empty">Cadastre as baias e gatis do hotel para começar a reservar.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

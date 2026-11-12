@@ -1,0 +1,34 @@
+# Blueprint do Render para o Hotel Pet (site + banco PostgreSQL próprios).
+# No Render: New > Blueprint > escolha o repositório e aponte para este arquivo.
+services:
+  - type: web
+    name: hotel-pet
+    runtime: python
+    rootDir: hotel-pet
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --preload --workers 2 --bind 0.0.0.0:$PORT
+    healthCheckPath: /saude
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hotel-pet-db
+          property: connectionString
+      - key: HOTEL_NAME
+        value: Hotel Pet
+      - key: TIMEZONE
+        value: America/Sao_Paulo
+      - key: DEMO_DATA
+        value: "1"
+      - key: APP_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_INITIAL_PASSWORD
+        sync: false
+
+databases:
+  - name: hotel-pet-db
+    plan: basic-256mb

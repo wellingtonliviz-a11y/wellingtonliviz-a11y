@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Comprovante{% endblock %}
+{% block content %}
+<div class="receipt">
+  <div class="form-actions no-print" style="margin:0 0 14px">
+    <button class="btn" type="button" onclick="window.print()">Imprimir / salvar PDF</button>
+    <a class="btn ghost" href="{{ url_for('reservas.booking', booking_id=b.id) }}">Voltar</a>
+  </div>
+  <div class="card">
+    <div class="card-head"><h1 style="margin:0">🐾 {{ hotel_name }}</h1><span class="muted">Reserva nº {{ b.id }}</span></div>
+    <dl class="facts" style="margin-bottom:16px">
+      <div><dt>Tutor</dt><dd>{{ b.tutor.name }}{% if b.tutor.cpf %}<br><span class="small">CPF {{ b.tutor.cpf }}</span>{% endif %}</dd></div>
+      <div><dt>Pets</dt><dd>{{ b.pet_names }}</dd></div>
+      <div><dt>Entrada</dt><dd>{{ b.check_in | br_date }}</dd></div>
+      <div><dt>Saída</dt><dd>{{ b.check_out | br_date }}</dd></div>
+      <div><dt>Acomodação</dt><dd>{{ b.room.name }}</dd></div>
+      <div><dt>Situação</dt><dd>{{ STATUS[b.status] }}</dd></div>
+    </dl>
+    <table>
+      <thead><tr><th>Descrição</th><th class="num">Valor</th></tr></thead>
+      <tbody>
+        <tr><td>Hospedagem: {{ b.nights }} diária(s) × {{ b.pets | length }} pet(s) × {{ b.daily_rate_cents | money }}</td><td class="num">{{ b.lodging_cents | money }}</td></tr>
+        {% for e in b.extras %}<tr><td>{{ e.description }}</td><td class="num">{{ e.price_cents | money }}</td></tr>{% endfor %}
+        {% if b.discount_cents %}<tr><td>Desconto</td><td class="num">-{{ b.discount_cents | money }}</td></tr>{% endif %}
+        <tr class="total"><td>Total</td><td class="num">{{ b.total_cents | money }}</td></tr>
+        {% for p in b.payments %}<tr><td class="muted">Pago em {{ p.paid_on | br_date }} ({{ PAY_METHODS[p.method] }})</td><td class="num muted">{{ p.amount_cents | money }}</td></tr>{% endfor %}
+        <tr class="total"><td>{{ 'Saldo a pagar' if b.balance_cents > 0 else 'Quitado' }}</td><td class="num">{{ (b.balance_cents if b.balance_cents > 0 else 0) | money }}</td></tr>
+      </tbody>
+    </table>
+    <p class="muted small" style="margin-top:18px">Emitido em {{ today | br_date }}. Este documento não é nota fiscal.</p>
+  </div>
+</div>
+{% endblock %}

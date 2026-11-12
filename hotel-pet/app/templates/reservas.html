@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_tag %}
+{% block title %}Reservas{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Reservas</h1></div>
+  <a class="btn" href="{{ url_for('reservas.booking_form') }}">+ Nova reserva</a>
+</div>
+<nav class="tabs" aria-label="Filtrar">
+  {% for key, label in [('ativas', 'Em aberto'), ('reservada', 'Reservadas'), ('hospedado', 'Hospedados'), ('finalizada', 'Finalizadas'), ('cancelada', 'Canceladas'), ('todas', 'Todas')] %}
+    <a href="{{ url_for('reservas.bookings', status=key) }}" class="{{ 'on' if status == key }}">{{ label }}</a>
+  {% endfor %}
+</nav>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pets</th><th>Tutor</th><th>Acomodação</th><th>Entrada</th><th>Saída</th><th>Situação</th><th class="num">Total</th><th class="num">Falta</th></tr></thead>
+      <tbody>
+      {% for b in bookings %}
+        <tr>
+          <td><a href="{{ url_for('reservas.booking', booking_id=b.id) }}"><strong>{{ b.pet_names }}</strong></a></td>
+          <td>{{ b.tutor.name }}</td>
+          <td>{{ b.room.name }}</td>
+          <td>{{ b.check_in | br_date }}</td>
+          <td>{{ b.check_out | br_date }}</td>
+          <td>{{ status_tag(b.status) }}</td>
+          <td class="num">{{ b.total_cents | money }}</td>
+          <td class="num">{% if b.balance_cents > 0 %}<span style="color:var(--crit);font-weight:700">{{ b.balance_cents | money }}</span>{% else %}—{% endif %}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8" class="empty">Nenhuma reserva aqui.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

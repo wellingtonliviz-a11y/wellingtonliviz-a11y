@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Equipe{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Equipe</h1><p>Quem pode entrar no sistema. Administradores veem financeiro, acomodações e equipe.</p></div></div>
+<div class="layout-side">
+  <section class="card">
+    <ul class="list">
+      {% for u in users %}
+        <li><div class="grow"><strong>{{ u.name }}</strong> {% if u.is_admin %}<span class="tag hospedado">admin</span>{% endif %}{% if not u.active %}<span class="tag crit">bloqueado</span>{% endif %}
+          <div class="muted small">{{ u.email }}</div></div>
+          {% if u.id != current_user.id %}
+          <form class="inline" method="post" action="{{ url_for('gestao.team_toggle', user_id=u.id) }}">{{ csrf() }}
+            <button class="btn ghost sm" type="submit">{{ 'Bloquear' if u.active else 'Liberar' }}</button></form>
+          {% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  <form method="post" class="card">
+    {{ csrf() }}
+    <h2>Adicionar pessoa</h2>
+    <div class="stack">
+      <label class="field"><span>Nome</span><input type="text" name="name" required maxlength="120"></label>
+      <label class="field"><span>E-mail</span><input type="email" name="email" required></label>
+      <label class="field"><span>Senha inicial</span><input type="text" name="password" required minlength="6"><small>Passe para a pessoa; ela pode trocar depois.</small></label>
+      <label class="check"><input type="checkbox" name="is_admin" value="1"> Administrador(a)</label>
+      <button class="btn" type="submit">Adicionar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

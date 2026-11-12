@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, status_tag, csrf %}
+{% block title %}Reserva de {{ b.pet_names }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ b.pet_names }} {{ status_tag(b.status) }}</h1>
+    <p><a href="{{ url_for('cadastros.tutor', tutor_id=b.tutor.id) }}">{{ b.tutor.name }}</a> · {{ b.tutor.phone }} · {{ b.room.name }}</p>
+  </div>
+  <div class="form-actions" style="margin:0">
+    {% if messages.confirmacao and b.status == 'reservada' %}<a class="btn wa" href="{{ messages.confirmacao }}" target="_blank" rel="noopener">WhatsApp: confirmar reserva</a>{% endif %}
+    {% if b.status in ('reservada', 'hospedado') %}<a class="btn ghost" href="{{ url_for('reservas.booking_form', booking_id=b.id) }}">Editar</a>{% endif %}
+    <a class="btn ghost" href="{{ url_for('reservas.receipt', booking_id=b.id) }}">Comprovante</a>
+  </div>
+</div>
+
+<div class="layout-side">
+  <div class="stack">
+    {# --------- Entrada / saída --------- #}
+    {% if b.status == 'reservada' %}
+    <section class="card" id="entrada">
+      <h2>🛬 Entrada (check-in)</h2>
+      {% if has_vaccine_issues %}
+        <div class="alert crit"><strong>Vacinas para conferir antes de receber:</strong>
+          {% for p in b.pets %}{% if vaccine_issues[p.id] %}<div>{{ p.name }}: {{ vaccine_issues[p.id] | join('; ') }} — <a href="{{ url_for('cadastros.pet', pet_id=p.id) }}#vacinas">atualizar</a></div>{% endif %}{% endfor %}
+        </div>
+      {% endif %}
+      <form method="post" action="{{ url_for('reservas.check_in', booking_id=b.id) }}" class="stack">
+        {{ csrf() }}
+        <label class="field"><span>O que o pet trouxe</span><input type="text" name="belongings" maxlength="300" placeholder="Ex.: caminha azul, 2 kg de ração, coleira vermelha, brinquedo"></label>
+        {% if has_vaccine_issues %}<label class="check"><input type="checkbox" name="vacinas_ok" value="1"> Conferi a carteira de vacinação física e autorizo a entrada</label>{% endif %}
+        <div class="form-actions" style="margin-top:4px">
+          <button class="btn" type="submit">Registrar entrada</button>
+        </div>
+      </form>
+      <form method="post" action="{{ url_for('reservas.cancel', booking_id=b.id) }}" data-confirm="Cancelar esta reserva? A acomodação ficará livre." style="margin-top:10px">
+        {{ csrf() }}<button class="btn danger sm" type="submit">Cancelar reserva</button>
+      </form>
+    </section>
+    {% elif b.status == 'hospedado' %}
+    <section class="card" id="saida">
+      <h2>🏡 Saída (check-out)</h2>
+      <p class="muted">Entrou em {{ b.checked_in_at | local_dt | br_date }} às {{ (b.checked_in_at | local_dt).strftime('%H:%M') }}{% if b.belongings %} · trouxe: {{ b.belongings }}{% endif %}.
+        Saída prevista: <strong>{{ b.check_out | br_date }}</strong>{% if b.check_out < today %} <span class="tag crit">passou da data</span>{% endif %}</p>
+      <form method="post" action="{{ url_for('reservas.check_out', booking_id=b.id) }}" class="stack">
+        {{ csrf() }}
+        {% if b.balance_cents > 0 %}
+          <div class="alert">Ainda faltam <strong style="display:inline">{{ b.balance_cents | money }}</strong>. Registre o pagamento abaixo antes da saída.</div>
+          <label class="check"><input type="checkbox" name="saldo_ok" value="1"> Dar saída mesmo com valor pendente</label>
+        {% endif %}
+        <div class="form-actions" style="margin-top:4px">
+          <button class="btn" type="submit">Registrar saída</button>
+          {% if messages.cobranca %}<a class="btn wa" href="{{ messages.cobranca }}" target="_blank" rel="noopener">WhatsApp: enviar valores</a>{% endif %}
+        </div>
+      </form>
+    </section>
+    {% endif %}
+
+    {# --------- Diário --------- #}
+    <section class="card" id="diario">
+      <div class="card-head"><h2>📔 Diário da hospedagem</h2>
+        {% if messages.novidades %}<a class="btn wa sm" href="{{ messages.novidades }}" target="_blank" rel="noopener">Enviar novidades de hoje</a>{% endif %}</div>
+      {% if b.status in ('reservada', 'hospedado') %}
+      <form method="post" action="{{ url_for('reservas.log_add', booking_id=b.id) }}" style="margin-bottom:14px">
+        {{ csrf() }}
+        <div class="form-grid">
+          <label class="field"><span>Tipo</span><select name="kind" required>{% for k, v in LOG_KINDS.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>
+          {% if b.pets | length > 1 %}
+          <label class="field"><span>Pet</span><select name="pet"><option value="">Todos</option>{% for p in b.pets %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select></label>
+          {% endif %}
+          <label class="field full"><span>O que aconteceu</span><input type="text" name="text" required maxlength="500" placeholder="Ex.: comeu toda a ração; tomou o remédio às 8h; brincou no pátio"></label>
+        </div>
+        <div class="form-actions" style="margin-top:10px"><button class="btn ghost" type="submit">+ Registrar</button></div>
+      </form>
+      {% endif %}
+      <ul class="timeline">
+        {% for e in b.logs %}
+          {% set when = e.created_at | local_dt %}
+          <li><div class="when">{{ when.strftime('%d/%m %H:%M') }} · {{ e.user_name }}</div>
+            <div><strong>{{ LOG_KINDS.get(e.kind, '') }}</strong>{% if e.pet %} · {{ e.pet.name }}{% endif %}: {{ e.text }}</div></li>
+        {% else %}<li class="empty" style="border:0">Nada registrado ainda. Anote alimentação, remédios e passeios — o tutor adora receber notícias.</li>{% endfor %}
+      </ul>
+    </section>
+
+    {# --------- Pets --------- #}
+    <section class="card">
+      <h2>Fichas dos pets</h2>
+      {% for p in b.pets %}
+        <div style="display:flex;gap:12px;padding:10px 0;{{ 'border-top:1px solid var(--line)' if not loop.first }}">
+          {{ avatar(p.species) }}
+          <dl class="facts" style="flex:1">
+            <div class="full"><dt>{{ p.breed or SPECIES[p.species] }}{% if p.size %} · porte {{ p.size }}{% endif %}</dt><dd><a href="{{ url_for('cadastros.pet', pet_id=p.id) }}"><strong>{{ p.name }}</strong></a></dd></div>
+            <div><dt>🍽️ Alimentação</dt><dd>{{ p.food or '—' }}</dd></div>
+            <div><dt>💊 Medicação</dt><dd>{{ p.medications or '—' }}</dd></div>
+            <div><dt>⚠️ Alergias</dt><dd>{{ p.allergies or '—' }}</dd></div>
+            <div><dt>Comportamento</dt><dd>{{ p.behavior or '—' }}</dd></div>
+          </dl>
+        </div>
+      {% endfor %}
+      {% if b.tutor.emergency_contact %}<p class="small muted" style="margin:10px 0 0">Emergência: {{ b.tutor.emergency_contact }}</p>{% endif %}
+    </section>
+  </div>
+
+  {# --------- Lateral: valores --------- #}
+  <div class="stack">
+    <section class="card">
+      <h2>Período</h2>
+      <dl class="facts">
+        <div><dt>Entrada</dt><dd>{{ b.check_in | br_date }}</dd></div>
+        <div><dt>Saída</dt><dd>{{ b.check_out | br_date }}</dd></div>
+        <div><dt>Diárias</dt><dd>{{ b.nights }}</dd></div>
+        <div><dt>Acomodação</dt><dd>{{ b.room.name }}</dd></div>
+        {% if b.notes %}<div class="full"><dt>Observações</dt><dd>{{ b.notes }}</dd></div>{% endif %}
+      </dl>
+    </section>
+    <section class="card" id="valores">
+      <h2>💰 Valores</h2>
+      <div class="money-rows">
+        <div><span>{{ b.nights }} diária(s) × {{ b.pets | length }} pet(s) × {{ b.daily_rate_cents | money }}</span><span>{{ b.lodging_cents | money }}</span></div>
+        {% for e in b.extras %}
+          <div><span>{{ e.description }}
+            {% if b.status != 'cancelada' %}<form class="inline" method="post" action="{{ url_for('reservas.extra_delete', extra_id=e.id) }}" data-confirm="Remover {{ e.description }}?">{{ csrf() }}<button class="link-btn" type="submit">remover</button></form>{% endif %}</span>
+            <span>{{ e.price_cents | money }}</span></div>
+        {% endfor %}
+        {% if b.discount_cents %}<div><span>Desconto</span><span>-{{ b.discount_cents | money }}</span></div>{% endif %}
+        <div class="big"><span>Total</span><span>{{ b.total_cents | money }}</span></div>
+        <div><span>Pago</span><span>{{ b.paid_cents | money }}</span></div>
+        <div class="{{ 'due' if b.balance_cents > 0 }}"><span>{{ 'Falta pagar' if b.balance_cents >= 0 else 'Crédito do tutor' }}</span><span>{{ (b.balance_cents if b.balance_cents >= 0 else -b.balance_cents) | money }}</span></div>
+      </div>
+
+      {% if b.status != 'cancelada' %}
+      <details style="margin-top:14px">
+        <summary style="cursor:pointer;font-weight:700">+ Serviço extra</summary>
+        <form method="post" action="{{ url_for('reservas.extra_add', booking_id=b.id) }}" class="stack" style="margin-top:10px">
+          {{ csrf() }}
+          <label class="field"><span>Serviço</span><input type="text" name="description" required maxlength="120" list="extras-sugestoes" placeholder="Banho, transporte..."></label>
+          <datalist id="extras-sugestoes">{% for s in extra_suggestions %}<option value="{{ s }}">{% endfor %}</datalist>
+          <label class="field"><span>Valor (R$)</span><input type="text" name="price" required inputmode="decimal" placeholder="60,00"></label>
+          <button class="btn ghost" type="submit">Adicionar</button>
+        </form>
+      </details>
+      {% endif %}
+
+      <h3 style="margin-top:18px">Pagamentos</h3>
+      <ul class="list">
+        {% for p in b.payments %}
+          <li><div class="grow"><strong>{{ p.amount_cents | money }}</strong> <span class="muted small">{{ PAY_METHODS[p.method] }} · {{ p.paid_on | br_date }}{% if p.note %} · {{ p.note }}{% endif %}</span></div>
+            <form class="inline" method="post" action="{{ url_for('reservas.payment_delete', payment_id=p.id) }}" data-confirm="Remover este pagamento?">{{ csrf() }}<button class="link-btn" type="submit">remover</button></form></li>
+        {% else %}<li class="empty">Nenhum pagamento ainda.</li>{% endfor %}
+      </ul>
+      {% if b.balance_cents > 0 %}
+      <form method="post" action="{{ url_for('reservas.payment_add', booking_id=b.id) }}" class="stack" style="margin-top:10px;border-top:1px solid var(--line);padding-top:12px">
+        {{ csrf() }}
+        <div class="form-grid" style="grid-template-columns:1fr 1fr">
+          <label class="field"><span>Valor (R$)</span><input type="text" name="amount" required inputmode="decimal" value="{{ b.balance_cents | money_input }}"></label>
+          <label class="field"><span>Forma</span><select name="method">{% for k, v in PAY_METHODS.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>
+          <label class="field"><span>Data</span><input type="date" name="paid_on" value="{{ today.isoformat() }}"></label>
+          <label class="field"><span>Obs.</span><input type="text" name="note" maxlength="120" placeholder="Sinal, restante..."></label>
+        </div>
+        <button class="btn" type="submit">Registrar pagamento</button>
+      </form>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

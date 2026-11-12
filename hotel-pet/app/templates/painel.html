@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "_macros.html" import booking_item, csrf %}
+{% block title %}Painel do dia{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Bom trabalho hoje! 🐾</h1>
+    <p>{{ ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'][today.weekday()] }}, {{ today | br_date }}</p>
+  </div>
+  <a class="btn" href="{{ url_for('reservas.booking_form') }}">+ Nova reserva</a>
+</div>
+
+<div class="stats">
+  <div class="stat accent"><div class="label">Pets hospedados agora</div><div class="value">{{ stats.pets }}</div>
+    <div class="hint">em {{ hosted | length }} hospedagem(ns)</div></div>
+  <div class="stat"><div class="label">Ocupação hoje</div><div class="value">{{ stats.rate }}%</div>
+    <div class="hint">{{ stats.occupied }} de {{ stats.rooms }} acomodações</div>
+    <div class="meter"><span style="width: {{ stats.rate }}%"></span></div></div>
+  <div class="stat"><div class="label">Entradas pendentes</div><div class="value">{{ arrivals | length }}</div>
+    <div class="hint">para hoje (ou atrasadas)</div></div>
+  <div class="stat"><div class="label">A receber</div><div class="value">{{ stats.to_receive | money }}</div>
+    <div class="hint">das reservas em aberto</div></div>
+</div>
+
+{% if vaccine_alerts %}
+<div class="alert crit">
+  <strong>⚠️ Vacinas para conferir</strong>
+  {% for b, p, issues in vaccine_alerts %}
+    <div><a href="{{ url_for('cadastros.pet', pet_id=p.id) }}#vacinas">{{ p.name }}</a> ({{ b.tutor.name }}, entrada {{ b.check_in.strftime('%d/%m') }}): {{ issues | join('; ') }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="grid grid-2">
+  <section class="card">
+    <div class="card-head"><h2>🛬 Chegadas</h2><span class="tag">{{ arrivals | length }}</span></div>
+    <ul class="list">
+      {% for b in arrivals %}
+        {% call booking_item(b) %}
+          {% if b.check_in < today %}<span class="tag crit">atrasada</span>{% endif %}
+          <a class="btn sm" href="{{ url_for('reservas.booking', booking_id=b.id) }}#entrada">Fazer entrada</a>
+        {% endcall %}
+      {% else %}<li class="empty">Nenhuma chegada prevista para hoje.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>🏡 Saídas</h2><span class="tag">{{ departures | length }}</span></div>
+    <ul class="list">
+      {% for b in departures %}
+        {% call booking_item(b) %}
+          {% if b.balance_cents > 0 %}<span class="tag crit">falta {{ b.balance_cents | money }}</span>{% endif %}
+          <a class="btn sm" href="{{ url_for('reservas.booking', booking_id=b.id) }}#saida">Dar saída</a>
+        {% endcall %}
+      {% else %}<li class="empty">Nenhuma saída prevista para hoje.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>🐾 Hospedados agora</h2><a class="small" href="{{ url_for('painel.occupancy') }}">ver mapa</a></div>
+    <ul class="list">
+      {% for b in hosted %}
+        {% call booking_item(b) %}
+          <a class="btn ghost sm" href="{{ url_for('reservas.booking', booking_id=b.id) }}#diario">+ Diário</a>
+        {% endcall %}
+      {% else %}<li class="empty">Nenhum pet hospedado no momento.</li>{% endfor %}
+    </ul>
+  </section>
+  <section class="card">
+    <div class="card-head"><h2>📅 Próximos 7 dias</h2></div>
+    <ul class="list">
+      {% for b in upcoming %}{% call booking_item(b) %}{% endcall %}
+      {% else %}<li class="empty">Nenhuma reserva nos próximos dias.</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+{% endblock %}

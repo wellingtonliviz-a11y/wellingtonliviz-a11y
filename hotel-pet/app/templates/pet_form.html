@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ 'Editar pet' if pet.id else 'Novo pet' }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Editar ' + pet.name if pet.id else 'Novo pet' }}</h1><p>Tutor: {{ tutor.name }}</p></div></div>
+<form method="post" class="card">
+  {{ csrf() }}
+  <fieldset>
+    <legend>Identificação</legend>
+    <div class="form-grid">
+      <label class="field"><span>Nome *</span><input type="text" name="name" value="{{ pet.name or '' }}" required maxlength="80"></label>
+      <div class="field"><span style="display:block;font-weight:700;font-size:.86rem;margin-bottom:4px">Espécie *</span>
+        <div class="choices">
+          {% for k, v in SPECIES.items() %}<label class="choice"><input type="radio" name="species" value="{{ k }}" {{ 'checked' if pet.species == k }} required> {{ '🐶' if k == 'cao' else '🐱' }} {{ v }}</label>{% endfor %}
+        </div></div>
+      <label class="field"><span>Raça</span><input type="text" name="breed" value="{{ pet.breed or '' }}" maxlength="80" placeholder="SRD, Poodle, Siamês..."></label>
+      <label class="field" data-dog-only><span>Porte *</span><select name="size">
+        <option value="">Escolha</option>
+        {% for k, v in SIZES.items() %}<option value="{{ k }}" {{ 'selected' if pet.size == k }}>{{ v }}</option>{% endfor %}
+      </select></label>
+      <label class="field"><span>Sexo</span><select name="sex">
+        <option value="">—</option><option value="M" {{ 'selected' if pet.sex == 'M' }}>Macho</option><option value="F" {{ 'selected' if pet.sex == 'F' }}>Fêmea</option>
+      </select></label>
+      <label class="field"><span>Nascimento (aprox.)</span><input type="date" name="birth_date" value="{{ pet.birth_date.isoformat() if pet.birth_date else '' }}"></label>
+      <label class="field"><span>Peso (kg)</span><input type="text" name="weight_kg" value="{{ pet.weight_kg or '' }}" maxlength="10" inputmode="decimal"></label>
+      <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="neutered" value="1" {{ 'checked' if pet.neutered }}> Castrado(a)</label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Cuidados na hospedagem</legend>
+    <div class="form-grid">
+      <label class="field full"><span>Alimentação</span><input type="text" name="food" value="{{ pet.food or '' }}" maxlength="300" placeholder="Ração, quantidade e horários"></label>
+      <label class="field"><span>Medicações</span><input type="text" name="medications" value="{{ pet.medications or '' }}" maxlength="300" placeholder="Remédio, dose e horário"></label>
+      <label class="field"><span>Alergias / restrições</span><input type="text" name="allergies" value="{{ pet.allergies or '' }}" maxlength="300"></label>
+      <label class="field full"><span>Comportamento</span><input type="text" name="behavior" value="{{ pet.behavior or '' }}" maxlength="300" placeholder="Sociável? Medroso? Pode dividir espaço com outros pets?"></label>
+      <label class="field"><span>Veterinário</span><input type="text" name="vet_name" value="{{ pet.vet_name or '' }}" maxlength="120"></label>
+      <label class="field"><span>Telefone do veterinário</span><input type="tel" name="vet_phone" value="{{ pet.vet_phone or '' }}" maxlength="30"></label>
+      <label class="field full"><span>Observações</span><textarea name="notes">{{ pet.notes or '' }}</textarea></label>
+    </div>
+  </fieldset>
+  <div class="form-actions">
+    <button class="btn" type="submit">Salvar</button>
+    <a class="btn ghost" href="{{ url_for('cadastros.pet', pet_id=pet.id) if pet.id else url_for('cadastros.tutor', tutor_id=tutor.id) }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var size = document.querySelector("[data-dog-only]");
+  function sync() {
+    var sp = document.querySelector('input[name="species"]:checked');
+    size.hidden = !sp || sp.value !== "cao";
+  }
+  document.querySelectorAll('input[name="species"]').forEach(function (r) { r.addEventListener("change", sync); });
+  sync();
+})();
+</script>
+{% endblock %}

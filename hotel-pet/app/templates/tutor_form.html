@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ 'Editar tutor' if tutor.id else 'Novo tutor' }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Editar ' + tutor.name if tutor.id else 'Novo tutor' }}</h1>
+  {% if not tutor.id %}<p>Depois de salvar, você cadastra os pets dele(a).</p>{% endif %}</div></div>
+<form method="post" class="card">
+  {{ csrf() }}
+  <div class="form-grid">
+    <label class="field full"><span>Nome completo *</span><input type="text" name="name" value="{{ tutor.name or '' }}" required maxlength="120"></label>
+    <label class="field"><span>Telefone / WhatsApp *</span><input type="tel" name="phone" value="{{ tutor.phone or '' }}" required maxlength="30" placeholder="(12) 99999-9999"></label>
+    <label class="field"><span>E-mail</span><input type="email" name="email" value="{{ tutor.email or '' }}" maxlength="255"></label>
+    <label class="field"><span>CPF</span><input type="text" name="cpf" value="{{ tutor.cpf or '' }}" maxlength="20" inputmode="numeric"><small>Para contrato e nota fiscal</small></label>
+    <label class="field"><span>Contato de emergência</span><input type="text" name="emergency_contact" value="{{ tutor.emergency_contact or '' }}" maxlength="200" placeholder="Nome e telefone"></label>
+    <label class="field full"><span>Endereço</span><input type="text" name="address" value="{{ tutor.address or '' }}" maxlength="300"><small>Útil para o serviço de leva e traz</small></label>
+    <label class="field full"><span>Observações</span><textarea name="notes">{{ tutor.notes or '' }}</textarea></label>
+  </div>
+  <div class="form-actions">
+    <button class="btn" type="submit">Salvar</button>
+    <a class="btn ghost" href="{{ url_for('cadastros.tutor', tutor_id=tutor.id) if tutor.id else url_for('cadastros.tutors') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

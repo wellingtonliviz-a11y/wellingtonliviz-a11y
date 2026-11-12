@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, status_tag %}
+{% block title %}{{ tutor.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{{ tutor.name }}</h1><p>Cliente desde {{ tutor.created_at | local_dt | br_date }}</p></div>
+  <div class="form-actions" style="margin:0">
+    <a class="btn ghost" href="{{ url_for('cadastros.tutor_form', tutor_id=tutor.id) }}">Editar</a>
+    {% if tutor.pets %}<a class="btn" href="{{ url_for('reservas.booking_form', tutor=tutor.id) }}">+ Nova reserva</a>{% endif %}
+  </div>
+</div>
+<div class="layout-side">
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Pets</h2><a class="btn sm" href="{{ url_for('cadastros.pet_form', tutor=tutor.id) }}">+ Cadastrar pet</a></div>
+      <ul class="list">
+        {% for p in tutor.pets %}
+          <li>{{ avatar(p.species) }}
+            <div class="grow"><a class="title" href="{{ url_for('cadastros.pet', pet_id=p.id) }}">{{ p.name }}</a>
+              <div class="muted small">{{ p.breed or SPECIES[p.species] }}{% if p.size %} · porte {{ SIZES[p.size] | lower }}{% endif %}{% if p.birth_date %} · {{ p.age_text(today) }}{% endif %}</div></div>
+            {% set issues = p.vaccine_issues(today) %}
+            {% if issues %}<span class="tag crit">vacina pendente</span>{% else %}<span class="tag ok">vacinas em dia</span>{% endif %}
+          </li>
+        {% else %}<li class="empty">Nenhum pet cadastrado. Cadastre para poder reservar.</li>{% endfor %}
+      </ul>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Hospedagens</h2></div>
+      <ul class="list">
+        {% for b in tutor.bookings %}
+          <li><div class="grow"><a class="title" href="{{ url_for('reservas.booking', booking_id=b.id) }}">{{ b.check_in | br_date }} → {{ b.check_out | br_date }}</a>
+            <div class="muted small">{{ b.pet_names }} · {{ b.room.name }} · {{ b.total_cents | money }}</div></div>
+            {{ status_tag(b.status) }}</li>
+        {% else %}<li class="empty">Ainda não se hospedou.</li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+  <section class="card">
+    <h2>Contato</h2>
+    <dl class="facts">
+      <div class="full"><dt>Telefone</dt><dd>{{ tutor.phone }}</dd></div>
+      {% if tutor.email %}<div class="full"><dt>E-mail</dt><dd>{{ tutor.email }}</dd></div>{% endif %}
+      {% if tutor.cpf %}<div class="full"><dt>CPF</dt><dd>{{ tutor.cpf }}</dd></div>{% endif %}
+      {% if tutor.emergency_contact %}<div class="full"><dt>Emergência</dt><dd>{{ tutor.emergency_contact }}</dd></div>{% endif %}
+      {% if tutor.address %}<div class="full"><dt>Endereço</dt><dd>{{ tutor.address }}</dd></div>{% endif %}
+      {% if tutor.notes %}<div class="full"><dt>Observações</dt><dd>{{ tutor.notes }}</dd></div>{% endif %}
+    </dl>
+  </section>
+</div>
+{% endblock %}

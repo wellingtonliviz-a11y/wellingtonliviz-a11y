@@ -1,0 +1,16 @@
+{% macro avatar(species) %}<span class="avatar {{ species }}" aria-hidden="true">{{ '🐶' if species == 'cao' else '🐱' }}</span>{% endmacro %}
+
+{% macro status_tag(status) %}<span class="tag {{ status }}">{{ STATUS[status] }}</span>{% endmacro %}
+
+{% macro booking_item(b, show_dates=true) %}
+<li>
+  {{ avatar(b.room.species) }}
+  <div class="grow">
+    <a class="title" href="{{ url_for('reservas.booking', booking_id=b.id) }}">{{ b.pet_names }}</a>
+    <div class="muted small">{{ b.tutor.name }} · {{ b.room.name }}{% if show_dates %} · {{ b.check_in.strftime('%d/%m') }} → {{ b.check_out.strftime('%d/%m') }}{% endif %}</div>
+  </div>
+  {{ caller() if caller }}
+</li>
+{% endmacro %}
+
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}

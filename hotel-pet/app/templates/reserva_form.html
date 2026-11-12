@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ 'Editar reserva' if booking else 'Nova reserva' }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Editar reserva' if booking else 'Nova reserva' }}</h1>
+  <p>A saída libera a acomodação no mesmo dia. Cada diária é cobrada por pet.</p></div></div>
+<form method="post" class="card" id="booking-form">
+  {{ csrf() }}
+  <fieldset>
+    <legend>1. Tutor e pets</legend>
+    <div class="form-grid">
+      <label class="field full"><span>Tutor *</span>
+        <select name="tutor" data-reload required {{ 'disabled' if booking }}>
+          <option value="">Escolha o tutor</option>
+          {% for t in tutors %}<option value="{{ t.id }}" {{ 'selected' if tutor and tutor.id == t.id }}>{{ t.name }} · {{ t.phone }}</option>{% endfor %}
+        </select>
+        {% if booking %}<input type="hidden" name="tutor" value="{{ booking.tutor_id }}">{% endif %}
+        <small>Não está na lista? <a href="{{ url_for('cadastros.tutor_form') }}">Cadastre o tutor</a> primeiro.</small>
+      </label>
+      {% if tutor %}
+      <div class="field full"><span style="display:block;font-weight:700;font-size:.86rem;margin-bottom:6px">Pets que vão se hospedar *</span>
+        <div class="choices">
+          {% for p in tutor.pets %}
+            <label class="choice"><input type="checkbox" name="pets" value="{{ p.id }}" {{ 'checked' if p.id in pet_ids }} data-species="{{ p.species }}">
+              {{ p.icon }} {{ p.name }}{% if p.size %} <span class="muted small">porte {{ p.size }}</span>{% endif %}</label>
+          {% else %}
+            <p class="empty">Este tutor não tem pets. <a href="{{ url_for('cadastros.pet_form', tutor=tutor.id) }}">Cadastrar pet</a></p>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>2. Datas e acomodação</legend>
+    <div class="form-grid">
+      <label class="field"><span>Entrada *</span><input type="date" name="check_in" value="{{ check_in.isoformat() if check_in else '' }}" required data-reload></label>
+      <label class="field"><span>Saída *</span><input type="date" name="check_out" value="{{ check_out.isoformat() if check_out else '' }}" required data-reload></label>
+      <label class="field full"><span>Acomodação *</span>
+        <select name="room" required>
+          <option value="">Escolha</option>
+          {% for r, free in rooms %}
+            <option value="{{ r.id }}" data-rate="{{ r.daily_rate_cents | money_input }}" data-species="{{ r.species }}" {{ 'selected' if room_id == r.id }} {{ 'disabled' if free is false and room_id != r.id }}>
+              {{ '🐶' if r.species == 'cao' else '🐱' }} {{ r.name }} — {% if r.species == 'cao' %}até porte {{ r.max_size }}, {% endif %}{{ r.capacity }} pet(s) — {{ r.daily_rate_cents | money }}/dia{% if free is false %} (ocupada){% elif free %} ✓ livre{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+        <small>{% if check_in and check_out %}Disponibilidade calculada para as datas escolhidas.{% else %}Escolha as datas para ver o que está livre.{% endif %}</small>
+      </label>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>3. Valores</legend>
+    <div class="form-grid">
+      <label class="field"><span>Diária por pet (R$)</span><input type="text" name="daily_rate" value="{{ rate_text }}" inputmode="decimal" placeholder="padrão da acomodação"><small>Vazio = valor da acomodação</small></label>
+      <label class="field"><span>Desconto (R$)</span><input type="text" name="discount" value="{{ discount_text }}" inputmode="decimal" placeholder="0,00"></label>
+      <div class="field"><span style="display:block;font-weight:700;font-size:.86rem;margin-bottom:4px">Estimativa</span>
+        <div id="estimate" style="font-family:var(--font-display);font-size:1.4rem;font-weight:600">—</div>
+        <small class="muted" id="estimate-detail"></small></div>
+      <label class="field full"><span>Observações da reserva</span><textarea name="notes" placeholder="Ex.: vai trazer a própria caminha; tutor busca às 18h">{{ notes }}</textarea></label>
+    </div>
+  </fieldset>
+  <div class="form-actions">
+    <button class="btn" type="submit">{{ 'Salvar alterações' if booking else 'Criar reserva' }}</button>
+    <a class="btn ghost" href="{{ url_for('reservas.booking', booking_id=booking.id) if booking else url_for('reservas.bookings') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var form = document.getElementById("booking-form");
+  function money(s) { s = (s || "").replace(/[^\d,.]/g, ""); if (s.indexOf(",") >= 0) s = s.replace(/\./g, "").replace(",", "."); return parseFloat(s) || 0; }
+  function brl(v) { return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+  // trocar tutor ou datas recarrega a página para mostrar os pets e as acomodações livres
+  form.querySelectorAll("[data-reload]").forEach(function (el) {
+    el.addEventListener("change", function () {
+      var ci = form.check_in.value, co = form.check_out.value;
+      if ((el.name === "check_in" || el.name === "check_out") && (!ci || !co)) return update();
+      var params = new URLSearchParams();
+      ["tutor", "check_in", "check_out", "room", "daily_rate", "discount", "notes"].forEach(function (n) {
+        var f = form.querySelector('[name="' + n + '"]:not([disabled])'); if (f && f.value) params.set(n, f.value);
+      });
+      if (el.name !== "tutor") form.querySelectorAll('input[name="pets"]:checked').forEach(function (c) { params.append("pets", c.value); });
+      window.location.search = params.toString();
+    });
+  });
+  form.room.addEventListener("change", function () {
+    var opt = form.room.selectedOptions[0];
+    if (opt && opt.dataset.rate) form.daily_rate.value = opt.dataset.rate;
+    update();
+  });
+  function filterRooms() {
+    var species = {};
+    form.querySelectorAll('input[name="pets"]:checked').forEach(function (c) { species[c.dataset.species] = 1; });
+    var keys = Object.keys(species);
+    Array.prototype.forEach.call(form.room.options, function (o) {
+      if (o.dataset.species) o.hidden = keys.length === 1 && o.dataset.species !== keys[0];
+    });
+    var sel = form.room.selectedOptions[0];
+    if (sel && sel.hidden) form.room.value = "";
+  }
+  form.querySelectorAll('input[name="pets"]').forEach(function (c) { c.addEventListener("change", filterRooms); });
+  filterRooms();
+  function update() {
+    var ci = new Date(form.check_in.value), co = new Date(form.check_out.value);
+    var nights = Math.round((co - ci) / 86400000);
+    var pets = form.querySelectorAll('input[name="pets"]:checked').length;
+    var opt = form.room.selectedOptions[0];
+    var rate = form.daily_rate.value ? money(form.daily_rate.value) : money(opt && opt.dataset.rate);
+    var est = document.getElementById("estimate"), det = document.getElementById("estimate-detail");
+    if (!(nights > 0) || !pets || !rate) { est.textContent = "—"; det.textContent = "escolha pets, datas e acomodação"; return; }
+    est.textContent = brl(Math.max(nights * pets * rate - money(form.discount.value), 0));
+    det.textContent = nights + " diária(s) × " + pets + " pet(s) × " + brl(rate) + " (sem extras)";
+  }
+  form.addEventListener("input", update);
+  form.addEventListener("change", update);
+  update();
+})();
+</script>
+{% endblock %}

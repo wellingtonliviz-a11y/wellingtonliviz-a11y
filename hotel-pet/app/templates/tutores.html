@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar %}
+{% block title %}Tutores e pets{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Tutores e pets</h1><p>Busque pelo nome do tutor, do pet ou pelo telefone</p></div>
+  <a class="btn" href="{{ url_for('cadastros.tutor_form') }}">+ Novo tutor</a>
+</div>
+<form class="search" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Ex.: Ana, Thor, 99123" aria-label="Buscar">
+  <button class="btn ghost" type="submit">Buscar</button>
+</form>
+<div class="card">
+  <ul class="list">
+    {% for t in tutors %}
+      <li>
+        <div class="grow">
+          <a class="title" href="{{ url_for('cadastros.tutor', tutor_id=t.id) }}">{{ t.name }}</a>
+          <div class="muted small">{{ t.phone }}{% if t.email %} · {{ t.email }}{% endif %}</div>
+        </div>
+        <div class="choices">
+          {% for p in t.pets %}<a class="tag {{ p.species }}" href="{{ url_for('cadastros.pet', pet_id=p.id) }}" style="text-decoration:none">{{ p.icon }} {{ p.name }}</a>{% endfor %}
+        </div>
+      </li>
+    {% else %}
+      <li class="empty">{% if q %}Nada encontrado para “{{ q }}”.{% else %}Nenhum tutor cadastrado ainda.{% endif %}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

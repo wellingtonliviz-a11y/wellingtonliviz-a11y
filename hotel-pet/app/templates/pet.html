@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "_macros.html" import avatar, status_tag, csrf %}
+{% block title %}{{ pet.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div style="display:flex;gap:12px;align-items:center">{{ avatar(pet.species) }}
+    <div><h1>{{ pet.name }}</h1><p>{{ pet.breed or SPECIES[pet.species] }} · tutor <a href="{{ url_for('cadastros.tutor', tutor_id=pet.tutor.id) }}">{{ pet.tutor.name }}</a></p></div></div>
+  <div class="form-actions" style="margin:0">
+    <a class="btn ghost" href="{{ url_for('cadastros.pet_form', pet_id=pet.id) }}">Editar ficha</a>
+    <a class="btn" href="{{ url_for('reservas.booking_form', tutor=pet.tutor.id, pets=pet.id) }}">+ Reservar</a>
+  </div>
+</div>
+<div class="layout-side">
+  <div class="stack">
+    <section class="card">
+      <h2>Ficha</h2>
+      <dl class="facts">
+        <div><dt>Espécie</dt><dd>{{ SPECIES[pet.species] }}</dd></div>
+        {% if pet.size %}<div><dt>Porte</dt><dd>{{ SIZES[pet.size] }}</dd></div>{% endif %}
+        <div><dt>Sexo</dt><dd>{{ {'M': 'Macho', 'F': 'Fêmea'}.get(pet.sex, '—') }}{{ ' · castrado(a)' if pet.neutered }}</dd></div>
+        <div><dt>Idade</dt><dd>{{ pet.age_text(today) or '—' }}</dd></div>
+        <div><dt>Peso</dt><dd>{{ (pet.weight_kg + ' kg') if pet.weight_kg else '—' }}</dd></div>
+        <div class="full"><dt>🍽️ Alimentação</dt><dd>{{ pet.food or '—' }}</dd></div>
+        <div class="full"><dt>💊 Medicações</dt><dd>{{ pet.medications or '—' }}</dd></div>
+        <div class="full"><dt>⚠️ Alergias / restrições</dt><dd>{{ pet.allergies or '—' }}</dd></div>
+        <div class="full"><dt>Comportamento</dt><dd>{{ pet.behavior or '—' }}</dd></div>
+        <div class="full"><dt>Veterinário</dt><dd>{{ pet.vet_name or '—' }}{% if pet.vet_phone %} · {{ pet.vet_phone }}{% endif %}</dd></div>
+        {% if pet.notes %}<div class="full"><dt>Observações</dt><dd>{{ pet.notes }}</dd></div>{% endif %}
+      </dl>
+    </section>
+    <section class="card">
+      <h2>Histórico de hospedagens</h2>
+      <ul class="list">
+        {% for b in stays %}
+          <li><div class="grow"><a class="title" href="{{ url_for('reservas.booking', booking_id=b.id) }}">{{ b.check_in | br_date }} → {{ b.check_out | br_date }}</a>
+            <div class="muted small">{{ b.room.name }} · {{ b.nights }} diária(s)</div></div>{{ status_tag(b.status) }}</li>
+        {% else %}<li class="empty">Ainda não se hospedou.</li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+  <section class="card" id="vacinas">
+    <h2>💉 Vacinas</h2>
+    <ul class="list">
+      {% for v in pet.vaccines %}
+        <li><div class="grow"><strong>{{ v.name }}</strong>
+          <div class="muted small">{% if v.applied_on %}aplicada {{ v.applied_on | br_date }} · {% endif %}vale até {{ v.valid_until | br_date }}</div></div>
+          {% if v.valid_until < today %}<span class="tag crit">vencida</span>{% elif (v.valid_until - today).days <= 30 %}<span class="tag reservada">vence logo</span>{% else %}<span class="tag ok">ok</span>{% endif %}
+          <form class="inline" method="post" action="{{ url_for('cadastros.vaccine_delete', vaccine_id=v.id) }}" data-confirm="Remover a vacina {{ v.name }}?">{{ csrf() }}<button class="link-btn" type="submit" aria-label="Remover {{ v.name }}">remover</button></form>
+        </li>
+      {% else %}<li class="empty">Nenhuma vacina cadastrada.</li>{% endfor %}
+    </ul>
+    <form method="post" action="{{ url_for('cadastros.vaccine_add', pet_id=pet.id) }}" style="margin-top:14px;border-top:1px solid var(--line);padding-top:14px">
+      {{ csrf() }}
+      <div class="stack">
+        <label class="field"><span>Vacina</span><input type="text" name="name" required maxlength="60" list="vacinas-sugestoes" placeholder="{{ 'V10, Antirrábica, Gripe...' if pet.species == 'cao' else 'V4, V5, Antirrábica...' }}"></label>
+        <datalist id="vacinas-sugestoes">
+          {% for n in (['V8', 'V10', 'Antirrábica', 'Gripe canina (tosse dos canis)', 'Giárdia', 'Leishmaniose'] if pet.species == 'cao' else ['V3', 'V4', 'V5', 'Antirrábica', 'FeLV']) %}<option value="{{ n }}">{% endfor %}
+        </datalist>
+        <div class="form-grid">
+          <label class="field"><span>Aplicada em</span><input type="date" name="applied_on"></label>
+          <label class="field"><span>Válida até *</span><input type="date" name="valid_until" required></label>
+        </div>
+        <button class="btn ghost" type="submit">+ Adicionar vacina</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

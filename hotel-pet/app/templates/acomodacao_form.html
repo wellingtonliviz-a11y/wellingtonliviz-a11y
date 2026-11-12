@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}{{ 'Editar acomodação' if room.id else 'Nova acomodação' }}{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ 'Editar ' + room.name if room.id else 'Nova acomodação' }}</h1></div></div>
+<form method="post" class="card" style="max-width:720px">
+  {{ csrf() }}
+  <div class="form-grid">
+    <label class="field"><span>Nome *</span><input type="text" name="name" value="{{ room.name or '' }}" required maxlength="60" placeholder="Baia 1, Suíte Master, Gatil A"></label>
+    <label class="field"><span>Para *</span><select name="species" id="species">
+      <option value="cao" {{ 'selected' if room.species == 'cao' }}>🐶 Cães</option>
+      <option value="gato" {{ 'selected' if room.species == 'gato' }}>🐱 Gatos</option></select></label>
+    <label class="field" id="size-field"><span>Porte máximo</span><select name="max_size">
+      {% for k, v in SIZES.items() %}<option value="{{ k }}" {{ 'selected' if room.max_size == k }}>Até {{ v | lower }}</option>{% endfor %}</select></label>
+    <label class="field"><span>Quantos pets (da mesma família)</span><input type="number" name="capacity" min="1" max="20" value="{{ room.capacity or 1 }}"></label>
+    <label class="field"><span>Diária por pet (R$) *</span><input type="text" name="daily_rate" value="{{ room.daily_rate_cents | money_input if room.id else '' }}" required inputmode="decimal" placeholder="80,00"></label>
+    <label class="field full"><span>Descrição</span><input type="text" name="description" value="{{ room.description or '' }}" maxlength="200"></label>
+    <label class="check full"><input type="checkbox" name="active" value="1" {{ 'checked' if room.active }}> Em uso (aparece nas reservas e no mapa)</label>
+  </div>
+  <div class="form-actions"><button class="btn" type="submit">Salvar</button><a class="btn ghost" href="{{ url_for('gestao.rooms') }}">Cancelar</a></div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  var s = document.getElementById("species"), f = document.getElementById("size-field");
+  function sync() { f.hidden = s.value !== "cao"; }
+  s.addEventListener("change", sync); sync();
+})();
+</script>
+{% endblock %}
